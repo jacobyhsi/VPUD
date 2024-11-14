@@ -1,0 +1,7 @@
+{
+    "label": "whether a patient has diabetes",
+    "map": {
+        "0" : "no",
+        "1" : "yes"
+    }
+}
