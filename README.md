@@ -4,7 +4,7 @@
 
 ```pip install torch accelerate transformers pandas matplotlib datasets scikit-learn flask```
 
-Before running llm.py, please fill in your huggingface login token in the file. 
+Before running ```llm.py```, please fill in your huggingface login token in ```llm.py```. 
 
 ```python llm.py --llm "llama70b-nemo"```
 
