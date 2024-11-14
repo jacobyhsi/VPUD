@@ -97,65 +97,14 @@ def get_response(llm, prompt, label_keys):
     # Get the probabilities
     prob_dist = softmax(score, dim=-1)
 
-    # # Get the top 5 tokens and their probabilities, excluding the predicted token
-    # top5_probs, top5_token_ids = torch.topk(prob_dist, k=6)  # Get top 6 to account for excluding predicted token
-    # top5_tokens = []
-    # top5_probs_list = []
-
-    # for token_id, prob in zip(top5_token_ids[0].tolist(), top5_probs[0].tolist()):
-    #     token_str = tokenizer.decode([token_id]).strip()
-    #     if token_str != predicted_token:
-    #         top5_tokens.append(token_str)
-    #         top5_probs_list.append(prob)
-    #     if len(top5_tokens) == 5:
-    #         break
-
     # Build the probability distribution
     probability_distribution = {
         label: round(prob_dist[0, tokenizer.convert_tokens_to_ids(label)].item(), 5)
         for label in label_keys
     }
     
-    # # Get probabilities for other tokens in label_keys (excluding predicted token)
-    # for label in label_keys:
-    #     if label != predicted_token:
-    #         label_id = tokenizer.convert_tokens_to_ids(label)
-    #         label_prob = prob_dist[0, label_id].item()
-    #         probability_distribution['other_tokens'].append((label, label_prob))
-    
-    # print(response_text)
-    # print(predicted_token)
-    # print(probability_distribution)
-    
     return response_text, probability_distribution
 
-
-    # for i, (score, token_id) in enumerate(zip(outputs.scores, generated_token_ids)):
-    #     # Apply softmax to get probability distribution for the current step
-    #     prob_dist = softmax(score, dim=-1)
-    #     # Extract the probability of the generated token
-    #     token_prob = prob_dist[0, token_id].item()
-    #     probabilities.append(token_prob)
-    #     # Get the token string
-    #     token_str = tokenizer.decode([token_id])
-    #     tokens.append(token_str)
-    #     # Print the token and its probability
-    #     print(f"Token: '{token_str}', Probability: {token_prob}")
-    
-    # # Calculate probabilities for each generated token in the response
-    # probabilities = []
-    # for i, score in enumerate(outputs.scores):
-    #     # Apply softmax to get probability distribution for the current step
-    #     prob_dist = softmax(score, dim=-1)
-        
-    #     # Get the ID of the generated token at this step
-    #     token_id = outputs.sequences[:, input_ids['input_ids'].shape[1] + i]  # Offset by prompt length
-        
-    #     # Extract the probability of the generated token
-    #     token_prob = prob_dist[0, token_id].item()
-    #     probabilities.append(token_prob)
-    
-    # return response_text, probabilities
 
 # Create the LLM instance
 llm = {"tokenizer": tokenizer, "model": model}
