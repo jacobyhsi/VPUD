@@ -6,7 +6,7 @@ from flask import Flask, request, jsonify
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from huggingface_hub import login
 
-login(token = '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')
+login(token = '')
 parser = argparse.ArgumentParser(description='Description of your program')
 parser.add_argument("--llm", default="llama70b-nemo")
 args = parser.parse_args()
