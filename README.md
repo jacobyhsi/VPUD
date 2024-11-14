@@ -1,3 +1,4 @@
+# Variational Predictive Uncertainty Decomposition
 ```conda create -n vpud python=3.10```
 
 ```conda activate vpud```
