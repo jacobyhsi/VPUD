@@ -1,14 +1,17 @@
-unique_values,prediction_probs,prediction,true_label,entropy
-"['finished 9th class' 'high school graduate'
- 'college for less than one year']","{'0': 0.99331, '1': 0.00669}",0,0,0.05795
-['doctoral degree' 'high school graduate' 'professional degree'],"{'0': 0.97967, '1': 0.02033}",0,0,0.14329
-"['finished 12th class without diploma' 'college for less than one year'
- 'finished 10th class']","{'0': 0.96691, '1': 0.03309}",0,0,0.20966
-"['finished 8th class' ""associate's degree"" 'finished 4th class']","{'0': 0.04209, '1': 0.95791}",1,1,0.25179
-"['finished 6th class' ""associate's degree"" 'finished 11th class']","{'0': 0.90464, '1': 0.09536}",0,0,0.45411
-['doctoral degree' 'finished 6th class' 'finished 9th class'],"{'0': 0.10669, '1': 0.89331}",1,1,0.48985
-"[""master's degree"" 'finished 11th class' 'finished 6th class']","{'0': 0.85195, '1': 0.14805}",0,1,0.60494
-"['doctoral degree' ""master's degree"" 'college for less than one year']","{'0': 0.79819, '1': 0.20181}",0,1,0.72553
-"[""associate's degree"" 'finished 12th class without diploma'
- 'finished 6th class']","{'0': 0.2227, '1': 0.7773}",1,0,0.76507
-"['finished 9th class' ""associate's degree"" 'professional degree']","{'0': 0.5312, '1': 0.4688}",0,1,0.99719
+Education_values,prediction_probs,prediction,true_label,entropy
+"['college for one or more years without a degree' ""master's degree""
+ 'professional degree']","{'0': 0.98902, '1': 0.01098}",0,0,0.08722
+['finished 10th class' 'no schooling' 'finished 8th class'],"{'0': 0.01799, '1': 0.98201}",1,1,0.13
+"['finished 11th class' 'finished 12th class without diploma'
+ 'finished 8th class']","{'0': 0.97404, '1': 0.02596}",0,0,0.17371
+"[""associate's degree"" 'doctoral degree' 'finished 9th class']","{'0': 0.96267, '1': 0.03733}",0,0,0.22991
+"['college for less than one year' 'finished 10th class'
+ ""associate's degree""]","{'0': 0.0851, '1': 0.9149}",1,0,0.4199
+"['finished 6th class' ""master's degree"" ""bachelor's degree""]","{'0': 0.1192, '1': 0.8808}",1,1,0.52706
+"['college for one or more years without a degree' 'high school graduate'
+ 'professional degree']","{'0': 0.86703, '1': 0.13297}",0,0,0.56553
+"['college for less than one year' ""bachelor's degree""
+ 'finished 11th class']","{'0': 0.81758, '1': 0.18242}",0,1,0.68534
+['professional degree' 'finished 4th class' 'doctoral degree'],"{'0': 0.7773, '1': 0.2227}",0,0,0.76507
+"['finished 12th class without diploma' ""master's degree""
+ 'college for one or more years without a degree']","{'0': 0.62245, '1': 0.37755}",0,1,0.95629

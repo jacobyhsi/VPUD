@@ -1,9 +1,0 @@
-unique_values,entropy,prediction_probs,prediction,true_label
-"['finished 4th class' 'college for less than one year'
- 'finished 6th class']",0.49138,"{'0': 0.6148343682289124, '1': 0.008770140819251537}",0,0
-"['finished 9th class' ""bachelor's degree"" 'no schooling']",0.56635,"{'0': 0.01701323129236698, '1': 0.5634008646011353}",1,0
-"['finished 11th class' 'professional degree' ""master's degree""]",0.6208,"{'0': 0.5386433005332947, '1': 0.02681747078895569}",0,0
-"['finished 8th class' 'finished 12th class without diploma'
- ""associate's degree""]",0.62355,"{'0': 0.031913891434669495, '1': 0.5656872391700745}",1,1
-"['finished 10th class' 'finished 11th class'
- 'college for one or more years without a degree']",0.80634,"{'0': 0.08669482916593552, '1': 0.4988943338394165}",1,1

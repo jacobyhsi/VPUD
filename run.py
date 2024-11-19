@@ -236,7 +236,7 @@ for _ in range(num_sets):
     print("entropy:", entropy)
     
     data_rows.append({
-        'unique_values': str(unique_values),  # Convert tuple to string for readability
+        f'{selected_feature}_values': str(unique_values),  # Convert tuple to string for readability
         'prediction_probs': probs,  # Assuming filtered_probs is a dictionary
         'prediction': int(pred_label),
         'true_label': int(y),
