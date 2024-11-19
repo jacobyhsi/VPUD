@@ -6,7 +6,7 @@ from flask import Flask, request, jsonify
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from huggingface_hub import login
 
-login(token = '')
+login(token = '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')
 parser = argparse.ArgumentParser(description='Description of your program')
 parser.add_argument("--llm", default="llama70b-nemo")
 args = parser.parse_args()
@@ -102,8 +102,14 @@ def get_response(llm, prompt, label_keys):
         label: round(prob_dist[0, tokenizer.convert_tokens_to_ids(label)].item(), 5)
         for label in label_keys
     }
+
+    total_prob = sum(probability_distribution.values())
+    normalized_probability_distribution = {
+        label: round(prob / total_prob, 5)
+        for label, prob in probability_distribution.items()
+    }
     
-    return response_text, probability_distribution
+    return response_text, normalized_probability_distribution
 
 
 # Create the LLM instance

@@ -237,10 +237,10 @@ for _ in range(num_sets):
     
     data_rows.append({
         'unique_values': str(unique_values),  # Convert tuple to string for readability
-        'entropy': entropy,
         'prediction_probs': probs,  # Assuming filtered_probs is a dictionary
         'prediction': int(pred_label),
-        'true_label': int(y)
+        'true_label': int(y),
+        'entropy': entropy
     })
 
 df_results = pd.DataFrame(data_rows).sort_values(by='entropy', ascending=True)
@@ -249,7 +249,7 @@ print(df_results)
 
 print("Accuracy:", (df_results['prediction'] == df_results['true_label']).mean())
 
-df_results.to_csv("results.csv", index=False)
+df_results.to_csv(f"results_{args.data}.csv", index=False)
 ################################################################################################
 ######################################### P(y|x,u,z) ###########################################
 ################################################################################################

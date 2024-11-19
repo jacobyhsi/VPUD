@@ -1,0 +1,14 @@
+unique_values,prediction_probs,prediction,true_label,entropy
+"['finished 9th class' 'high school graduate'
+ 'college for less than one year']","{'0': 0.99331, '1': 0.00669}",0,0,0.05795
+['doctoral degree' 'high school graduate' 'professional degree'],"{'0': 0.97967, '1': 0.02033}",0,0,0.14329
+"['finished 12th class without diploma' 'college for less than one year'
+ 'finished 10th class']","{'0': 0.96691, '1': 0.03309}",0,0,0.20966
+"['finished 8th class' ""associate's degree"" 'finished 4th class']","{'0': 0.04209, '1': 0.95791}",1,1,0.25179
+"['finished 6th class' ""associate's degree"" 'finished 11th class']","{'0': 0.90464, '1': 0.09536}",0,0,0.45411
+['doctoral degree' 'finished 6th class' 'finished 9th class'],"{'0': 0.10669, '1': 0.89331}",1,1,0.48985
+"[""master's degree"" 'finished 11th class' 'finished 6th class']","{'0': 0.85195, '1': 0.14805}",0,1,0.60494
+"['doctoral degree' ""master's degree"" 'college for less than one year']","{'0': 0.79819, '1': 0.20181}",0,1,0.72553
+"[""associate's degree"" 'finished 12th class without diploma'
+ 'finished 6th class']","{'0': 0.2227, '1': 0.7773}",1,0,0.76507
+"['finished 9th class' ""associate's degree"" 'professional degree']","{'0': 0.5312, '1': 0.4688}",0,1,0.99719
