@@ -1,0 +1,1 @@
+python run.py --seed 1 2>&1 | tee run.txt

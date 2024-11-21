@@ -4,12 +4,17 @@ import re
 from torch.nn.functional import softmax
 from flask import Flask, request, jsonify
 from transformers import AutoTokenizer, AutoModelForCausalLM
+from transformers import set_seed
 from huggingface_hub import login
 
-login(token = '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')
 parser = argparse.ArgumentParser(description='Description of your program')
 parser.add_argument("--llm", default="llama70b-nemo")
 args = parser.parse_args()
+
+# Initialize the Flask app
+app = Flask(__name__)
+
+login(token = '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')
 
 if args.llm == "gemma9b":
     model_id = "google/gemma-2-9b-it"
@@ -20,21 +25,28 @@ elif args.llm == "llama70b":
 elif args.llm == "llama70b-nemo":
     model_id = "nvidia/Llama-3.1-Nemotron-70B-Instruct-HF"
 
-# Initialize the Flask app
-app = Flask(__name__)
-
 # Load the model and tokenizer
 
 tokenizer = AutoTokenizer.from_pretrained(model_id)
 tokenizer.pad_token = tokenizer.eos_token
 model = AutoModelForCausalLM.from_pretrained(model_id, device_map="auto", torch_dtype=torch.bfloat16)
 
+# Create the LLM instance
+llm = {"tokenizer": tokenizer, "model": model}
+
 # Define get_response function
-def get_response(llm, prompt, label_keys):
+def get_response(llm, prompt, label_keys, seed):
+    
+    # print("seed", seed)
+    set_seed(seed)
+    
+    
     tokenizer, model = llm["tokenizer"], llm["model"]
     input_ids = tokenizer(prompt, return_tensors="pt").to("cuda")
     outputs = model.generate(**input_ids, max_new_tokens=2048, pad_token_id=tokenizer.eos_token_id,
-                             output_scores=True, return_dict_in_generate=True)
+                             output_scores=True, return_dict_in_generate=True, do_sample = True, temperature = 0.5)
+    # outputs = model.generate(**input_ids, max_new_tokens=2048, pad_token_id=tokenizer.eos_token_id,
+                            #  output_scores=True, return_dict_in_generate=True, do_sample = True, top_p=0.9, top_k = 50)
     gen_text = tokenizer.decode(outputs.sequences[0])
     
     # Find the starting point of the prompt in the generated text
@@ -111,16 +123,13 @@ def get_response(llm, prompt, label_keys):
     
     return response_text, normalized_probability_distribution
 
-
-# Create the LLM instance
-llm = {"tokenizer": tokenizer, "model": model}
-
 @app.route('/predict', methods=['POST'])
 def predict():
     data = request.json
     prompt = data.get('prompt', '')
     label_keys = data.get('label_keys', [])
-    response_text, probabilities = get_response(llm, prompt, label_keys)
+    seed = data.get('seed')
+    response_text, probabilities = get_response(llm, prompt, label_keys, seed)
     return jsonify({'response_text': response_text, 'probabilities': probabilities})
 
 if __name__ == "__main__":
