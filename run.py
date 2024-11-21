@@ -230,6 +230,7 @@ set_dict = {}
 ################################################################################################
 # icl_initial_row = data.sample(n=1, random_state=seed)
 initial_row = data.sample(n=1)
+print("Initial Row:\n", initial_row['note'])
 data = data.drop(initial_row.index)
 
 # exit() # here first to check whats the feature column names
@@ -271,7 +272,7 @@ x = x_row['note'].iloc[0]
 avg_puz_probs = {label: 0.0 for label in label_keys}
 
 avg_pyxu_z_probs = {
-    f"p(y|x,u{idx},z)": {label: 0.0 for label in label_keys}
+    f"p(y|x,u={idx},z)": {label: 0.0 for label in label_keys}
     for idx in range(len(label_keys))
 }
 
@@ -291,11 +292,11 @@ for i, row in z_data.iterrows():
 
     # Initialize avg_pyxu_z_probs with distinct keys for each label
     avg_pyxu_z_probs = {
-        f"p(y|x,u{outer_label},z)": {inner_label: 0.0 for inner_label in label_keys}
+        f"p(y|x,u={outer_label},z)": {inner_label: 0.0 for inner_label in label_keys}
         for outer_label in label_keys
     }
     
-    pred_pyxu_z_preds = {f"p(y|x,u{outer_label},z)": 0.0 for outer_label in label_keys}
+    pred_pyxu_z_preds = {f"p(y|x,u={outer_label},z)": 0.0 for outer_label in label_keys}
 
     # ----- Processing puz -----
     for seed in range(seed_num):
@@ -354,22 +355,22 @@ Please output **ONLY** your predicted {label_name} label key from {label_keys} a
         print(prompt_pyxuz)
 
         for seed in range(seed_num):
-            print(f"\np(y|x,u{outer_label},z) Seed {seed + 1}/{seed_num}")
+            print(f"\np(y|x,u={outer_label},z) Seed {seed + 1}/{seed_num}")
 
             pred_pyxuz, probs_pyxuz = get_response(prompt_pyxuz, label_keys, seed=seed)
-            print(f"pred_p(y|x,u{outer_label},z):", pred_pyxuz)
-            print(f"probs_p(y|x,u{outer_label},z):", probs_pyxuz)
+            print(f"pred_p(y|x,u={outer_label},z):", pred_pyxuz)
+            print(f"probs_p(y|x,u={outer_label},z):", probs_pyxuz)
 
             # Accumulate probabilities for pyxu_z
             for inner_label, prob in probs_pyxuz.items():
-                avg_pyxu_z_probs[f"p(y|x,u{outer_label},z)"][inner_label] += prob
+                avg_pyxu_z_probs[f"p(y|x,u={outer_label},z)"][inner_label] += prob
                 
             match = re.search(r'<output>\s*(.*?)\s*</output>', pred_pyxuz, re.DOTALL | re.IGNORECASE)
 
             if match:
                 pred_pyxuz_label = int(match.group(1).strip())
                 print(f"Extracted prediction: {pred_pyxuz_label}")
-                pred_pyxu_z_preds[f"pred_p(y|x,u{outer_label},z)"] = pred_pyxuz_label
+                pred_pyxu_z_preds[f"pred_p(y|x,u={outer_label},z)"] = pred_pyxuz_label
             else:
                 print("Could not find output tags in the response.")
                 raise ValueError("Invalid response format.")
@@ -399,13 +400,13 @@ Please output **ONLY** your predicted {label_name} label key from {label_keys} a
         
     # ----- Store the Predictions -----
     for outer_label in label_keys:
-        preds = pred_pyxu_z_preds[f"pred_p(y|x,u{outer_label},z)"]
-        z_data.at[i, f"pred_p(y|x,u{outer_label},z)"] = preds
+        preds = pred_pyxu_z_preds[f"pred_p(y|x,u={outer_label},z)"]
+        z_data.at[i, f"pred_p(y|x,u={outer_label},z)"] = preds
         
     expected_H = 0.0
     for label in label_keys:
         avg_puz_prob = z_data.at[i, f"p(u|z)={label}"]
-        avg_pyxu_entropy = z_data.at[i, f"H[p(y|x,u{label},z)]"]
+        avg_pyxu_entropy = z_data.at[i, f"H[p(y|x,u={label},z)]"]
         expected_H += avg_puz_prob * avg_pyxu_entropy
     z_data.at[i, "E[H[p(y|z,u,x)]]"] = expected_H
             
