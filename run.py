@@ -268,6 +268,7 @@ seed_num = 3
 x_row = data.sample(n=1, random_state=seed)
 data = data.drop(x_row.index)
 x = x_row['note'].iloc[0]
+print("x:", x)
 
 avg_puz_probs = {label: 0.0 for label in label_keys}
 
@@ -283,9 +284,9 @@ for i, row in z_data.iterrows():
     print("Row Note:", icl_z)
 
     # Sampling x from data (assuming 'data' DataFrame is defined)
-    x_row = data.sample(n=1, random_state=seed)
-    data = data.drop(x_row.index)
-    x = x_row['note'].iloc[0]
+    # x_row = data.sample(n=1, random_state=seed)
+    # data = data.drop(x_row.index)
+    # x = x_row['note'].iloc[0]
 
     # Initialize avg_puz_probs
     avg_puz_probs = {label: 0.0 for label in label_keys}
@@ -348,7 +349,7 @@ The following are some in-context examples that will help you make your predicti
 
 {icl_z} -> {label_name}: {outer_label}
 
-Please output **ONLY** your predicted {label_name} label key from {label_keys} and enclose your output in <output> </output> tags."""
+Please output **ONLY** your predicted {label_name} label key from {label_keys} and enclose your output in <output> </output> tags. ** DO NOT OUTPUT ANYTHING ELSE! **"""
         )
 
         print("Prompt for pyxu_z:")
