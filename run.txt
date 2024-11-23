@@ -34,11 +34,35 @@ probs_p(u|z): {'0': 0.97069, '1': 0.02931}
 Extracted prediction: 0
 True z label: 0
 
+p(u|z,x) Seed 1/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.95258, '1': 0.04742}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 1/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
+
 p(u|z) Seed 2/3
 pred_p(u|z): <output>0</output>
 probs_p(u|z): {'0': 0.97069, '1': 0.02931}
 Extracted prediction: 0
 True z label: 0
+
+p(u|z,x) Seed 2/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.95258, '1': 0.04742}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 2/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
 
 p(u|z) Seed 3/3
 pred_p(u|z): <output>0</output>
@@ -46,44 +70,60 @@ probs_p(u|z): {'0': 0.97069, '1': 0.02931}
 Extracted prediction: 0
 True z label: 0
 
+p(u|z,x) Seed 3/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.95258, '1': 0.04742}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 3/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
+
 Averaged puz probabilities: {'0': 0.9706899999999999, '1': 0.02931}
 
+Averaged puzx probabilities: {'0': 0.9525799999999999, '1': 0.04742}
+
+Averaged puzx probabilities: {'0': 0.8808000000000001, '1': 0.11920000000000001}
+
 Processing pyxu_z for label '0'
-Prompt for pyxu_z:
+Prompt for p(y|x,u=_,z):
 Based on the sample provided below, predict the "income". 
 "income" takes the form of the following: {'0': '<=50K', '1': '>50K'}.
 
 Age = 25. Race = White. Sex = Female. Marital status = divorced. Relation to head of the household = Unmarried. Native country = United States. Occupation = office and administrative support. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for one or more years without a degree. Work hours per week = 40.
 
-The following are some in-context examples that will help you make your prediction:
+The following is an in-context example that will help you make your prediction:
 
 Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = high school graduate. Work hours per week = 15. -> income: 0
 
 Please output **ONLY** your predicted income label key from ['0', '1'] and enclose your output in <output> </output> tags. ** DO NOT OUTPUT ANYTHING ELSE! **
 
 p(y|x,u=0,z) Seed 1/3
-pred_p(y|x,u=0,z): <output>1</output>
-probs_p(y|x,u=0,z): {'0': 0.62246, '1': 0.37754}
-Extracted prediction: 1
+pred_p(y|x,u=0,z): <output>0</output>
+probs_p(y|x,u=0,z): {'0': 0.85195, '1': 0.14805}
+Extracted prediction: 0
 
 p(y|x,u=0,z) Seed 2/3
 pred_p(y|x,u=0,z): <output>0</output>
-probs_p(y|x,u=0,z): {'0': 0.62246, '1': 0.37754}
+probs_p(y|x,u=0,z): {'0': 0.85195, '1': 0.14805}
 Extracted prediction: 0
 
 p(y|x,u=0,z) Seed 3/3
 pred_p(y|x,u=0,z): <output>0</output>
-probs_p(y|x,u=0,z): {'0': 0.62246, '1': 0.37754}
+probs_p(y|x,u=0,z): {'0': 0.85195, '1': 0.14805}
 Extracted prediction: 0
 
 Processing pyxu_z for label '1'
-Prompt for pyxu_z:
+Prompt for p(y|x,u=_,z):
 Based on the sample provided below, predict the "income". 
 "income" takes the form of the following: {'0': '<=50K', '1': '>50K'}.
 
 Age = 25. Race = White. Sex = Female. Marital status = divorced. Relation to head of the household = Unmarried. Native country = United States. Occupation = office and administrative support. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for one or more years without a degree. Work hours per week = 40.
 
-The following are some in-context examples that will help you make your prediction:
+The following is an in-context example that will help you make your prediction:
 
 Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = high school graduate. Work hours per week = 15. -> income: 1
 
@@ -104,7 +144,9 @@ pred_p(y|x,u=1,z): <output>0</output>
 probs_p(y|x,u=1,z): {'0': 0.92414, '1': 0.07586}
 Extracted prediction: 0
 
-Averaged pyxu_z probabilities: {'p(y|x,u=0,z)': {'0': 0.62246, '1': 0.37754}, 'p(y|x,u=1,z)': {'0': 0.92414, '1': 0.07586}}
+Averaged pyxu_z probabilities: {'p(y|x,u=0,z)': {'0': 0.85195, '1': 0.14805}, 'p(y|x,u=1,z)': {'0': 0.92414, '1': 0.07586}}
+
+Averaged p(y|x,z) probabilities: {'0': 0.8553732497999998, '1': 0.14462675019999996}
 
 Final z_data with Averaged Probabilities:
                                                 note  \
@@ -121,26 +163,26 @@ Final z_data with Averaged Probabilities:
 3  college for one or more years without a degree      0       NaN       NaN   
 4                             professional degree      0       NaN       NaN   
 
-   p(y|x,u=0,z)=0  p(y|x,u=0,z)=1  p(y|x,u=1,z)=0  p(y|x,u=1,z)=1  \
-0         0.62246         0.37754         0.92414         0.07586   
-1             NaN             NaN             NaN             NaN   
-2             NaN             NaN             NaN             NaN   
-3             NaN             NaN             NaN             NaN   
-4             NaN             NaN             NaN             NaN   
+   p(u|z,x)=0  p(u|z,x)=1  p(y|x,u=0,z)=0  p(y|x,u=0,z)=1  p(y|x,u=1,z)=0  \
+0     0.95258     0.04742         0.85195         0.14805         0.92414   
+1         NaN         NaN             NaN             NaN             NaN   
+2         NaN         NaN             NaN             NaN             NaN   
+3         NaN         NaN             NaN             NaN             NaN   
+4         NaN         NaN             NaN             NaN             NaN   
 
-   H[p(y|x,u=0,z)]  H[p(y|x,u=1,z)]  pred_p(y|x,u=0,z)  pred_p(y|x,u=1,z)  \
-0          0.95629          0.38742                0.0                0.0   
-1              NaN              NaN                NaN                NaN   
-2              NaN              NaN                NaN                NaN   
-3              NaN              NaN                NaN                NaN   
-4              NaN              NaN                NaN                NaN   
+   p(y|x,u=1,z)=1  p(y|x,z)=0  p(y|x,z)=1  p(y|x)=0  p(y|x)=1  \
+0         0.07586    0.855373    0.144627    0.8808    0.1192   
+1             NaN         NaN         NaN       NaN       NaN   
+2             NaN         NaN         NaN       NaN       NaN   
+3             NaN         NaN         NaN       NaN       NaN   
+4             NaN         NaN         NaN       NaN       NaN   
 
-   E[H[p(y|z,u,x)]]  
-0          0.939616  
-1               NaN  
-2               NaN  
-3               NaN  
-4               NaN  
+   H[p(y|x,u=0,z)]  H[p(y|x,u=1,z)]  E[H[p(y|z,u,x)]]  
+0          0.60494          0.38742          0.598564  
+1              NaN              NaN               NaN  
+2              NaN              NaN               NaN  
+3              NaN              NaN               NaN  
+4              NaN              NaN               NaN  
 
 Processing Z Example 2
 Row Note: Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = finished 9th class. Work hours per week = 15.
@@ -151,11 +193,35 @@ probs_p(u|z): {'0': 0.98594, '1': 0.01406}
 Extracted prediction: 0
 True z label: 0
 
+p(u|z,x) Seed 1/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.98593, '1': 0.01407}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 1/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
+
 p(u|z) Seed 2/3
 pred_p(u|z): <output>0</output>
 probs_p(u|z): {'0': 0.98594, '1': 0.01406}
 Extracted prediction: 0
 True z label: 0
+
+p(u|z,x) Seed 2/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.98593, '1': 0.01407}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 2/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
 
 p(u|z) Seed 3/3
 pred_p(u|z): <output>0</output>
@@ -163,44 +229,60 @@ probs_p(u|z): {'0': 0.98594, '1': 0.01406}
 Extracted prediction: 0
 True z label: 0
 
+p(u|z,x) Seed 3/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.98593, '1': 0.01407}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 3/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
+
 Averaged puz probabilities: {'0': 0.9859399999999999, '1': 0.014059999999999998}
 
+Averaged puzx probabilities: {'0': 0.9859300000000001, '1': 0.01407}
+
+Averaged puzx probabilities: {'0': 0.8808000000000001, '1': 0.11920000000000001}
+
 Processing pyxu_z for label '0'
-Prompt for pyxu_z:
+Prompt for p(y|x,u=_,z):
 Based on the sample provided below, predict the "income". 
 "income" takes the form of the following: {'0': '<=50K', '1': '>50K'}.
 
 Age = 25. Race = White. Sex = Female. Marital status = divorced. Relation to head of the household = Unmarried. Native country = United States. Occupation = office and administrative support. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for one or more years without a degree. Work hours per week = 40.
 
-The following are some in-context examples that will help you make your prediction:
+The following is an in-context example that will help you make your prediction:
 
 Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = finished 9th class. Work hours per week = 15. -> income: 0
 
 Please output **ONLY** your predicted income label key from ['0', '1'] and enclose your output in <output> </output> tags. ** DO NOT OUTPUT ANYTHING ELSE! **
 
 p(y|x,u=0,z) Seed 1/3
-pred_p(y|x,u=0,z): <output>1</output>
-probs_p(y|x,u=0,z): {'0': 0.5, '1': 0.5}
-Extracted prediction: 1
+pred_p(y|x,u=0,z): <output>0</output>
+probs_p(y|x,u=0,z): {'0': 0.81757, '1': 0.18243}
+Extracted prediction: 0
 
 p(y|x,u=0,z) Seed 2/3
 pred_p(y|x,u=0,z): <output>0</output>
-probs_p(y|x,u=0,z): {'0': 0.5, '1': 0.5}
+probs_p(y|x,u=0,z): {'0': 0.81757, '1': 0.18243}
 Extracted prediction: 0
 
 p(y|x,u=0,z) Seed 3/3
 pred_p(y|x,u=0,z): <output>0</output>
-probs_p(y|x,u=0,z): {'0': 0.5, '1': 0.5}
+probs_p(y|x,u=0,z): {'0': 0.81757, '1': 0.18243}
 Extracted prediction: 0
 
 Processing pyxu_z for label '1'
-Prompt for pyxu_z:
+Prompt for p(y|x,u=_,z):
 Based on the sample provided below, predict the "income". 
 "income" takes the form of the following: {'0': '<=50K', '1': '>50K'}.
 
 Age = 25. Race = White. Sex = Female. Marital status = divorced. Relation to head of the household = Unmarried. Native country = United States. Occupation = office and administrative support. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for one or more years without a degree. Work hours per week = 40.
 
-The following are some in-context examples that will help you make your prediction:
+The following is an in-context example that will help you make your prediction:
 
 Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = finished 9th class. Work hours per week = 15. -> income: 1
 
@@ -221,7 +303,9 @@ pred_p(y|x,u=1,z): <output>0</output>
 probs_p(y|x,u=1,z): {'0': 0.93992, '1': 0.06008}
 Extracted prediction: 0
 
-Averaged pyxu_z probabilities: {'p(y|x,u=0,z)': {'0': 0.5, '1': 0.5}, 'p(y|x,u=1,z)': {'0': 0.93992, '1': 0.06008}}
+Averaged pyxu_z probabilities: {'p(y|x,u=0,z)': {'0': 0.81757, '1': 0.18243}, 'p(y|x,u=1,z)': {'0': 0.93992, '1': 0.06008}}
+
+Averaged p(y|x,z) probabilities: {'0': 0.8192914645, '1': 0.18070853550000002}
 
 Final z_data with Averaged Probabilities:
                                                 note  \
@@ -238,26 +322,26 @@ Final z_data with Averaged Probabilities:
 3  college for one or more years without a degree      0       NaN       NaN   
 4                             professional degree      0       NaN       NaN   
 
-   p(y|x,u=0,z)=0  p(y|x,u=0,z)=1  p(y|x,u=1,z)=0  p(y|x,u=1,z)=1  \
-0         0.62246         0.37754         0.92414         0.07586   
-1         0.50000         0.50000         0.93992         0.06008   
-2             NaN             NaN             NaN             NaN   
-3             NaN             NaN             NaN             NaN   
-4             NaN             NaN             NaN             NaN   
+   p(u|z,x)=0  p(u|z,x)=1  p(y|x,u=0,z)=0  p(y|x,u=0,z)=1  p(y|x,u=1,z)=0  \
+0     0.95258     0.04742         0.85195         0.14805         0.92414   
+1     0.98593     0.01407         0.81757         0.18243         0.93992   
+2         NaN         NaN             NaN             NaN             NaN   
+3         NaN         NaN             NaN             NaN             NaN   
+4         NaN         NaN             NaN             NaN             NaN   
 
-   H[p(y|x,u=0,z)]  H[p(y|x,u=1,z)]  pred_p(y|x,u=0,z)  pred_p(y|x,u=1,z)  \
-0          0.95629          0.38742                0.0                0.0   
-1          1.00000          0.32776                0.0                0.0   
-2              NaN              NaN                NaN                NaN   
-3              NaN              NaN                NaN                NaN   
-4              NaN              NaN                NaN                NaN   
+   p(y|x,u=1,z)=1  p(y|x,z)=0  p(y|x,z)=1  p(y|x)=0  p(y|x)=1  \
+0         0.07586    0.855373    0.144627    0.8808    0.1192   
+1         0.06008    0.819291    0.180709    0.8808    0.1192   
+2             NaN         NaN         NaN       NaN       NaN   
+3             NaN         NaN         NaN       NaN       NaN   
+4             NaN         NaN         NaN       NaN       NaN   
 
-   E[H[p(y|z,u,x)]]  
-0          0.939616  
-1          0.990548  
-2               NaN  
-3               NaN  
-4               NaN  
+   H[p(y|x,u=0,z)]  H[p(y|x,u=1,z)]  E[H[p(y|z,u,x)]]  
+0          0.60494          0.38742          0.598564  
+1          0.68536          0.32776          0.680332  
+2              NaN              NaN               NaN  
+3              NaN              NaN               NaN  
+4              NaN              NaN               NaN  
 
 Processing Z Example 3
 Row Note: Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = master's degree. Work hours per week = 15.
@@ -268,11 +352,35 @@ probs_p(u|z): {'0': 0.5, '1': 0.5}
 Extracted prediction: 1
 True z label: 0
 
+p(u|z,x) Seed 1/3
+pred_p(u|z,x): <output>1</output>
+probs_p(u|z,x): {'0': 0.56217, '1': 0.43783}
+Extracted prediction: 1
+True z label: 0
+
+p(y|x) Seed 1/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
+
 p(u|z) Seed 2/3
 pred_p(u|z): <output>0</output>
 probs_p(u|z): {'0': 0.5, '1': 0.5}
 Extracted prediction: 0
 True z label: 0
+
+p(u|z,x) Seed 2/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.56217, '1': 0.43783}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 2/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
 
 p(u|z) Seed 3/3
 pred_p(u|z): <output>0</output>
@@ -280,44 +388,60 @@ probs_p(u|z): {'0': 0.5, '1': 0.5}
 Extracted prediction: 0
 True z label: 0
 
+p(u|z,x) Seed 3/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.56217, '1': 0.43783}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 3/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
+
 Averaged puz probabilities: {'0': 0.5, '1': 0.5}
 
+Averaged puzx probabilities: {'0': 0.56217, '1': 0.43783}
+
+Averaged puzx probabilities: {'0': 0.8808000000000001, '1': 0.11920000000000001}
+
 Processing pyxu_z for label '0'
-Prompt for pyxu_z:
+Prompt for p(y|x,u=_,z):
 Based on the sample provided below, predict the "income". 
 "income" takes the form of the following: {'0': '<=50K', '1': '>50K'}.
 
 Age = 25. Race = White. Sex = Female. Marital status = divorced. Relation to head of the household = Unmarried. Native country = United States. Occupation = office and administrative support. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for one or more years without a degree. Work hours per week = 40.
 
-The following are some in-context examples that will help you make your prediction:
+The following is an in-context example that will help you make your prediction:
 
 Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = master's degree. Work hours per week = 15. -> income: 0
 
 Please output **ONLY** your predicted income label key from ['0', '1'] and enclose your output in <output> </output> tags. ** DO NOT OUTPUT ANYTHING ELSE! **
 
 p(y|x,u=0,z) Seed 1/3
-pred_p(y|x,u=0,z): <output>1</output>
-probs_p(y|x,u=0,z): {'0': 0.67918, '1': 0.32082}
-Extracted prediction: 1
+pred_p(y|x,u=0,z): <output>0</output>
+probs_p(y|x,u=0,z): {'0': 0.90465, '1': 0.09535}
+Extracted prediction: 0
 
 p(y|x,u=0,z) Seed 2/3
 pred_p(y|x,u=0,z): <output>0</output>
-probs_p(y|x,u=0,z): {'0': 0.67918, '1': 0.32082}
+probs_p(y|x,u=0,z): {'0': 0.90465, '1': 0.09535}
 Extracted prediction: 0
 
 p(y|x,u=0,z) Seed 3/3
 pred_p(y|x,u=0,z): <output>0</output>
-probs_p(y|x,u=0,z): {'0': 0.67918, '1': 0.32082}
+probs_p(y|x,u=0,z): {'0': 0.90465, '1': 0.09535}
 Extracted prediction: 0
 
 Processing pyxu_z for label '1'
-Prompt for pyxu_z:
+Prompt for p(y|x,u=_,z):
 Based on the sample provided below, predict the "income". 
 "income" takes the form of the following: {'0': '<=50K', '1': '>50K'}.
 
 Age = 25. Race = White. Sex = Female. Marital status = divorced. Relation to head of the household = Unmarried. Native country = United States. Occupation = office and administrative support. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for one or more years without a degree. Work hours per week = 40.
 
-The following are some in-context examples that will help you make your prediction:
+The following is an in-context example that will help you make your prediction:
 
 Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = master's degree. Work hours per week = 15. -> income: 1
 
@@ -325,20 +449,22 @@ Please output **ONLY** your predicted income label key from ['0', '1'] and enclo
 
 p(y|x,u=1,z) Seed 1/3
 pred_p(y|x,u=1,z): <output>0</output>
-probs_p(y|x,u=1,z): {'0': 0.98201, '1': 0.01799}
+probs_p(y|x,u=1,z): {'0': 0.95257, '1': 0.04743}
 Extracted prediction: 0
 
 p(y|x,u=1,z) Seed 2/3
 pred_p(y|x,u=1,z): <output>0</output>
-probs_p(y|x,u=1,z): {'0': 0.98201, '1': 0.01799}
+probs_p(y|x,u=1,z): {'0': 0.95257, '1': 0.04743}
 Extracted prediction: 0
 
 p(y|x,u=1,z) Seed 3/3
 pred_p(y|x,u=1,z): <output>0</output>
-probs_p(y|x,u=1,z): {'0': 0.98201, '1': 0.01799}
+probs_p(y|x,u=1,z): {'0': 0.95257, '1': 0.04743}
 Extracted prediction: 0
 
-Averaged pyxu_z probabilities: {'p(y|x,u=0,z)': {'0': 0.67918, '1': 0.32082}, 'p(y|x,u=1,z)': {'0': 0.9820100000000002, '1': 0.01799}}
+Averaged pyxu_z probabilities: {'p(y|x,u=0,z)': {'0': 0.9046499999999998, '1': 0.09535}, 'p(y|x,u=1,z)': {'0': 0.95257, '1': 0.04743}}
+
+Averaged p(y|x,z) probabilities: {'0': 0.9256308135999998, '1': 0.0743691864}
 
 Final z_data with Averaged Probabilities:
                                                 note  \
@@ -355,26 +481,26 @@ Final z_data with Averaged Probabilities:
 3  college for one or more years without a degree      0       NaN       NaN   
 4                             professional degree      0       NaN       NaN   
 
-   p(y|x,u=0,z)=0  p(y|x,u=0,z)=1  p(y|x,u=1,z)=0  p(y|x,u=1,z)=1  \
-0         0.62246         0.37754         0.92414         0.07586   
-1         0.50000         0.50000         0.93992         0.06008   
-2         0.67918         0.32082         0.98201         0.01799   
-3             NaN             NaN             NaN             NaN   
-4             NaN             NaN             NaN             NaN   
+   p(u|z,x)=0  p(u|z,x)=1  p(y|x,u=0,z)=0  p(y|x,u=0,z)=1  p(y|x,u=1,z)=0  \
+0     0.95258     0.04742         0.85195         0.14805         0.92414   
+1     0.98593     0.01407         0.81757         0.18243         0.93992   
+2     0.56217     0.43783         0.90465         0.09535         0.95257   
+3         NaN         NaN             NaN             NaN             NaN   
+4         NaN         NaN             NaN             NaN             NaN   
 
-   H[p(y|x,u=0,z)]  H[p(y|x,u=1,z)]  pred_p(y|x,u=0,z)  pred_p(y|x,u=1,z)  \
-0          0.95629          0.38742                0.0                0.0   
-1          1.00000          0.32776                0.0                0.0   
-2          0.90527          0.13000                0.0                0.0   
-3              NaN              NaN                NaN                NaN   
-4              NaN              NaN                NaN                NaN   
+   p(y|x,u=1,z)=1  p(y|x,z)=0  p(y|x,z)=1  p(y|x)=0  p(y|x)=1  \
+0         0.07586    0.855373    0.144627    0.8808    0.1192   
+1         0.06008    0.819291    0.180709    0.8808    0.1192   
+2         0.04743    0.925631    0.074369    0.8808    0.1192   
+3             NaN         NaN         NaN       NaN       NaN   
+4             NaN         NaN         NaN       NaN       NaN   
 
-   E[H[p(y|z,u,x)]]  
-0          0.939616  
-1          0.990548  
-2          0.517635  
-3               NaN  
-4               NaN  
+   H[p(y|x,u=0,z)]  H[p(y|x,u=1,z)]  E[H[p(y|z,u,x)]]  
+0          0.60494          0.38742          0.598564  
+1          0.68536          0.32776          0.680332  
+2          0.45408          0.27538          0.364730  
+3              NaN              NaN               NaN  
+4              NaN              NaN               NaN  
 
 Processing Z Example 4
 Row Note: Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for one or more years without a degree. Work hours per week = 15.
@@ -385,11 +511,35 @@ probs_p(u|z): {'0': 0.97702, '1': 0.02298}
 Extracted prediction: 0
 True z label: 0
 
+p(u|z,x) Seed 1/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.96267, '1': 0.03733}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 1/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
+
 p(u|z) Seed 2/3
 pred_p(u|z): <output>0</output>
 probs_p(u|z): {'0': 0.97702, '1': 0.02298}
 Extracted prediction: 0
 True z label: 0
+
+p(u|z,x) Seed 2/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.96267, '1': 0.03733}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 2/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
 
 p(u|z) Seed 3/3
 pred_p(u|z): <output>0</output>
@@ -397,44 +547,60 @@ probs_p(u|z): {'0': 0.97702, '1': 0.02298}
 Extracted prediction: 0
 True z label: 0
 
+p(u|z,x) Seed 3/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.96267, '1': 0.03733}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 3/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
+
 Averaged puz probabilities: {'0': 0.97702, '1': 0.02298}
 
+Averaged puzx probabilities: {'0': 0.96267, '1': 0.03733}
+
+Averaged puzx probabilities: {'0': 0.8808000000000001, '1': 0.11920000000000001}
+
 Processing pyxu_z for label '0'
-Prompt for pyxu_z:
+Prompt for p(y|x,u=_,z):
 Based on the sample provided below, predict the "income". 
 "income" takes the form of the following: {'0': '<=50K', '1': '>50K'}.
 
 Age = 25. Race = White. Sex = Female. Marital status = divorced. Relation to head of the household = Unmarried. Native country = United States. Occupation = office and administrative support. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for one or more years without a degree. Work hours per week = 40.
 
-The following are some in-context examples that will help you make your prediction:
+The following is an in-context example that will help you make your prediction:
 
 Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for one or more years without a degree. Work hours per week = 15. -> income: 0
 
 Please output **ONLY** your predicted income label key from ['0', '1'] and enclose your output in <output> </output> tags. ** DO NOT OUTPUT ANYTHING ELSE! **
 
 p(y|x,u=0,z) Seed 1/3
-pred_p(y|x,u=0,z): <output>1</output>
-probs_p(y|x,u=0,z): {'0': 0.7773, '1': 0.2227}
-Extracted prediction: 1
+pred_p(y|x,u=0,z): <output>0</output>
+probs_p(y|x,u=0,z): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
 
 p(y|x,u=0,z) Seed 2/3
 pred_p(y|x,u=0,z): <output>0</output>
-probs_p(y|x,u=0,z): {'0': 0.7773, '1': 0.2227}
+probs_p(y|x,u=0,z): {'0': 0.8808, '1': 0.1192}
 Extracted prediction: 0
 
 p(y|x,u=0,z) Seed 3/3
 pred_p(y|x,u=0,z): <output>0</output>
-probs_p(y|x,u=0,z): {'0': 0.7773, '1': 0.2227}
+probs_p(y|x,u=0,z): {'0': 0.8808, '1': 0.1192}
 Extracted prediction: 0
 
 Processing pyxu_z for label '1'
-Prompt for pyxu_z:
+Prompt for p(y|x,u=_,z):
 Based on the sample provided below, predict the "income". 
 "income" takes the form of the following: {'0': '<=50K', '1': '>50K'}.
 
 Age = 25. Race = White. Sex = Female. Marital status = divorced. Relation to head of the household = Unmarried. Native country = United States. Occupation = office and administrative support. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for one or more years without a degree. Work hours per week = 40.
 
-The following are some in-context examples that will help you make your prediction:
+The following is an in-context example that will help you make your prediction:
 
 Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for one or more years without a degree. Work hours per week = 15. -> income: 1
 
@@ -455,7 +621,9 @@ pred_p(y|x,u=1,z): <output>0</output>
 probs_p(y|x,u=1,z): {'0': 0.8808, '1': 0.1192}
 Extracted prediction: 0
 
-Averaged pyxu_z probabilities: {'p(y|x,u=0,z)': {'0': 0.7773, '1': 0.2227}, 'p(y|x,u=1,z)': {'0': 0.8808000000000001, '1': 0.11920000000000001}}
+Averaged pyxu_z probabilities: {'p(y|x,u=0,z)': {'0': 0.8808000000000001, '1': 0.11920000000000001}, 'p(y|x,u=1,z)': {'0': 0.8808000000000001, '1': 0.11920000000000001}}
+
+Averaged p(y|x,z) probabilities: {'0': 0.8808000000000001, '1': 0.11920000000000001}
 
 Final z_data with Averaged Probabilities:
                                                 note  \
@@ -472,26 +640,26 @@ Final z_data with Averaged Probabilities:
 3  college for one or more years without a degree      0   0.97702   0.02298   
 4                             professional degree      0       NaN       NaN   
 
-   p(y|x,u=0,z)=0  p(y|x,u=0,z)=1  p(y|x,u=1,z)=0  p(y|x,u=1,z)=1  \
-0         0.62246         0.37754         0.92414         0.07586   
-1         0.50000         0.50000         0.93992         0.06008   
-2         0.67918         0.32082         0.98201         0.01799   
-3         0.77730         0.22270         0.88080         0.11920   
-4             NaN             NaN             NaN             NaN   
+   p(u|z,x)=0  p(u|z,x)=1  p(y|x,u=0,z)=0  p(y|x,u=0,z)=1  p(y|x,u=1,z)=0  \
+0     0.95258     0.04742         0.85195         0.14805         0.92414   
+1     0.98593     0.01407         0.81757         0.18243         0.93992   
+2     0.56217     0.43783         0.90465         0.09535         0.95257   
+3     0.96267     0.03733         0.88080         0.11920         0.88080   
+4         NaN         NaN             NaN             NaN             NaN   
 
-   H[p(y|x,u=0,z)]  H[p(y|x,u=1,z)]  pred_p(y|x,u=0,z)  pred_p(y|x,u=1,z)  \
-0          0.95629          0.38742                0.0                0.0   
-1          1.00000          0.32776                0.0                0.0   
-2          0.90527          0.13000                0.0                0.0   
-3          0.76507          0.52706                0.0                0.0   
-4              NaN              NaN                NaN                NaN   
+   p(y|x,u=1,z)=1  p(y|x,z)=0  p(y|x,z)=1  p(y|x)=0  p(y|x)=1  \
+0         0.07586    0.855373    0.144627    0.8808    0.1192   
+1         0.06008    0.819291    0.180709    0.8808    0.1192   
+2         0.04743    0.925631    0.074369    0.8808    0.1192   
+3         0.11920    0.880800    0.119200    0.8808    0.1192   
+4             NaN         NaN         NaN       NaN       NaN   
 
-   E[H[p(y|z,u,x)]]  
-0          0.939616  
-1          0.990548  
-2          0.517635  
-3          0.759601  
-4               NaN  
+   H[p(y|x,u=0,z)]  H[p(y|x,u=1,z)]  E[H[p(y|z,u,x)]]  
+0          0.60494          0.38742          0.598564  
+1          0.68536          0.32776          0.680332  
+2          0.45408          0.27538          0.364730  
+3          0.52706          0.52706          0.527060  
+4              NaN              NaN               NaN  
 
 Processing Z Example 5
 Row Note: Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = professional degree. Work hours per week = 15.
@@ -502,11 +670,35 @@ probs_p(u|z): {'0': 0.67917, '1': 0.32083}
 Extracted prediction: 1
 True z label: 0
 
+p(u|z,x) Seed 1/3
+pred_p(u|z,x): <output>1</output>
+probs_p(u|z,x): {'0': 0.73106, '1': 0.26894}
+Extracted prediction: 1
+True z label: 0
+
+p(y|x) Seed 1/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
+
 p(u|z) Seed 2/3
 pred_p(u|z): <output>0</output>
 probs_p(u|z): {'0': 0.67917, '1': 0.32083}
 Extracted prediction: 0
 True z label: 0
+
+p(u|z,x) Seed 2/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.73106, '1': 0.26894}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 2/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
 
 p(u|z) Seed 3/3
 pred_p(u|z): <output>0</output>
@@ -514,44 +706,60 @@ probs_p(u|z): {'0': 0.67917, '1': 0.32083}
 Extracted prediction: 0
 True z label: 0
 
+p(u|z,x) Seed 3/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.73106, '1': 0.26894}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 3/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
+
 Averaged puz probabilities: {'0': 0.67917, '1': 0.32083}
 
+Averaged puzx probabilities: {'0': 0.7310599999999999, '1': 0.26894}
+
+Averaged puzx probabilities: {'0': 0.8808000000000001, '1': 0.11920000000000001}
+
 Processing pyxu_z for label '0'
-Prompt for pyxu_z:
+Prompt for p(y|x,u=_,z):
 Based on the sample provided below, predict the "income". 
 "income" takes the form of the following: {'0': '<=50K', '1': '>50K'}.
 
 Age = 25. Race = White. Sex = Female. Marital status = divorced. Relation to head of the household = Unmarried. Native country = United States. Occupation = office and administrative support. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for one or more years without a degree. Work hours per week = 40.
 
-The following are some in-context examples that will help you make your prediction:
+The following is an in-context example that will help you make your prediction:
 
 Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = professional degree. Work hours per week = 15. -> income: 0
 
 Please output **ONLY** your predicted income label key from ['0', '1'] and enclose your output in <output> </output> tags. ** DO NOT OUTPUT ANYTHING ELSE! **
 
 p(y|x,u=0,z) Seed 1/3
-pred_p(y|x,u=0,z): <output>1</output>
-probs_p(y|x,u=0,z): {'0': 0.73106, '1': 0.26894}
-Extracted prediction: 1
+pred_p(y|x,u=0,z): <output>0</output>
+probs_p(y|x,u=0,z): {'0': 0.92414, '1': 0.07586}
+Extracted prediction: 0
 
 p(y|x,u=0,z) Seed 2/3
 pred_p(y|x,u=0,z): <output>0</output>
-probs_p(y|x,u=0,z): {'0': 0.73106, '1': 0.26894}
+probs_p(y|x,u=0,z): {'0': 0.92414, '1': 0.07586}
 Extracted prediction: 0
 
 p(y|x,u=0,z) Seed 3/3
 pred_p(y|x,u=0,z): <output>0</output>
-probs_p(y|x,u=0,z): {'0': 0.73106, '1': 0.26894}
+probs_p(y|x,u=0,z): {'0': 0.92414, '1': 0.07586}
 Extracted prediction: 0
 
 Processing pyxu_z for label '1'
-Prompt for pyxu_z:
+Prompt for p(y|x,u=_,z):
 Based on the sample provided below, predict the "income". 
 "income" takes the form of the following: {'0': '<=50K', '1': '>50K'}.
 
 Age = 25. Race = White. Sex = Female. Marital status = divorced. Relation to head of the household = Unmarried. Native country = United States. Occupation = office and administrative support. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for one or more years without a degree. Work hours per week = 40.
 
-The following are some in-context examples that will help you make your prediction:
+The following is an in-context example that will help you make your prediction:
 
 Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = professional degree. Work hours per week = 15. -> income: 1
 
@@ -559,20 +767,22 @@ Please output **ONLY** your predicted income label key from ['0', '1'] and enclo
 
 p(y|x,u=1,z) Seed 1/3
 pred_p(y|x,u=1,z): <output>0</output>
-probs_p(y|x,u=1,z): {'0': 0.98593, '1': 0.01407}
+probs_p(y|x,u=1,z): {'0': 0.95257, '1': 0.04743}
 Extracted prediction: 0
 
 p(y|x,u=1,z) Seed 2/3
 pred_p(y|x,u=1,z): <output>0</output>
-probs_p(y|x,u=1,z): {'0': 0.98593, '1': 0.01407}
+probs_p(y|x,u=1,z): {'0': 0.95257, '1': 0.04743}
 Extracted prediction: 0
 
 p(y|x,u=1,z) Seed 3/3
 pred_p(y|x,u=1,z): <output>0</output>
-probs_p(y|x,u=1,z): {'0': 0.98593, '1': 0.01407}
+probs_p(y|x,u=1,z): {'0': 0.95257, '1': 0.04743}
 Extracted prediction: 0
 
-Averaged pyxu_z probabilities: {'p(y|x,u=0,z)': {'0': 0.7310599999999999, '1': 0.26894}, 'p(y|x,u=1,z)': {'0': 0.9859300000000001, '1': 0.01407}}
+Averaged pyxu_z probabilities: {'p(y|x,u=0,z)': {'0': 0.92414, '1': 0.07586}, 'p(y|x,u=1,z)': {'0': 0.95257, '1': 0.04743}}
+
+Averaged p(y|x,z) probabilities: {'0': 0.9317859641999999, '1': 0.06821403579999999}
 
 Final z_data with Averaged Probabilities:
                                                 note  \
@@ -589,26 +799,26 @@ Final z_data with Averaged Probabilities:
 3  college for one or more years without a degree      0   0.97702   0.02298   
 4                             professional degree      0   0.67917   0.32083   
 
-   p(y|x,u=0,z)=0  p(y|x,u=0,z)=1  p(y|x,u=1,z)=0  p(y|x,u=1,z)=1  \
-0         0.62246         0.37754         0.92414         0.07586   
-1         0.50000         0.50000         0.93992         0.06008   
-2         0.67918         0.32082         0.98201         0.01799   
-3         0.77730         0.22270         0.88080         0.11920   
-4         0.73106         0.26894         0.98593         0.01407   
+   p(u|z,x)=0  p(u|z,x)=1  p(y|x,u=0,z)=0  p(y|x,u=0,z)=1  p(y|x,u=1,z)=0  \
+0     0.95258     0.04742         0.85195         0.14805         0.92414   
+1     0.98593     0.01407         0.81757         0.18243         0.93992   
+2     0.56217     0.43783         0.90465         0.09535         0.95257   
+3     0.96267     0.03733         0.88080         0.11920         0.88080   
+4     0.73106     0.26894         0.92414         0.07586         0.95257   
 
-   H[p(y|x,u=0,z)]  H[p(y|x,u=1,z)]  pred_p(y|x,u=0,z)  pred_p(y|x,u=1,z)  \
-0          0.95629          0.38742                0.0                0.0   
-1          1.00000          0.32776                0.0                0.0   
-2          0.90527          0.13000                0.0                0.0   
-3          0.76507          0.52706                0.0                0.0   
-4          0.83994          0.10670                0.0                0.0   
+   p(y|x,u=1,z)=1  p(y|x,z)=0  p(y|x,z)=1  p(y|x)=0  p(y|x)=1  \
+0         0.07586    0.855373    0.144627    0.8808    0.1192   
+1         0.06008    0.819291    0.180709    0.8808    0.1192   
+2         0.04743    0.925631    0.074369    0.8808    0.1192   
+3         0.11920    0.880800    0.119200    0.8808    0.1192   
+4         0.04743    0.931786    0.068214    0.8808    0.1192   
 
-   E[H[p(y|z,u,x)]]  
-0          0.939616  
-1          0.990548  
-2          0.517635  
-3          0.759601  
-4          0.604695  
+   H[p(y|x,u=0,z)]  H[p(y|x,u=1,z)]  E[H[p(y|z,u,x)]]  
+0          0.60494          0.38742          0.598564  
+1          0.68536          0.32776          0.680332  
+2          0.45408          0.27538          0.364730  
+3          0.52706          0.52706          0.527060  
+4          0.38742          0.27538          0.351474  
 
 Processing Z Example 6
 Row Note: Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = bachelor's degree. Work hours per week = 15.
@@ -619,11 +829,35 @@ probs_p(u|z): {'0': 0.81758, '1': 0.18242}
 Extracted prediction: 0
 True z label: 0
 
+p(u|z,x) Seed 1/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.81758, '1': 0.18242}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 1/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
+
 p(u|z) Seed 2/3
 pred_p(u|z): <output>0</output>
 probs_p(u|z): {'0': 0.81758, '1': 0.18242}
 Extracted prediction: 0
 True z label: 0
+
+p(u|z,x) Seed 2/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.81758, '1': 0.18242}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 2/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
 
 p(u|z) Seed 3/3
 pred_p(u|z): <output>0</output>
@@ -631,44 +865,60 @@ probs_p(u|z): {'0': 0.81758, '1': 0.18242}
 Extracted prediction: 0
 True z label: 0
 
+p(u|z,x) Seed 3/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.81758, '1': 0.18242}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 3/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
+
 Averaged puz probabilities: {'0': 0.81758, '1': 0.18242}
 
+Averaged puzx probabilities: {'0': 0.81758, '1': 0.18242}
+
+Averaged puzx probabilities: {'0': 0.8808000000000001, '1': 0.11920000000000001}
+
 Processing pyxu_z for label '0'
-Prompt for pyxu_z:
+Prompt for p(y|x,u=_,z):
 Based on the sample provided below, predict the "income". 
 "income" takes the form of the following: {'0': '<=50K', '1': '>50K'}.
 
 Age = 25. Race = White. Sex = Female. Marital status = divorced. Relation to head of the household = Unmarried. Native country = United States. Occupation = office and administrative support. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for one or more years without a degree. Work hours per week = 40.
 
-The following are some in-context examples that will help you make your prediction:
+The following is an in-context example that will help you make your prediction:
 
 Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = bachelor's degree. Work hours per week = 15. -> income: 0
 
 Please output **ONLY** your predicted income label key from ['0', '1'] and enclose your output in <output> </output> tags. ** DO NOT OUTPUT ANYTHING ELSE! **
 
 p(y|x,u=0,z) Seed 1/3
-pred_p(y|x,u=0,z): <output>1</output>
-probs_p(y|x,u=0,z): {'0': 0.73106, '1': 0.26894}
-Extracted prediction: 1
+pred_p(y|x,u=0,z): <output>0</output>
+probs_p(y|x,u=0,z): {'0': 0.90465, '1': 0.09535}
+Extracted prediction: 0
 
 p(y|x,u=0,z) Seed 2/3
 pred_p(y|x,u=0,z): <output>0</output>
-probs_p(y|x,u=0,z): {'0': 0.73106, '1': 0.26894}
+probs_p(y|x,u=0,z): {'0': 0.90465, '1': 0.09535}
 Extracted prediction: 0
 
 p(y|x,u=0,z) Seed 3/3
 pred_p(y|x,u=0,z): <output>0</output>
-probs_p(y|x,u=0,z): {'0': 0.73106, '1': 0.26894}
+probs_p(y|x,u=0,z): {'0': 0.90465, '1': 0.09535}
 Extracted prediction: 0
 
 Processing pyxu_z for label '1'
-Prompt for pyxu_z:
+Prompt for p(y|x,u=_,z):
 Based on the sample provided below, predict the "income". 
 "income" takes the form of the following: {'0': '<=50K', '1': '>50K'}.
 
 Age = 25. Race = White. Sex = Female. Marital status = divorced. Relation to head of the household = Unmarried. Native country = United States. Occupation = office and administrative support. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for one or more years without a degree. Work hours per week = 40.
 
-The following are some in-context examples that will help you make your prediction:
+The following is an in-context example that will help you make your prediction:
 
 Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = bachelor's degree. Work hours per week = 15. -> income: 1
 
@@ -676,20 +926,22 @@ Please output **ONLY** your predicted income label key from ['0', '1'] and enclo
 
 p(y|x,u=1,z) Seed 1/3
 pred_p(y|x,u=1,z): <output>0</output>
-probs_p(y|x,u=1,z): {'0': 0.95257, '1': 0.04743}
+probs_p(y|x,u=1,z): {'0': 0.90465, '1': 0.09535}
 Extracted prediction: 0
 
 p(y|x,u=1,z) Seed 2/3
 pred_p(y|x,u=1,z): <output>0</output>
-probs_p(y|x,u=1,z): {'0': 0.95257, '1': 0.04743}
+probs_p(y|x,u=1,z): {'0': 0.90465, '1': 0.09535}
 Extracted prediction: 0
 
 p(y|x,u=1,z) Seed 3/3
 pred_p(y|x,u=1,z): <output>0</output>
-probs_p(y|x,u=1,z): {'0': 0.95257, '1': 0.04743}
+probs_p(y|x,u=1,z): {'0': 0.90465, '1': 0.09535}
 Extracted prediction: 0
 
-Averaged pyxu_z probabilities: {'p(y|x,u=0,z)': {'0': 0.7310599999999999, '1': 0.26894}, 'p(y|x,u=1,z)': {'0': 0.95257, '1': 0.04743}}
+Averaged pyxu_z probabilities: {'p(y|x,u=0,z)': {'0': 0.9046499999999998, '1': 0.09535}, 'p(y|x,u=1,z)': {'0': 0.9046499999999998, '1': 0.09535}}
+
+Averaged p(y|x,z) probabilities: {'0': 0.9046499999999998, '1': 0.09535}
 
 Final z_data with Averaged Probabilities:
                                                 note  \
@@ -706,26 +958,26 @@ Final z_data with Averaged Probabilities:
 3  college for one or more years without a degree      0   0.97702   0.02298   
 4                             professional degree      0   0.67917   0.32083   
 
-   p(y|x,u=0,z)=0  p(y|x,u=0,z)=1  p(y|x,u=1,z)=0  p(y|x,u=1,z)=1  \
-0         0.62246         0.37754         0.92414         0.07586   
-1         0.50000         0.50000         0.93992         0.06008   
-2         0.67918         0.32082         0.98201         0.01799   
-3         0.77730         0.22270         0.88080         0.11920   
-4         0.73106         0.26894         0.98593         0.01407   
+   p(u|z,x)=0  p(u|z,x)=1  p(y|x,u=0,z)=0  p(y|x,u=0,z)=1  p(y|x,u=1,z)=0  \
+0     0.95258     0.04742         0.85195         0.14805         0.92414   
+1     0.98593     0.01407         0.81757         0.18243         0.93992   
+2     0.56217     0.43783         0.90465         0.09535         0.95257   
+3     0.96267     0.03733         0.88080         0.11920         0.88080   
+4     0.73106     0.26894         0.92414         0.07586         0.95257   
 
-   H[p(y|x,u=0,z)]  H[p(y|x,u=1,z)]  pred_p(y|x,u=0,z)  pred_p(y|x,u=1,z)  \
-0          0.95629          0.38742                0.0                0.0   
-1          1.00000          0.32776                0.0                0.0   
-2          0.90527          0.13000                0.0                0.0   
-3          0.76507          0.52706                0.0                0.0   
-4          0.83994          0.10670                0.0                0.0   
+   p(y|x,u=1,z)=1  p(y|x,z)=0  p(y|x,z)=1  p(y|x)=0  p(y|x)=1  \
+0         0.07586    0.855373    0.144627    0.8808    0.1192   
+1         0.06008    0.819291    0.180709    0.8808    0.1192   
+2         0.04743    0.925631    0.074369    0.8808    0.1192   
+3         0.11920    0.880800    0.119200    0.8808    0.1192   
+4         0.04743    0.931786    0.068214    0.8808    0.1192   
 
-   E[H[p(y|z,u,x)]]  
-0          0.939616  
-1          0.990548  
-2          0.517635  
-3          0.759601  
-4          0.604695  
+   H[p(y|x,u=0,z)]  H[p(y|x,u=1,z)]  E[H[p(y|z,u,x)]]  
+0          0.60494          0.38742          0.598564  
+1          0.68536          0.32776          0.680332  
+2          0.45408          0.27538          0.364730  
+3          0.52706          0.52706          0.527060  
+4          0.38742          0.27538          0.351474  
 
 Processing Z Example 7
 Row Note: Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for less than one year. Work hours per week = 15.
@@ -736,11 +988,35 @@ probs_p(u|z): {'0': 0.97702, '1': 0.02298}
 Extracted prediction: 0
 True z label: 0
 
+p(u|z,x) Seed 1/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.93992, '1': 0.06008}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 1/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
+
 p(u|z) Seed 2/3
 pred_p(u|z): <output>0</output>
 probs_p(u|z): {'0': 0.97702, '1': 0.02298}
 Extracted prediction: 0
 True z label: 0
+
+p(u|z,x) Seed 2/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.93992, '1': 0.06008}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 2/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
 
 p(u|z) Seed 3/3
 pred_p(u|z): <output>0</output>
@@ -748,44 +1024,60 @@ probs_p(u|z): {'0': 0.97702, '1': 0.02298}
 Extracted prediction: 0
 True z label: 0
 
+p(u|z,x) Seed 3/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.93992, '1': 0.06008}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 3/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
+
 Averaged puz probabilities: {'0': 0.97702, '1': 0.02298}
 
+Averaged puzx probabilities: {'0': 0.93992, '1': 0.06008}
+
+Averaged puzx probabilities: {'0': 0.8808000000000001, '1': 0.11920000000000001}
+
 Processing pyxu_z for label '0'
-Prompt for pyxu_z:
+Prompt for p(y|x,u=_,z):
 Based on the sample provided below, predict the "income". 
 "income" takes the form of the following: {'0': '<=50K', '1': '>50K'}.
 
 Age = 25. Race = White. Sex = Female. Marital status = divorced. Relation to head of the household = Unmarried. Native country = United States. Occupation = office and administrative support. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for one or more years without a degree. Work hours per week = 40.
 
-The following are some in-context examples that will help you make your prediction:
+The following is an in-context example that will help you make your prediction:
 
 Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for less than one year. Work hours per week = 15. -> income: 0
 
 Please output **ONLY** your predicted income label key from ['0', '1'] and enclose your output in <output> </output> tags. ** DO NOT OUTPUT ANYTHING ELSE! **
 
 p(y|x,u=0,z) Seed 1/3
-pred_p(y|x,u=0,z): <output>1</output>
-probs_p(y|x,u=0,z): {'0': 0.73106, '1': 0.26894}
-Extracted prediction: 1
+pred_p(y|x,u=0,z): <output>0</output>
+probs_p(y|x,u=0,z): {'0': 0.90465, '1': 0.09535}
+Extracted prediction: 0
 
 p(y|x,u=0,z) Seed 2/3
 pred_p(y|x,u=0,z): <output>0</output>
-probs_p(y|x,u=0,z): {'0': 0.73106, '1': 0.26894}
+probs_p(y|x,u=0,z): {'0': 0.90465, '1': 0.09535}
 Extracted prediction: 0
 
 p(y|x,u=0,z) Seed 3/3
 pred_p(y|x,u=0,z): <output>0</output>
-probs_p(y|x,u=0,z): {'0': 0.73106, '1': 0.26894}
+probs_p(y|x,u=0,z): {'0': 0.90465, '1': 0.09535}
 Extracted prediction: 0
 
 Processing pyxu_z for label '1'
-Prompt for pyxu_z:
+Prompt for p(y|x,u=_,z):
 Based on the sample provided below, predict the "income". 
 "income" takes the form of the following: {'0': '<=50K', '1': '>50K'}.
 
 Age = 25. Race = White. Sex = Female. Marital status = divorced. Relation to head of the household = Unmarried. Native country = United States. Occupation = office and administrative support. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for one or more years without a degree. Work hours per week = 40.
 
-The following are some in-context examples that will help you make your prediction:
+The following is an in-context example that will help you make your prediction:
 
 Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for less than one year. Work hours per week = 15. -> income: 1
 
@@ -793,20 +1085,22 @@ Please output **ONLY** your predicted income label key from ['0', '1'] and enclo
 
 p(y|x,u=1,z) Seed 1/3
 pred_p(y|x,u=1,z): <output>0</output>
-probs_p(y|x,u=1,z): {'0': 0.93992, '1': 0.06008}
+probs_p(y|x,u=1,z): {'0': 0.92414, '1': 0.07586}
 Extracted prediction: 0
 
 p(y|x,u=1,z) Seed 2/3
 pred_p(y|x,u=1,z): <output>0</output>
-probs_p(y|x,u=1,z): {'0': 0.93992, '1': 0.06008}
+probs_p(y|x,u=1,z): {'0': 0.92414, '1': 0.07586}
 Extracted prediction: 0
 
 p(y|x,u=1,z) Seed 3/3
 pred_p(y|x,u=1,z): <output>0</output>
-probs_p(y|x,u=1,z): {'0': 0.93992, '1': 0.06008}
+probs_p(y|x,u=1,z): {'0': 0.92414, '1': 0.07586}
 Extracted prediction: 0
 
-Averaged pyxu_z probabilities: {'p(y|x,u=0,z)': {'0': 0.7310599999999999, '1': 0.26894}, 'p(y|x,u=1,z)': {'0': 0.93992, '1': 0.06008}}
+Averaged pyxu_z probabilities: {'p(y|x,u=0,z)': {'0': 0.9046499999999998, '1': 0.09535}, 'p(y|x,u=1,z)': {'0': 0.92414, '1': 0.07586}}
+
+Averaged p(y|x,z) probabilities: {'0': 0.9058209591999997, '1': 0.0941790408}
 
 Final z_data with Averaged Probabilities:
                                                 note  \
@@ -823,26 +1117,26 @@ Final z_data with Averaged Probabilities:
 3  college for one or more years without a degree      0   0.97702   0.02298   
 4                             professional degree      0   0.67917   0.32083   
 
-   p(y|x,u=0,z)=0  p(y|x,u=0,z)=1  p(y|x,u=1,z)=0  p(y|x,u=1,z)=1  \
-0         0.62246         0.37754         0.92414         0.07586   
-1         0.50000         0.50000         0.93992         0.06008   
-2         0.67918         0.32082         0.98201         0.01799   
-3         0.77730         0.22270         0.88080         0.11920   
-4         0.73106         0.26894         0.98593         0.01407   
+   p(u|z,x)=0  p(u|z,x)=1  p(y|x,u=0,z)=0  p(y|x,u=0,z)=1  p(y|x,u=1,z)=0  \
+0     0.95258     0.04742         0.85195         0.14805         0.92414   
+1     0.98593     0.01407         0.81757         0.18243         0.93992   
+2     0.56217     0.43783         0.90465         0.09535         0.95257   
+3     0.96267     0.03733         0.88080         0.11920         0.88080   
+4     0.73106     0.26894         0.92414         0.07586         0.95257   
 
-   H[p(y|x,u=0,z)]  H[p(y|x,u=1,z)]  pred_p(y|x,u=0,z)  pred_p(y|x,u=1,z)  \
-0          0.95629          0.38742                0.0                0.0   
-1          1.00000          0.32776                0.0                0.0   
-2          0.90527          0.13000                0.0                0.0   
-3          0.76507          0.52706                0.0                0.0   
-4          0.83994          0.10670                0.0                0.0   
+   p(y|x,u=1,z)=1  p(y|x,z)=0  p(y|x,z)=1  p(y|x)=0  p(y|x)=1  \
+0         0.07586    0.855373    0.144627    0.8808    0.1192   
+1         0.06008    0.819291    0.180709    0.8808    0.1192   
+2         0.04743    0.925631    0.074369    0.8808    0.1192   
+3         0.11920    0.880800    0.119200    0.8808    0.1192   
+4         0.04743    0.931786    0.068214    0.8808    0.1192   
 
-   E[H[p(y|z,u,x)]]  
-0          0.939616  
-1          0.990548  
-2          0.517635  
-3          0.759601  
-4          0.604695  
+   H[p(y|x,u=0,z)]  H[p(y|x,u=1,z)]  E[H[p(y|z,u,x)]]  
+0          0.60494          0.38742          0.598564  
+1          0.68536          0.32776          0.680332  
+2          0.45408          0.27538          0.364730  
+3          0.52706          0.52706          0.527060  
+4          0.38742          0.27538          0.351474  
 
 Processing Z Example 8
 Row Note: Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = associate's degree. Work hours per week = 15.
@@ -853,11 +1147,35 @@ probs_p(u|z): {'0': 0.92415, '1': 0.07585}
 Extracted prediction: 0
 True z label: 0
 
+p(u|z,x) Seed 1/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.90465, '1': 0.09535}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 1/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
+
 p(u|z) Seed 2/3
 pred_p(u|z): <output>0</output>
 probs_p(u|z): {'0': 0.92415, '1': 0.07585}
 Extracted prediction: 0
 True z label: 0
+
+p(u|z,x) Seed 2/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.90465, '1': 0.09535}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 2/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
 
 p(u|z) Seed 3/3
 pred_p(u|z): <output>0</output>
@@ -865,44 +1183,60 @@ probs_p(u|z): {'0': 0.92415, '1': 0.07585}
 Extracted prediction: 0
 True z label: 0
 
+p(u|z,x) Seed 3/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.90465, '1': 0.09535}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 3/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
+
 Averaged puz probabilities: {'0': 0.92415, '1': 0.07585}
 
+Averaged puzx probabilities: {'0': 0.9046499999999998, '1': 0.09535}
+
+Averaged puzx probabilities: {'0': 0.8808000000000001, '1': 0.11920000000000001}
+
 Processing pyxu_z for label '0'
-Prompt for pyxu_z:
+Prompt for p(y|x,u=_,z):
 Based on the sample provided below, predict the "income". 
 "income" takes the form of the following: {'0': '<=50K', '1': '>50K'}.
 
 Age = 25. Race = White. Sex = Female. Marital status = divorced. Relation to head of the household = Unmarried. Native country = United States. Occupation = office and administrative support. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for one or more years without a degree. Work hours per week = 40.
 
-The following are some in-context examples that will help you make your prediction:
+The following is an in-context example that will help you make your prediction:
 
 Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = associate's degree. Work hours per week = 15. -> income: 0
 
 Please output **ONLY** your predicted income label key from ['0', '1'] and enclose your output in <output> </output> tags. ** DO NOT OUTPUT ANYTHING ELSE! **
 
 p(y|x,u=0,z) Seed 1/3
-pred_p(y|x,u=0,z): <output>1</output>
-probs_p(y|x,u=0,z): {'0': 0.73106, '1': 0.26894}
-Extracted prediction: 1
+pred_p(y|x,u=0,z): <output>0</output>
+probs_p(y|x,u=0,z): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
 
 p(y|x,u=0,z) Seed 2/3
 pred_p(y|x,u=0,z): <output>0</output>
-probs_p(y|x,u=0,z): {'0': 0.73106, '1': 0.26894}
+probs_p(y|x,u=0,z): {'0': 0.8808, '1': 0.1192}
 Extracted prediction: 0
 
 p(y|x,u=0,z) Seed 3/3
 pred_p(y|x,u=0,z): <output>0</output>
-probs_p(y|x,u=0,z): {'0': 0.73106, '1': 0.26894}
+probs_p(y|x,u=0,z): {'0': 0.8808, '1': 0.1192}
 Extracted prediction: 0
 
 Processing pyxu_z for label '1'
-Prompt for pyxu_z:
+Prompt for p(y|x,u=_,z):
 Based on the sample provided below, predict the "income". 
 "income" takes the form of the following: {'0': '<=50K', '1': '>50K'}.
 
 Age = 25. Race = White. Sex = Female. Marital status = divorced. Relation to head of the household = Unmarried. Native country = United States. Occupation = office and administrative support. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for one or more years without a degree. Work hours per week = 40.
 
-The following are some in-context examples that will help you make your prediction:
+The following is an in-context example that will help you make your prediction:
 
 Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = associate's degree. Work hours per week = 15. -> income: 1
 
@@ -910,20 +1244,22 @@ Please output **ONLY** your predicted income label key from ['0', '1'] and enclo
 
 p(y|x,u=1,z) Seed 1/3
 pred_p(y|x,u=1,z): <output>0</output>
-probs_p(y|x,u=1,z): {'0': 0.92414, '1': 0.07586}
+probs_p(y|x,u=1,z): {'0': 0.90465, '1': 0.09535}
 Extracted prediction: 0
 
 p(y|x,u=1,z) Seed 2/3
 pred_p(y|x,u=1,z): <output>0</output>
-probs_p(y|x,u=1,z): {'0': 0.92414, '1': 0.07586}
+probs_p(y|x,u=1,z): {'0': 0.90465, '1': 0.09535}
 Extracted prediction: 0
 
 p(y|x,u=1,z) Seed 3/3
 pred_p(y|x,u=1,z): <output>0</output>
-probs_p(y|x,u=1,z): {'0': 0.92414, '1': 0.07586}
+probs_p(y|x,u=1,z): {'0': 0.90465, '1': 0.09535}
 Extracted prediction: 0
 
-Averaged pyxu_z probabilities: {'p(y|x,u=0,z)': {'0': 0.7310599999999999, '1': 0.26894}, 'p(y|x,u=1,z)': {'0': 0.92414, '1': 0.07586}}
+Averaged pyxu_z probabilities: {'p(y|x,u=0,z)': {'0': 0.8808000000000001, '1': 0.11920000000000001}, 'p(y|x,u=1,z)': {'0': 0.9046499999999998, '1': 0.09535}}
+
+Averaged p(y|x,z) probabilities: {'0': 0.8830740975, '1': 0.11692590249999998}
 
 Final z_data with Averaged Probabilities:
                                                 note  \
@@ -940,26 +1276,26 @@ Final z_data with Averaged Probabilities:
 3  college for one or more years without a degree      0   0.97702   0.02298   
 4                             professional degree      0   0.67917   0.32083   
 
-   p(y|x,u=0,z)=0  p(y|x,u=0,z)=1  p(y|x,u=1,z)=0  p(y|x,u=1,z)=1  \
-0         0.62246         0.37754         0.92414         0.07586   
-1         0.50000         0.50000         0.93992         0.06008   
-2         0.67918         0.32082         0.98201         0.01799   
-3         0.77730         0.22270         0.88080         0.11920   
-4         0.73106         0.26894         0.98593         0.01407   
+   p(u|z,x)=0  p(u|z,x)=1  p(y|x,u=0,z)=0  p(y|x,u=0,z)=1  p(y|x,u=1,z)=0  \
+0     0.95258     0.04742         0.85195         0.14805         0.92414   
+1     0.98593     0.01407         0.81757         0.18243         0.93992   
+2     0.56217     0.43783         0.90465         0.09535         0.95257   
+3     0.96267     0.03733         0.88080         0.11920         0.88080   
+4     0.73106     0.26894         0.92414         0.07586         0.95257   
 
-   H[p(y|x,u=0,z)]  H[p(y|x,u=1,z)]  pred_p(y|x,u=0,z)  pred_p(y|x,u=1,z)  \
-0          0.95629          0.38742                0.0                0.0   
-1          1.00000          0.32776                0.0                0.0   
-2          0.90527          0.13000                0.0                0.0   
-3          0.76507          0.52706                0.0                0.0   
-4          0.83994          0.10670                0.0                0.0   
+   p(y|x,u=1,z)=1  p(y|x,z)=0  p(y|x,z)=1  p(y|x)=0  p(y|x)=1  \
+0         0.07586    0.855373    0.144627    0.8808    0.1192   
+1         0.06008    0.819291    0.180709    0.8808    0.1192   
+2         0.04743    0.925631    0.074369    0.8808    0.1192   
+3         0.11920    0.880800    0.119200    0.8808    0.1192   
+4         0.04743    0.931786    0.068214    0.8808    0.1192   
 
-   E[H[p(y|z,u,x)]]  
-0          0.939616  
-1          0.990548  
-2          0.517635  
-3          0.759601  
-4          0.604695  
+   H[p(y|x,u=0,z)]  H[p(y|x,u=1,z)]  E[H[p(y|z,u,x)]]  
+0          0.60494          0.38742          0.598564  
+1          0.68536          0.32776          0.680332  
+2          0.45408          0.27538          0.364730  
+3          0.52706          0.52706          0.527060  
+4          0.38742          0.27538          0.351474  
 
 Processing Z Example 9
 Row Note: Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = finished 10th class. Work hours per week = 15.
@@ -970,11 +1306,35 @@ probs_p(u|z): {'0': 0.98201, '1': 0.01799}
 Extracted prediction: 0
 True z label: 0
 
+p(u|z,x) Seed 1/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.97702, '1': 0.02298}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 1/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
+
 p(u|z) Seed 2/3
 pred_p(u|z): <output>0</output>
 probs_p(u|z): {'0': 0.98201, '1': 0.01799}
 Extracted prediction: 0
 True z label: 0
+
+p(u|z,x) Seed 2/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.97702, '1': 0.02298}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 2/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
 
 p(u|z) Seed 3/3
 pred_p(u|z): <output>0</output>
@@ -982,44 +1342,60 @@ probs_p(u|z): {'0': 0.98201, '1': 0.01799}
 Extracted prediction: 0
 True z label: 0
 
+p(u|z,x) Seed 3/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.97702, '1': 0.02298}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 3/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
+
 Averaged puz probabilities: {'0': 0.9820100000000002, '1': 0.01799}
 
+Averaged puzx probabilities: {'0': 0.97702, '1': 0.02298}
+
+Averaged puzx probabilities: {'0': 0.8808000000000001, '1': 0.11920000000000001}
+
 Processing pyxu_z for label '0'
-Prompt for pyxu_z:
+Prompt for p(y|x,u=_,z):
 Based on the sample provided below, predict the "income". 
 "income" takes the form of the following: {'0': '<=50K', '1': '>50K'}.
 
 Age = 25. Race = White. Sex = Female. Marital status = divorced. Relation to head of the household = Unmarried. Native country = United States. Occupation = office and administrative support. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for one or more years without a degree. Work hours per week = 40.
 
-The following are some in-context examples that will help you make your prediction:
+The following is an in-context example that will help you make your prediction:
 
 Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = finished 10th class. Work hours per week = 15. -> income: 0
 
 Please output **ONLY** your predicted income label key from ['0', '1'] and enclose your output in <output> </output> tags. ** DO NOT OUTPUT ANYTHING ELSE! **
 
 p(y|x,u=0,z) Seed 1/3
-pred_p(y|x,u=0,z): <output>1</output>
-probs_p(y|x,u=0,z): {'0': 0.56217, '1': 0.43783}
-Extracted prediction: 1
+pred_p(y|x,u=0,z): <output>0</output>
+probs_p(y|x,u=0,z): {'0': 0.85195, '1': 0.14805}
+Extracted prediction: 0
 
 p(y|x,u=0,z) Seed 2/3
 pred_p(y|x,u=0,z): <output>0</output>
-probs_p(y|x,u=0,z): {'0': 0.56217, '1': 0.43783}
+probs_p(y|x,u=0,z): {'0': 0.85195, '1': 0.14805}
 Extracted prediction: 0
 
 p(y|x,u=0,z) Seed 3/3
 pred_p(y|x,u=0,z): <output>0</output>
-probs_p(y|x,u=0,z): {'0': 0.56217, '1': 0.43783}
+probs_p(y|x,u=0,z): {'0': 0.85195, '1': 0.14805}
 Extracted prediction: 0
 
 Processing pyxu_z for label '1'
-Prompt for pyxu_z:
+Prompt for p(y|x,u=_,z):
 Based on the sample provided below, predict the "income". 
 "income" takes the form of the following: {'0': '<=50K', '1': '>50K'}.
 
 Age = 25. Race = White. Sex = Female. Marital status = divorced. Relation to head of the household = Unmarried. Native country = United States. Occupation = office and administrative support. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for one or more years without a degree. Work hours per week = 40.
 
-The following are some in-context examples that will help you make your prediction:
+The following is an in-context example that will help you make your prediction:
 
 Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = finished 10th class. Work hours per week = 15. -> income: 1
 
@@ -1040,7 +1416,9 @@ pred_p(y|x,u=1,z): <output>0</output>
 probs_p(y|x,u=1,z): {'0': 0.93991, '1': 0.06009}
 Extracted prediction: 0
 
-Averaged pyxu_z probabilities: {'p(y|x,u=0,z)': {'0': 0.56217, '1': 0.43783}, 'p(y|x,u=1,z)': {'0': 0.9399099999999999, '1': 0.06009}}
+Averaged pyxu_z probabilities: {'p(y|x,u=0,z)': {'0': 0.85195, '1': 0.14805}, 'p(y|x,u=1,z)': {'0': 0.9399099999999999, '1': 0.06009}}
+
+Averaged p(y|x,z) probabilities: {'0': 0.8539713207999999, '1': 0.14602867919999998}
 
 Final z_data with Averaged Probabilities:
                                                 note  \
@@ -1057,26 +1435,26 @@ Final z_data with Averaged Probabilities:
 3  college for one or more years without a degree      0   0.97702   0.02298   
 4                             professional degree      0   0.67917   0.32083   
 
-   p(y|x,u=0,z)=0  p(y|x,u=0,z)=1  p(y|x,u=1,z)=0  p(y|x,u=1,z)=1  \
-0         0.62246         0.37754         0.92414         0.07586   
-1         0.50000         0.50000         0.93992         0.06008   
-2         0.67918         0.32082         0.98201         0.01799   
-3         0.77730         0.22270         0.88080         0.11920   
-4         0.73106         0.26894         0.98593         0.01407   
+   p(u|z,x)=0  p(u|z,x)=1  p(y|x,u=0,z)=0  p(y|x,u=0,z)=1  p(y|x,u=1,z)=0  \
+0     0.95258     0.04742         0.85195         0.14805         0.92414   
+1     0.98593     0.01407         0.81757         0.18243         0.93992   
+2     0.56217     0.43783         0.90465         0.09535         0.95257   
+3     0.96267     0.03733         0.88080         0.11920         0.88080   
+4     0.73106     0.26894         0.92414         0.07586         0.95257   
 
-   H[p(y|x,u=0,z)]  H[p(y|x,u=1,z)]  pred_p(y|x,u=0,z)  pred_p(y|x,u=1,z)  \
-0          0.95629          0.38742                0.0                0.0   
-1          1.00000          0.32776                0.0                0.0   
-2          0.90527          0.13000                0.0                0.0   
-3          0.76507          0.52706                0.0                0.0   
-4          0.83994          0.10670                0.0                0.0   
+   p(y|x,u=1,z)=1  p(y|x,z)=0  p(y|x,z)=1  p(y|x)=0  p(y|x)=1  \
+0         0.07586    0.855373    0.144627    0.8808    0.1192   
+1         0.06008    0.819291    0.180709    0.8808    0.1192   
+2         0.04743    0.925631    0.074369    0.8808    0.1192   
+3         0.11920    0.880800    0.119200    0.8808    0.1192   
+4         0.04743    0.931786    0.068214    0.8808    0.1192   
 
-   E[H[p(y|z,u,x)]]  
-0          0.939616  
-1          0.990548  
-2          0.517635  
-3          0.759601  
-4          0.604695  
+   H[p(y|x,u=0,z)]  H[p(y|x,u=1,z)]  E[H[p(y|z,u,x)]]  
+0          0.60494          0.38742          0.598564  
+1          0.68536          0.32776          0.680332  
+2          0.45408          0.27538          0.364730  
+3          0.52706          0.52706          0.527060  
+4          0.38742          0.27538          0.351474  
 
 Processing Z Example 10
 Row Note: Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = finished 8th class. Work hours per week = 15.
@@ -1087,11 +1465,35 @@ probs_p(u|z): {'0': 0.98593, '1': 0.01407}
 Extracted prediction: 0
 True z label: 0
 
+p(u|z,x) Seed 1/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.98594, '1': 0.01406}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 1/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
+
 p(u|z) Seed 2/3
 pred_p(u|z): <output>0</output>
 probs_p(u|z): {'0': 0.98593, '1': 0.01407}
 Extracted prediction: 0
 True z label: 0
+
+p(u|z,x) Seed 2/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.98594, '1': 0.01406}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 2/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
 
 p(u|z) Seed 3/3
 pred_p(u|z): <output>0</output>
@@ -1099,16 +1501,32 @@ probs_p(u|z): {'0': 0.98593, '1': 0.01407}
 Extracted prediction: 0
 True z label: 0
 
+p(u|z,x) Seed 3/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.98594, '1': 0.01406}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 3/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
+
 Averaged puz probabilities: {'0': 0.9859300000000001, '1': 0.01407}
 
+Averaged puzx probabilities: {'0': 0.9859399999999999, '1': 0.014059999999999998}
+
+Averaged puzx probabilities: {'0': 0.8808000000000001, '1': 0.11920000000000001}
+
 Processing pyxu_z for label '0'
-Prompt for pyxu_z:
+Prompt for p(y|x,u=_,z):
 Based on the sample provided below, predict the "income". 
 "income" takes the form of the following: {'0': '<=50K', '1': '>50K'}.
 
 Age = 25. Race = White. Sex = Female. Marital status = divorced. Relation to head of the household = Unmarried. Native country = United States. Occupation = office and administrative support. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for one or more years without a degree. Work hours per week = 40.
 
-The following are some in-context examples that will help you make your prediction:
+The following is an in-context example that will help you make your prediction:
 
 Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = finished 8th class. Work hours per week = 15. -> income: 0
 
@@ -1116,27 +1534,27 @@ Please output **ONLY** your predicted income label key from ['0', '1'] and enclo
 
 p(y|x,u=0,z) Seed 1/3
 pred_p(y|x,u=0,z): <output>1</output>
-probs_p(y|x,u=0,z): {'0': 0.43782, '1': 0.56218}
+probs_p(y|x,u=0,z): {'0': 0.7773, '1': 0.2227}
 Extracted prediction: 1
 
 p(y|x,u=0,z) Seed 2/3
-pred_p(y|x,u=0,z): <output>1</output>
-probs_p(y|x,u=0,z): {'0': 0.43782, '1': 0.56218}
-Extracted prediction: 1
+pred_p(y|x,u=0,z): <output>0</output>
+probs_p(y|x,u=0,z): {'0': 0.7773, '1': 0.2227}
+Extracted prediction: 0
 
 p(y|x,u=0,z) Seed 3/3
-pred_p(y|x,u=0,z): <output>1</output>
-probs_p(y|x,u=0,z): {'0': 0.43782, '1': 0.56218}
-Extracted prediction: 1
+pred_p(y|x,u=0,z): <output>0</output>
+probs_p(y|x,u=0,z): {'0': 0.7773, '1': 0.2227}
+Extracted prediction: 0
 
 Processing pyxu_z for label '1'
-Prompt for pyxu_z:
+Prompt for p(y|x,u=_,z):
 Based on the sample provided below, predict the "income". 
 "income" takes the form of the following: {'0': '<=50K', '1': '>50K'}.
 
 Age = 25. Race = White. Sex = Female. Marital status = divorced. Relation to head of the household = Unmarried. Native country = United States. Occupation = office and administrative support. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for one or more years without a degree. Work hours per week = 40.
 
-The following are some in-context examples that will help you make your prediction:
+The following is an in-context example that will help you make your prediction:
 
 Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = finished 8th class. Work hours per week = 15. -> income: 1
 
@@ -1144,20 +1562,22 @@ Please output **ONLY** your predicted income label key from ['0', '1'] and enclo
 
 p(y|x,u=1,z) Seed 1/3
 pred_p(y|x,u=1,z): <output>0</output>
-probs_p(y|x,u=1,z): {'0': 0.93992, '1': 0.06008}
+probs_p(y|x,u=1,z): {'0': 0.93991, '1': 0.06009}
 Extracted prediction: 0
 
 p(y|x,u=1,z) Seed 2/3
 pred_p(y|x,u=1,z): <output>0</output>
-probs_p(y|x,u=1,z): {'0': 0.93992, '1': 0.06008}
+probs_p(y|x,u=1,z): {'0': 0.93991, '1': 0.06009}
 Extracted prediction: 0
 
 p(y|x,u=1,z) Seed 3/3
 pred_p(y|x,u=1,z): <output>0</output>
-probs_p(y|x,u=1,z): {'0': 0.93992, '1': 0.06008}
+probs_p(y|x,u=1,z): {'0': 0.93991, '1': 0.06009}
 Extracted prediction: 0
 
-Averaged pyxu_z probabilities: {'p(y|x,u=0,z)': {'0': 0.43782000000000004, '1': 0.56218}, 'p(y|x,u=1,z)': {'0': 0.93992, '1': 0.06008}}
+Averaged pyxu_z probabilities: {'p(y|x,u=0,z)': {'0': 0.7773, '1': 0.2227}, 'p(y|x,u=1,z)': {'0': 0.9399099999999999, '1': 0.06009}}
+
+Averaged p(y|x,z) probabilities: {'0': 0.7795862965999999, '1': 0.2204137034}
 
 Final z_data with Averaged Probabilities:
                                                 note  \
@@ -1174,26 +1594,26 @@ Final z_data with Averaged Probabilities:
 3  college for one or more years without a degree      0   0.97702   0.02298   
 4                             professional degree      0   0.67917   0.32083   
 
-   p(y|x,u=0,z)=0  p(y|x,u=0,z)=1  p(y|x,u=1,z)=0  p(y|x,u=1,z)=1  \
-0         0.62246         0.37754         0.92414         0.07586   
-1         0.50000         0.50000         0.93992         0.06008   
-2         0.67918         0.32082         0.98201         0.01799   
-3         0.77730         0.22270         0.88080         0.11920   
-4         0.73106         0.26894         0.98593         0.01407   
+   p(u|z,x)=0  p(u|z,x)=1  p(y|x,u=0,z)=0  p(y|x,u=0,z)=1  p(y|x,u=1,z)=0  \
+0     0.95258     0.04742         0.85195         0.14805         0.92414   
+1     0.98593     0.01407         0.81757         0.18243         0.93992   
+2     0.56217     0.43783         0.90465         0.09535         0.95257   
+3     0.96267     0.03733         0.88080         0.11920         0.88080   
+4     0.73106     0.26894         0.92414         0.07586         0.95257   
 
-   H[p(y|x,u=0,z)]  H[p(y|x,u=1,z)]  pred_p(y|x,u=0,z)  pred_p(y|x,u=1,z)  \
-0          0.95629          0.38742                0.0                0.0   
-1          1.00000          0.32776                0.0                0.0   
-2          0.90527          0.13000                0.0                0.0   
-3          0.76507          0.52706                0.0                0.0   
-4          0.83994          0.10670                0.0                0.0   
+   p(y|x,u=1,z)=1  p(y|x,z)=0  p(y|x,z)=1  p(y|x)=0  p(y|x)=1  \
+0         0.07586    0.855373    0.144627    0.8808    0.1192   
+1         0.06008    0.819291    0.180709    0.8808    0.1192   
+2         0.04743    0.925631    0.074369    0.8808    0.1192   
+3         0.11920    0.880800    0.119200    0.8808    0.1192   
+4         0.04743    0.931786    0.068214    0.8808    0.1192   
 
-   E[H[p(y|z,u,x)]]  
-0          0.939616  
-1          0.990548  
-2          0.517635  
-3          0.759601  
-4          0.604695  
+   H[p(y|x,u=0,z)]  H[p(y|x,u=1,z)]  E[H[p(y|z,u,x)]]  
+0          0.60494          0.38742          0.598564  
+1          0.68536          0.32776          0.680332  
+2          0.45408          0.27538          0.364730  
+3          0.52706          0.52706          0.527060  
+4          0.38742          0.27538          0.351474  
 
 Processing Z Example 11
 Row Note: Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = finished 12th class without diploma. Work hours per week = 15.
@@ -1204,11 +1624,35 @@ probs_p(u|z): {'0': 0.99142, '1': 0.00858}
 Extracted prediction: 0
 True z label: 0
 
+p(u|z,x) Seed 1/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.99142, '1': 0.00858}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 1/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
+
 p(u|z) Seed 2/3
 pred_p(u|z): <output>0</output>
 probs_p(u|z): {'0': 0.99142, '1': 0.00858}
 Extracted prediction: 0
 True z label: 0
+
+p(u|z,x) Seed 2/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.99142, '1': 0.00858}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 2/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
 
 p(u|z) Seed 3/3
 pred_p(u|z): <output>0</output>
@@ -1216,44 +1660,60 @@ probs_p(u|z): {'0': 0.99142, '1': 0.00858}
 Extracted prediction: 0
 True z label: 0
 
+p(u|z,x) Seed 3/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.99142, '1': 0.00858}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 3/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
+
 Averaged puz probabilities: {'0': 0.9914200000000001, '1': 0.00858}
 
+Averaged puzx probabilities: {'0': 0.9914200000000001, '1': 0.00858}
+
+Averaged puzx probabilities: {'0': 0.8808000000000001, '1': 0.11920000000000001}
+
 Processing pyxu_z for label '0'
-Prompt for pyxu_z:
+Prompt for p(y|x,u=_,z):
 Based on the sample provided below, predict the "income". 
 "income" takes the form of the following: {'0': '<=50K', '1': '>50K'}.
 
 Age = 25. Race = White. Sex = Female. Marital status = divorced. Relation to head of the household = Unmarried. Native country = United States. Occupation = office and administrative support. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for one or more years without a degree. Work hours per week = 40.
 
-The following are some in-context examples that will help you make your prediction:
+The following is an in-context example that will help you make your prediction:
 
 Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = finished 12th class without diploma. Work hours per week = 15. -> income: 0
 
 Please output **ONLY** your predicted income label key from ['0', '1'] and enclose your output in <output> </output> tags. ** DO NOT OUTPUT ANYTHING ELSE! **
 
 p(y|x,u=0,z) Seed 1/3
-pred_p(y|x,u=0,z): <output>1</output>
-probs_p(y|x,u=0,z): {'0': 0.67918, '1': 0.32082}
-Extracted prediction: 1
+pred_p(y|x,u=0,z): <output>0</output>
+probs_p(y|x,u=0,z): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
 
 p(y|x,u=0,z) Seed 2/3
 pred_p(y|x,u=0,z): <output>0</output>
-probs_p(y|x,u=0,z): {'0': 0.67918, '1': 0.32082}
+probs_p(y|x,u=0,z): {'0': 0.8808, '1': 0.1192}
 Extracted prediction: 0
 
 p(y|x,u=0,z) Seed 3/3
 pred_p(y|x,u=0,z): <output>0</output>
-probs_p(y|x,u=0,z): {'0': 0.67918, '1': 0.32082}
+probs_p(y|x,u=0,z): {'0': 0.8808, '1': 0.1192}
 Extracted prediction: 0
 
 Processing pyxu_z for label '1'
-Prompt for pyxu_z:
+Prompt for p(y|x,u=_,z):
 Based on the sample provided below, predict the "income". 
 "income" takes the form of the following: {'0': '<=50K', '1': '>50K'}.
 
 Age = 25. Race = White. Sex = Female. Marital status = divorced. Relation to head of the household = Unmarried. Native country = United States. Occupation = office and administrative support. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for one or more years without a degree. Work hours per week = 40.
 
-The following are some in-context examples that will help you make your prediction:
+The following is an in-context example that will help you make your prediction:
 
 Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = finished 12th class without diploma. Work hours per week = 15. -> income: 1
 
@@ -1261,20 +1721,22 @@ Please output **ONLY** your predicted income label key from ['0', '1'] and enclo
 
 p(y|x,u=1,z) Seed 1/3
 pred_p(y|x,u=1,z): <output>0</output>
-probs_p(y|x,u=1,z): {'0': 0.93991, '1': 0.06009}
+probs_p(y|x,u=1,z): {'0': 0.93992, '1': 0.06008}
 Extracted prediction: 0
 
 p(y|x,u=1,z) Seed 2/3
 pred_p(y|x,u=1,z): <output>0</output>
-probs_p(y|x,u=1,z): {'0': 0.93991, '1': 0.06009}
+probs_p(y|x,u=1,z): {'0': 0.93992, '1': 0.06008}
 Extracted prediction: 0
 
 p(y|x,u=1,z) Seed 3/3
 pred_p(y|x,u=1,z): <output>0</output>
-probs_p(y|x,u=1,z): {'0': 0.93991, '1': 0.06009}
+probs_p(y|x,u=1,z): {'0': 0.93992, '1': 0.06008}
 Extracted prediction: 0
 
-Averaged pyxu_z probabilities: {'p(y|x,u=0,z)': {'0': 0.67918, '1': 0.32082}, 'p(y|x,u=1,z)': {'0': 0.9399099999999999, '1': 0.06009}}
+Averaged pyxu_z probabilities: {'p(y|x,u=0,z)': {'0': 0.8808000000000001, '1': 0.11920000000000001}, 'p(y|x,u=1,z)': {'0': 0.93992, '1': 0.06008}}
+
+Averaged p(y|x,z) probabilities: {'0': 0.8813072496000003, '1': 0.11869275040000002}
 
 Final z_data with Averaged Probabilities:
                                                 note  \
@@ -1291,26 +1753,26 @@ Final z_data with Averaged Probabilities:
 3  college for one or more years without a degree      0   0.97702   0.02298   
 4                             professional degree      0   0.67917   0.32083   
 
-   p(y|x,u=0,z)=0  p(y|x,u=0,z)=1  p(y|x,u=1,z)=0  p(y|x,u=1,z)=1  \
-0         0.62246         0.37754         0.92414         0.07586   
-1         0.50000         0.50000         0.93992         0.06008   
-2         0.67918         0.32082         0.98201         0.01799   
-3         0.77730         0.22270         0.88080         0.11920   
-4         0.73106         0.26894         0.98593         0.01407   
+   p(u|z,x)=0  p(u|z,x)=1  p(y|x,u=0,z)=0  p(y|x,u=0,z)=1  p(y|x,u=1,z)=0  \
+0     0.95258     0.04742         0.85195         0.14805         0.92414   
+1     0.98593     0.01407         0.81757         0.18243         0.93992   
+2     0.56217     0.43783         0.90465         0.09535         0.95257   
+3     0.96267     0.03733         0.88080         0.11920         0.88080   
+4     0.73106     0.26894         0.92414         0.07586         0.95257   
 
-   H[p(y|x,u=0,z)]  H[p(y|x,u=1,z)]  pred_p(y|x,u=0,z)  pred_p(y|x,u=1,z)  \
-0          0.95629          0.38742                0.0                0.0   
-1          1.00000          0.32776                0.0                0.0   
-2          0.90527          0.13000                0.0                0.0   
-3          0.76507          0.52706                0.0                0.0   
-4          0.83994          0.10670                0.0                0.0   
+   p(y|x,u=1,z)=1  p(y|x,z)=0  p(y|x,z)=1  p(y|x)=0  p(y|x)=1  \
+0         0.07586    0.855373    0.144627    0.8808    0.1192   
+1         0.06008    0.819291    0.180709    0.8808    0.1192   
+2         0.04743    0.925631    0.074369    0.8808    0.1192   
+3         0.11920    0.880800    0.119200    0.8808    0.1192   
+4         0.04743    0.931786    0.068214    0.8808    0.1192   
 
-   E[H[p(y|z,u,x)]]  
-0          0.939616  
-1          0.990548  
-2          0.517635  
-3          0.759601  
-4          0.604695  
+   H[p(y|x,u=0,z)]  H[p(y|x,u=1,z)]  E[H[p(y|z,u,x)]]  
+0          0.60494          0.38742          0.598564  
+1          0.68536          0.32776          0.680332  
+2          0.45408          0.27538          0.364730  
+3          0.52706          0.52706          0.527060  
+4          0.38742          0.27538          0.351474  
 
 Processing Z Example 12
 Row Note: Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = finished 11th class. Work hours per week = 15.
@@ -1321,11 +1783,35 @@ probs_p(u|z): {'0': 0.98201, '1': 0.01799}
 Extracted prediction: 0
 True z label: 0
 
+p(u|z,x) Seed 1/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.97068, '1': 0.02932}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 1/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
+
 p(u|z) Seed 2/3
 pred_p(u|z): <output>0</output>
 probs_p(u|z): {'0': 0.98201, '1': 0.01799}
 Extracted prediction: 0
 True z label: 0
+
+p(u|z,x) Seed 2/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.97068, '1': 0.02932}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 2/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
 
 p(u|z) Seed 3/3
 pred_p(u|z): <output>0</output>
@@ -1333,44 +1819,60 @@ probs_p(u|z): {'0': 0.98201, '1': 0.01799}
 Extracted prediction: 0
 True z label: 0
 
+p(u|z,x) Seed 3/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.97068, '1': 0.02932}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 3/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
+
 Averaged puz probabilities: {'0': 0.9820100000000002, '1': 0.01799}
 
+Averaged puzx probabilities: {'0': 0.9706800000000001, '1': 0.02932}
+
+Averaged puzx probabilities: {'0': 0.8808000000000001, '1': 0.11920000000000001}
+
 Processing pyxu_z for label '0'
-Prompt for pyxu_z:
+Prompt for p(y|x,u=_,z):
 Based on the sample provided below, predict the "income". 
 "income" takes the form of the following: {'0': '<=50K', '1': '>50K'}.
 
 Age = 25. Race = White. Sex = Female. Marital status = divorced. Relation to head of the household = Unmarried. Native country = United States. Occupation = office and administrative support. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for one or more years without a degree. Work hours per week = 40.
 
-The following are some in-context examples that will help you make your prediction:
+The following is an in-context example that will help you make your prediction:
 
 Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = finished 11th class. Work hours per week = 15. -> income: 0
 
 Please output **ONLY** your predicted income label key from ['0', '1'] and enclose your output in <output> </output> tags. ** DO NOT OUTPUT ANYTHING ELSE! **
 
 p(y|x,u=0,z) Seed 1/3
-pred_p(y|x,u=0,z): <output>1</output>
-probs_p(y|x,u=0,z): {'0': 0.56218, '1': 0.43782}
-Extracted prediction: 1
+pred_p(y|x,u=0,z): <output>0</output>
+probs_p(y|x,u=0,z): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
 
 p(y|x,u=0,z) Seed 2/3
 pred_p(y|x,u=0,z): <output>0</output>
-probs_p(y|x,u=0,z): {'0': 0.56218, '1': 0.43782}
+probs_p(y|x,u=0,z): {'0': 0.8808, '1': 0.1192}
 Extracted prediction: 0
 
 p(y|x,u=0,z) Seed 3/3
 pred_p(y|x,u=0,z): <output>0</output>
-probs_p(y|x,u=0,z): {'0': 0.56218, '1': 0.43782}
+probs_p(y|x,u=0,z): {'0': 0.8808, '1': 0.1192}
 Extracted prediction: 0
 
 Processing pyxu_z for label '1'
-Prompt for pyxu_z:
+Prompt for p(y|x,u=_,z):
 Based on the sample provided below, predict the "income". 
 "income" takes the form of the following: {'0': '<=50K', '1': '>50K'}.
 
 Age = 25. Race = White. Sex = Female. Marital status = divorced. Relation to head of the household = Unmarried. Native country = United States. Occupation = office and administrative support. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for one or more years without a degree. Work hours per week = 40.
 
-The following are some in-context examples that will help you make your prediction:
+The following is an in-context example that will help you make your prediction:
 
 Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = finished 11th class. Work hours per week = 15. -> income: 1
 
@@ -1378,20 +1880,22 @@ Please output **ONLY** your predicted income label key from ['0', '1'] and enclo
 
 p(y|x,u=1,z) Seed 1/3
 pred_p(y|x,u=1,z): <output>0</output>
-probs_p(y|x,u=1,z): {'0': 0.92414, '1': 0.07586}
+probs_p(y|x,u=1,z): {'0': 0.93991, '1': 0.06009}
 Extracted prediction: 0
 
 p(y|x,u=1,z) Seed 2/3
 pred_p(y|x,u=1,z): <output>0</output>
-probs_p(y|x,u=1,z): {'0': 0.92414, '1': 0.07586}
+probs_p(y|x,u=1,z): {'0': 0.93991, '1': 0.06009}
 Extracted prediction: 0
 
 p(y|x,u=1,z) Seed 3/3
 pred_p(y|x,u=1,z): <output>0</output>
-probs_p(y|x,u=1,z): {'0': 0.92414, '1': 0.07586}
+probs_p(y|x,u=1,z): {'0': 0.93991, '1': 0.06009}
 Extracted prediction: 0
 
-Averaged pyxu_z probabilities: {'p(y|x,u=0,z)': {'0': 0.56218, '1': 0.43782000000000004}, 'p(y|x,u=1,z)': {'0': 0.92414, '1': 0.07586}}
+Averaged pyxu_z probabilities: {'p(y|x,u=0,z)': {'0': 0.8808000000000001, '1': 0.11920000000000001}, 'p(y|x,u=1,z)': {'0': 0.9399099999999999, '1': 0.06009}}
+
+Averaged p(y|x,z) probabilities: {'0': 0.8825331052000002, '1': 0.11746689480000003}
 
 Final z_data with Averaged Probabilities:
                                                 note  \
@@ -1408,26 +1912,26 @@ Final z_data with Averaged Probabilities:
 3  college for one or more years without a degree      0   0.97702   0.02298   
 4                             professional degree      0   0.67917   0.32083   
 
-   p(y|x,u=0,z)=0  p(y|x,u=0,z)=1  p(y|x,u=1,z)=0  p(y|x,u=1,z)=1  \
-0         0.62246         0.37754         0.92414         0.07586   
-1         0.50000         0.50000         0.93992         0.06008   
-2         0.67918         0.32082         0.98201         0.01799   
-3         0.77730         0.22270         0.88080         0.11920   
-4         0.73106         0.26894         0.98593         0.01407   
+   p(u|z,x)=0  p(u|z,x)=1  p(y|x,u=0,z)=0  p(y|x,u=0,z)=1  p(y|x,u=1,z)=0  \
+0     0.95258     0.04742         0.85195         0.14805         0.92414   
+1     0.98593     0.01407         0.81757         0.18243         0.93992   
+2     0.56217     0.43783         0.90465         0.09535         0.95257   
+3     0.96267     0.03733         0.88080         0.11920         0.88080   
+4     0.73106     0.26894         0.92414         0.07586         0.95257   
 
-   H[p(y|x,u=0,z)]  H[p(y|x,u=1,z)]  pred_p(y|x,u=0,z)  pred_p(y|x,u=1,z)  \
-0          0.95629          0.38742                0.0                0.0   
-1          1.00000          0.32776                0.0                0.0   
-2          0.90527          0.13000                0.0                0.0   
-3          0.76507          0.52706                0.0                0.0   
-4          0.83994          0.10670                0.0                0.0   
+   p(y|x,u=1,z)=1  p(y|x,z)=0  p(y|x,z)=1  p(y|x)=0  p(y|x)=1  \
+0         0.07586    0.855373    0.144627    0.8808    0.1192   
+1         0.06008    0.819291    0.180709    0.8808    0.1192   
+2         0.04743    0.925631    0.074369    0.8808    0.1192   
+3         0.11920    0.880800    0.119200    0.8808    0.1192   
+4         0.04743    0.931786    0.068214    0.8808    0.1192   
 
-   E[H[p(y|z,u,x)]]  
-0          0.939616  
-1          0.990548  
-2          0.517635  
-3          0.759601  
-4          0.604695  
+   H[p(y|x,u=0,z)]  H[p(y|x,u=1,z)]  E[H[p(y|z,u,x)]]  
+0          0.60494          0.38742          0.598564  
+1          0.68536          0.32776          0.680332  
+2          0.45408          0.27538          0.364730  
+3          0.52706          0.52706          0.527060  
+4          0.38742          0.27538          0.351474  
 
 Processing Z Example 13
 Row Note: Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = finished 6th class. Work hours per week = 15.
@@ -1438,11 +1942,35 @@ probs_p(u|z): {'0': 0.97702, '1': 0.02298}
 Extracted prediction: 0
 True z label: 0
 
+p(u|z,x) Seed 1/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.97702, '1': 0.02298}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 1/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
+
 p(u|z) Seed 2/3
 pred_p(u|z): <output>0</output>
 probs_p(u|z): {'0': 0.97702, '1': 0.02298}
 Extracted prediction: 0
 True z label: 0
+
+p(u|z,x) Seed 2/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.97702, '1': 0.02298}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 2/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
 
 p(u|z) Seed 3/3
 pred_p(u|z): <output>0</output>
@@ -1450,44 +1978,60 @@ probs_p(u|z): {'0': 0.97702, '1': 0.02298}
 Extracted prediction: 0
 True z label: 0
 
+p(u|z,x) Seed 3/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.97702, '1': 0.02298}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 3/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
+
 Averaged puz probabilities: {'0': 0.97702, '1': 0.02298}
 
+Averaged puzx probabilities: {'0': 0.97702, '1': 0.02298}
+
+Averaged puzx probabilities: {'0': 0.8808000000000001, '1': 0.11920000000000001}
+
 Processing pyxu_z for label '0'
-Prompt for pyxu_z:
+Prompt for p(y|x,u=_,z):
 Based on the sample provided below, predict the "income". 
 "income" takes the form of the following: {'0': '<=50K', '1': '>50K'}.
 
 Age = 25. Race = White. Sex = Female. Marital status = divorced. Relation to head of the household = Unmarried. Native country = United States. Occupation = office and administrative support. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for one or more years without a degree. Work hours per week = 40.
 
-The following are some in-context examples that will help you make your prediction:
+The following is an in-context example that will help you make your prediction:
 
 Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = finished 6th class. Work hours per week = 15. -> income: 0
 
 Please output **ONLY** your predicted income label key from ['0', '1'] and enclose your output in <output> </output> tags. ** DO NOT OUTPUT ANYTHING ELSE! **
 
 p(y|x,u=0,z) Seed 1/3
-pred_p(y|x,u=0,z): <output>1</output>
-probs_p(y|x,u=0,z): {'0': 0.43783, '1': 0.56217}
-Extracted prediction: 1
+pred_p(y|x,u=0,z): <output>0</output>
+probs_p(y|x,u=0,z): {'0': 0.81757, '1': 0.18243}
+Extracted prediction: 0
 
 p(y|x,u=0,z) Seed 2/3
-pred_p(y|x,u=0,z): <output>1</output>
-probs_p(y|x,u=0,z): {'0': 0.43783, '1': 0.56217}
-Extracted prediction: 1
+pred_p(y|x,u=0,z): <output>0</output>
+probs_p(y|x,u=0,z): {'0': 0.81757, '1': 0.18243}
+Extracted prediction: 0
 
 p(y|x,u=0,z) Seed 3/3
-pred_p(y|x,u=0,z): <output>1</output>
-probs_p(y|x,u=0,z): {'0': 0.43783, '1': 0.56217}
-Extracted prediction: 1
+pred_p(y|x,u=0,z): <output>0</output>
+probs_p(y|x,u=0,z): {'0': 0.81757, '1': 0.18243}
+Extracted prediction: 0
 
 Processing pyxu_z for label '1'
-Prompt for pyxu_z:
+Prompt for p(y|x,u=_,z):
 Based on the sample provided below, predict the "income". 
 "income" takes the form of the following: {'0': '<=50K', '1': '>50K'}.
 
 Age = 25. Race = White. Sex = Female. Marital status = divorced. Relation to head of the household = Unmarried. Native country = United States. Occupation = office and administrative support. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for one or more years without a degree. Work hours per week = 40.
 
-The following are some in-context examples that will help you make your prediction:
+The following is an in-context example that will help you make your prediction:
 
 Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = finished 6th class. Work hours per week = 15. -> income: 1
 
@@ -1495,20 +2039,22 @@ Please output **ONLY** your predicted income label key from ['0', '1'] and enclo
 
 p(y|x,u=1,z) Seed 1/3
 pred_p(y|x,u=1,z): <output>0</output>
-probs_p(y|x,u=1,z): {'0': 0.93992, '1': 0.06008}
+probs_p(y|x,u=1,z): {'0': 0.95257, '1': 0.04743}
 Extracted prediction: 0
 
 p(y|x,u=1,z) Seed 2/3
 pred_p(y|x,u=1,z): <output>0</output>
-probs_p(y|x,u=1,z): {'0': 0.93992, '1': 0.06008}
+probs_p(y|x,u=1,z): {'0': 0.95257, '1': 0.04743}
 Extracted prediction: 0
 
 p(y|x,u=1,z) Seed 3/3
 pred_p(y|x,u=1,z): <output>0</output>
-probs_p(y|x,u=1,z): {'0': 0.93992, '1': 0.06008}
+probs_p(y|x,u=1,z): {'0': 0.95257, '1': 0.04743}
 Extracted prediction: 0
 
-Averaged pyxu_z probabilities: {'p(y|x,u=0,z)': {'0': 0.43783, '1': 0.56217}, 'p(y|x,u=1,z)': {'0': 0.93992, '1': 0.06008}}
+Averaged pyxu_z probabilities: {'p(y|x,u=0,z)': {'0': 0.81757, '1': 0.18243}, 'p(y|x,u=1,z)': {'0': 0.95257, '1': 0.04743}}
+
+Averaged p(y|x,z) probabilities: {'0': 0.8206723, '1': 0.1793277}
 
 Final z_data with Averaged Probabilities:
                                                 note  \
@@ -1525,26 +2071,26 @@ Final z_data with Averaged Probabilities:
 3  college for one or more years without a degree      0   0.97702   0.02298   
 4                             professional degree      0   0.67917   0.32083   
 
-   p(y|x,u=0,z)=0  p(y|x,u=0,z)=1  p(y|x,u=1,z)=0  p(y|x,u=1,z)=1  \
-0         0.62246         0.37754         0.92414         0.07586   
-1         0.50000         0.50000         0.93992         0.06008   
-2         0.67918         0.32082         0.98201         0.01799   
-3         0.77730         0.22270         0.88080         0.11920   
-4         0.73106         0.26894         0.98593         0.01407   
+   p(u|z,x)=0  p(u|z,x)=1  p(y|x,u=0,z)=0  p(y|x,u=0,z)=1  p(y|x,u=1,z)=0  \
+0     0.95258     0.04742         0.85195         0.14805         0.92414   
+1     0.98593     0.01407         0.81757         0.18243         0.93992   
+2     0.56217     0.43783         0.90465         0.09535         0.95257   
+3     0.96267     0.03733         0.88080         0.11920         0.88080   
+4     0.73106     0.26894         0.92414         0.07586         0.95257   
 
-   H[p(y|x,u=0,z)]  H[p(y|x,u=1,z)]  pred_p(y|x,u=0,z)  pred_p(y|x,u=1,z)  \
-0          0.95629          0.38742                0.0                0.0   
-1          1.00000          0.32776                0.0                0.0   
-2          0.90527          0.13000                0.0                0.0   
-3          0.76507          0.52706                0.0                0.0   
-4          0.83994          0.10670                0.0                0.0   
+   p(y|x,u=1,z)=1  p(y|x,z)=0  p(y|x,z)=1  p(y|x)=0  p(y|x)=1  \
+0         0.07586    0.855373    0.144627    0.8808    0.1192   
+1         0.06008    0.819291    0.180709    0.8808    0.1192   
+2         0.04743    0.925631    0.074369    0.8808    0.1192   
+3         0.11920    0.880800    0.119200    0.8808    0.1192   
+4         0.04743    0.931786    0.068214    0.8808    0.1192   
 
-   E[H[p(y|z,u,x)]]  
-0          0.939616  
-1          0.990548  
-2          0.517635  
-3          0.759601  
-4          0.604695  
+   H[p(y|x,u=0,z)]  H[p(y|x,u=1,z)]  E[H[p(y|z,u,x)]]  
+0          0.60494          0.38742          0.598564  
+1          0.68536          0.32776          0.680332  
+2          0.45408          0.27538          0.364730  
+3          0.52706          0.52706          0.527060  
+4          0.38742          0.27538          0.351474  
 
 Processing Z Example 14
 Row Note: Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = finished 4th class. Work hours per week = 15.
@@ -1555,11 +2101,35 @@ probs_p(u|z): {'0': 0.97069, '1': 0.02931}
 Extracted prediction: 0
 True z label: 0
 
+p(u|z,x) Seed 1/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.96267, '1': 0.03733}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 1/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
+
 p(u|z) Seed 2/3
 pred_p(u|z): <output>0</output>
 probs_p(u|z): {'0': 0.97069, '1': 0.02931}
 Extracted prediction: 0
 True z label: 0
+
+p(u|z,x) Seed 2/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.96267, '1': 0.03733}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 2/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
 
 p(u|z) Seed 3/3
 pred_p(u|z): <output>0</output>
@@ -1567,44 +2137,60 @@ probs_p(u|z): {'0': 0.97069, '1': 0.02931}
 Extracted prediction: 0
 True z label: 0
 
+p(u|z,x) Seed 3/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.96267, '1': 0.03733}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 3/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
+
 Averaged puz probabilities: {'0': 0.9706899999999999, '1': 0.02931}
 
+Averaged puzx probabilities: {'0': 0.96267, '1': 0.03733}
+
+Averaged puzx probabilities: {'0': 0.8808000000000001, '1': 0.11920000000000001}
+
 Processing pyxu_z for label '0'
-Prompt for pyxu_z:
+Prompt for p(y|x,u=_,z):
 Based on the sample provided below, predict the "income". 
 "income" takes the form of the following: {'0': '<=50K', '1': '>50K'}.
 
 Age = 25. Race = White. Sex = Female. Marital status = divorced. Relation to head of the household = Unmarried. Native country = United States. Occupation = office and administrative support. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for one or more years without a degree. Work hours per week = 40.
 
-The following are some in-context examples that will help you make your prediction:
+The following is an in-context example that will help you make your prediction:
 
 Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = finished 4th class. Work hours per week = 15. -> income: 0
 
 Please output **ONLY** your predicted income label key from ['0', '1'] and enclose your output in <output> </output> tags. ** DO NOT OUTPUT ANYTHING ELSE! **
 
 p(y|x,u=0,z) Seed 1/3
-pred_p(y|x,u=0,z): <output>1</output>
-probs_p(y|x,u=0,z): {'0': 0.37754, '1': 0.62246}
-Extracted prediction: 1
+pred_p(y|x,u=0,z): <output>0</output>
+probs_p(y|x,u=0,z): {'0': 0.81757, '1': 0.18243}
+Extracted prediction: 0
 
 p(y|x,u=0,z) Seed 2/3
-pred_p(y|x,u=0,z): <output>1</output>
-probs_p(y|x,u=0,z): {'0': 0.37754, '1': 0.62246}
-Extracted prediction: 1
+pred_p(y|x,u=0,z): <output>0</output>
+probs_p(y|x,u=0,z): {'0': 0.81757, '1': 0.18243}
+Extracted prediction: 0
 
 p(y|x,u=0,z) Seed 3/3
-pred_p(y|x,u=0,z): <output>1</output>
-probs_p(y|x,u=0,z): {'0': 0.37754, '1': 0.62246}
-Extracted prediction: 1
+pred_p(y|x,u=0,z): <output>0</output>
+probs_p(y|x,u=0,z): {'0': 0.81757, '1': 0.18243}
+Extracted prediction: 0
 
 Processing pyxu_z for label '1'
-Prompt for pyxu_z:
+Prompt for p(y|x,u=_,z):
 Based on the sample provided below, predict the "income". 
 "income" takes the form of the following: {'0': '<=50K', '1': '>50K'}.
 
 Age = 25. Race = White. Sex = Female. Marital status = divorced. Relation to head of the household = Unmarried. Native country = United States. Occupation = office and administrative support. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for one or more years without a degree. Work hours per week = 40.
 
-The following are some in-context examples that will help you make your prediction:
+The following is an in-context example that will help you make your prediction:
 
 Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = finished 4th class. Work hours per week = 15. -> income: 1
 
@@ -1625,7 +2211,9 @@ pred_p(y|x,u=1,z): <output>0</output>
 probs_p(y|x,u=1,z): {'0': 0.95257, '1': 0.04743}
 Extracted prediction: 0
 
-Averaged pyxu_z probabilities: {'p(y|x,u=0,z)': {'0': 0.37754, '1': 0.62246}, 'p(y|x,u=1,z)': {'0': 0.95257, '1': 0.04743}}
+Averaged pyxu_z probabilities: {'p(y|x,u=0,z)': {'0': 0.81757, '1': 0.18243}, 'p(y|x,u=1,z)': {'0': 0.95257, '1': 0.04743}}
+
+Averaged p(y|x,z) probabilities: {'0': 0.82260955, '1': 0.17739045}
 
 Final z_data with Averaged Probabilities:
                                                 note  \
@@ -1642,26 +2230,26 @@ Final z_data with Averaged Probabilities:
 3  college for one or more years without a degree      0   0.97702   0.02298   
 4                             professional degree      0   0.67917   0.32083   
 
-   p(y|x,u=0,z)=0  p(y|x,u=0,z)=1  p(y|x,u=1,z)=0  p(y|x,u=1,z)=1  \
-0         0.62246         0.37754         0.92414         0.07586   
-1         0.50000         0.50000         0.93992         0.06008   
-2         0.67918         0.32082         0.98201         0.01799   
-3         0.77730         0.22270         0.88080         0.11920   
-4         0.73106         0.26894         0.98593         0.01407   
+   p(u|z,x)=0  p(u|z,x)=1  p(y|x,u=0,z)=0  p(y|x,u=0,z)=1  p(y|x,u=1,z)=0  \
+0     0.95258     0.04742         0.85195         0.14805         0.92414   
+1     0.98593     0.01407         0.81757         0.18243         0.93992   
+2     0.56217     0.43783         0.90465         0.09535         0.95257   
+3     0.96267     0.03733         0.88080         0.11920         0.88080   
+4     0.73106     0.26894         0.92414         0.07586         0.95257   
 
-   H[p(y|x,u=0,z)]  H[p(y|x,u=1,z)]  pred_p(y|x,u=0,z)  pred_p(y|x,u=1,z)  \
-0          0.95629          0.38742                0.0                0.0   
-1          1.00000          0.32776                0.0                0.0   
-2          0.90527          0.13000                0.0                0.0   
-3          0.76507          0.52706                0.0                0.0   
-4          0.83994          0.10670                0.0                0.0   
+   p(y|x,u=1,z)=1  p(y|x,z)=0  p(y|x,z)=1  p(y|x)=0  p(y|x)=1  \
+0         0.07586    0.855373    0.144627    0.8808    0.1192   
+1         0.06008    0.819291    0.180709    0.8808    0.1192   
+2         0.04743    0.925631    0.074369    0.8808    0.1192   
+3         0.11920    0.880800    0.119200    0.8808    0.1192   
+4         0.04743    0.931786    0.068214    0.8808    0.1192   
 
-   E[H[p(y|z,u,x)]]  
-0          0.939616  
-1          0.990548  
-2          0.517635  
-3          0.759601  
-4          0.604695  
+   H[p(y|x,u=0,z)]  H[p(y|x,u=1,z)]  E[H[p(y|z,u,x)]]  
+0          0.60494          0.38742          0.598564  
+1          0.68536          0.32776          0.680332  
+2          0.45408          0.27538          0.364730  
+3          0.52706          0.52706          0.527060  
+4          0.38742          0.27538          0.351474  
 
 Processing Z Example 15
 Row Note: Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = doctoral degree. Work hours per week = 15.
@@ -1672,11 +2260,35 @@ probs_p(u|z): {'0': 0.37754, '1': 0.62246}
 Extracted prediction: 1
 True z label: 0
 
+p(u|z,x) Seed 1/3
+pred_p(u|z,x): <output>1</output>
+probs_p(u|z,x): {'0': 0.37754, '1': 0.62246}
+Extracted prediction: 1
+True z label: 0
+
+p(y|x) Seed 1/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
+
 p(u|z) Seed 2/3
 pred_p(u|z): <output>1</output>
 probs_p(u|z): {'0': 0.37754, '1': 0.62246}
 Extracted prediction: 1
 True z label: 0
+
+p(u|z,x) Seed 2/3
+pred_p(u|z,x): <output>1</output>
+probs_p(u|z,x): {'0': 0.37754, '1': 0.62246}
+Extracted prediction: 1
+True z label: 0
+
+p(y|x) Seed 2/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
 
 p(u|z) Seed 3/3
 pred_p(u|z): <output>1</output>
@@ -1684,44 +2296,60 @@ probs_p(u|z): {'0': 0.37754, '1': 0.62246}
 Extracted prediction: 1
 True z label: 0
 
+p(u|z,x) Seed 3/3
+pred_p(u|z,x): <output>1</output>
+probs_p(u|z,x): {'0': 0.37754, '1': 0.62246}
+Extracted prediction: 1
+True z label: 0
+
+p(y|x) Seed 3/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
+
 Averaged puz probabilities: {'0': 0.37754, '1': 0.62246}
 
+Averaged puzx probabilities: {'0': 0.37754, '1': 0.62246}
+
+Averaged puzx probabilities: {'0': 0.8808000000000001, '1': 0.11920000000000001}
+
 Processing pyxu_z for label '0'
-Prompt for pyxu_z:
+Prompt for p(y|x,u=_,z):
 Based on the sample provided below, predict the "income". 
 "income" takes the form of the following: {'0': '<=50K', '1': '>50K'}.
 
 Age = 25. Race = White. Sex = Female. Marital status = divorced. Relation to head of the household = Unmarried. Native country = United States. Occupation = office and administrative support. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for one or more years without a degree. Work hours per week = 40.
 
-The following are some in-context examples that will help you make your prediction:
+The following is an in-context example that will help you make your prediction:
 
 Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = doctoral degree. Work hours per week = 15. -> income: 0
 
 Please output **ONLY** your predicted income label key from ['0', '1'] and enclose your output in <output> </output> tags. ** DO NOT OUTPUT ANYTHING ELSE! **
 
 p(y|x,u=0,z) Seed 1/3
-pred_p(y|x,u=0,z): <output>1</output>
-probs_p(y|x,u=0,z): {'0': 0.67918, '1': 0.32082}
-Extracted prediction: 1
+pred_p(y|x,u=0,z): <output>0</output>
+probs_p(y|x,u=0,z): {'0': 0.90465, '1': 0.09535}
+Extracted prediction: 0
 
 p(y|x,u=0,z) Seed 2/3
 pred_p(y|x,u=0,z): <output>0</output>
-probs_p(y|x,u=0,z): {'0': 0.67918, '1': 0.32082}
+probs_p(y|x,u=0,z): {'0': 0.90465, '1': 0.09535}
 Extracted prediction: 0
 
 p(y|x,u=0,z) Seed 3/3
 pred_p(y|x,u=0,z): <output>0</output>
-probs_p(y|x,u=0,z): {'0': 0.67918, '1': 0.32082}
+probs_p(y|x,u=0,z): {'0': 0.90465, '1': 0.09535}
 Extracted prediction: 0
 
 Processing pyxu_z for label '1'
-Prompt for pyxu_z:
+Prompt for p(y|x,u=_,z):
 Based on the sample provided below, predict the "income". 
 "income" takes the form of the following: {'0': '<=50K', '1': '>50K'}.
 
 Age = 25. Race = White. Sex = Female. Marital status = divorced. Relation to head of the household = Unmarried. Native country = United States. Occupation = office and administrative support. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for one or more years without a degree. Work hours per week = 40.
 
-The following are some in-context examples that will help you make your prediction:
+The following is an in-context example that will help you make your prediction:
 
 Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = doctoral degree. Work hours per week = 15. -> income: 1
 
@@ -1729,20 +2357,22 @@ Please output **ONLY** your predicted income label key from ['0', '1'] and enclo
 
 p(y|x,u=1,z) Seed 1/3
 pred_p(y|x,u=1,z): <output>0</output>
-probs_p(y|x,u=1,z): {'0': 0.99142, '1': 0.00858}
+probs_p(y|x,u=1,z): {'0': 0.98201, '1': 0.01799}
 Extracted prediction: 0
 
 p(y|x,u=1,z) Seed 2/3
 pred_p(y|x,u=1,z): <output>0</output>
-probs_p(y|x,u=1,z): {'0': 0.99142, '1': 0.00858}
+probs_p(y|x,u=1,z): {'0': 0.98201, '1': 0.01799}
 Extracted prediction: 0
 
 p(y|x,u=1,z) Seed 3/3
 pred_p(y|x,u=1,z): <output>0</output>
-probs_p(y|x,u=1,z): {'0': 0.99142, '1': 0.00858}
+probs_p(y|x,u=1,z): {'0': 0.98201, '1': 0.01799}
 Extracted prediction: 0
 
-Averaged pyxu_z probabilities: {'p(y|x,u=0,z)': {'0': 0.67918, '1': 0.32082}, 'p(y|x,u=1,z)': {'0': 0.9914200000000001, '1': 0.00858}}
+Averaged pyxu_z probabilities: {'p(y|x,u=0,z)': {'0': 0.9046499999999998, '1': 0.09535}, 'p(y|x,u=1,z)': {'0': 0.9820100000000002, '1': 0.01799}}
+
+Averaged p(y|x,z) probabilities: {'0': 0.9528035056000002, '1': 0.0471964944}
 
 Final z_data with Averaged Probabilities:
                                                 note  \
@@ -1759,26 +2389,26 @@ Final z_data with Averaged Probabilities:
 3  college for one or more years without a degree      0   0.97702   0.02298   
 4                             professional degree      0   0.67917   0.32083   
 
-   p(y|x,u=0,z)=0  p(y|x,u=0,z)=1  p(y|x,u=1,z)=0  p(y|x,u=1,z)=1  \
-0         0.62246         0.37754         0.92414         0.07586   
-1         0.50000         0.50000         0.93992         0.06008   
-2         0.67918         0.32082         0.98201         0.01799   
-3         0.77730         0.22270         0.88080         0.11920   
-4         0.73106         0.26894         0.98593         0.01407   
+   p(u|z,x)=0  p(u|z,x)=1  p(y|x,u=0,z)=0  p(y|x,u=0,z)=1  p(y|x,u=1,z)=0  \
+0     0.95258     0.04742         0.85195         0.14805         0.92414   
+1     0.98593     0.01407         0.81757         0.18243         0.93992   
+2     0.56217     0.43783         0.90465         0.09535         0.95257   
+3     0.96267     0.03733         0.88080         0.11920         0.88080   
+4     0.73106     0.26894         0.92414         0.07586         0.95257   
 
-   H[p(y|x,u=0,z)]  H[p(y|x,u=1,z)]  pred_p(y|x,u=0,z)  pred_p(y|x,u=1,z)  \
-0          0.95629          0.38742                0.0                0.0   
-1          1.00000          0.32776                0.0                0.0   
-2          0.90527          0.13000                0.0                0.0   
-3          0.76507          0.52706                0.0                0.0   
-4          0.83994          0.10670                0.0                0.0   
+   p(y|x,u=1,z)=1  p(y|x,z)=0  p(y|x,z)=1  p(y|x)=0  p(y|x)=1  \
+0         0.07586    0.855373    0.144627    0.8808    0.1192   
+1         0.06008    0.819291    0.180709    0.8808    0.1192   
+2         0.04743    0.925631    0.074369    0.8808    0.1192   
+3         0.11920    0.880800    0.119200    0.8808    0.1192   
+4         0.04743    0.931786    0.068214    0.8808    0.1192   
 
-   E[H[p(y|z,u,x)]]  
-0          0.939616  
-1          0.990548  
-2          0.517635  
-3          0.759601  
-4          0.604695  
+   H[p(y|x,u=0,z)]  H[p(y|x,u=1,z)]  E[H[p(y|z,u,x)]]  
+0          0.60494          0.38742          0.598564  
+1          0.68536          0.32776          0.680332  
+2          0.45408          0.27538          0.364730  
+3          0.52706          0.52706          0.527060  
+4          0.38742          0.27538          0.351474  
 
 Processing Z Example 16
 Row Note: Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = no schooling. Work hours per week = 15.
@@ -1789,11 +2419,35 @@ probs_p(u|z): {'0': 0.97702, '1': 0.02298}
 Extracted prediction: 0
 True z label: 0
 
+p(u|z,x) Seed 1/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.98901, '1': 0.01099}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 1/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
+
 p(u|z) Seed 2/3
 pred_p(u|z): <output>0</output>
 probs_p(u|z): {'0': 0.97702, '1': 0.02298}
 Extracted prediction: 0
 True z label: 0
+
+p(u|z,x) Seed 2/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.98901, '1': 0.01099}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 2/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
 
 p(u|z) Seed 3/3
 pred_p(u|z): <output>0</output>
@@ -1801,44 +2455,60 @@ probs_p(u|z): {'0': 0.97702, '1': 0.02298}
 Extracted prediction: 0
 True z label: 0
 
+p(u|z,x) Seed 3/3
+pred_p(u|z,x): <output>0</output>
+probs_p(u|z,x): {'0': 0.98901, '1': 0.01099}
+Extracted prediction: 0
+True z label: 0
+
+p(y|x) Seed 3/3
+pred_p(y|x): <output>0</output>
+probs_p(y|x): {'0': 0.8808, '1': 0.1192}
+Extracted prediction: 0
+True x label: 0
+
 Averaged puz probabilities: {'0': 0.97702, '1': 0.02298}
 
+Averaged puzx probabilities: {'0': 0.98901, '1': 0.01099}
+
+Averaged puzx probabilities: {'0': 0.8808000000000001, '1': 0.11920000000000001}
+
 Processing pyxu_z for label '0'
-Prompt for pyxu_z:
+Prompt for p(y|x,u=_,z):
 Based on the sample provided below, predict the "income". 
 "income" takes the form of the following: {'0': '<=50K', '1': '>50K'}.
 
 Age = 25. Race = White. Sex = Female. Marital status = divorced. Relation to head of the household = Unmarried. Native country = United States. Occupation = office and administrative support. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for one or more years without a degree. Work hours per week = 40.
 
-The following are some in-context examples that will help you make your prediction:
+The following is an in-context example that will help you make your prediction:
 
 Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = no schooling. Work hours per week = 15. -> income: 0
 
 Please output **ONLY** your predicted income label key from ['0', '1'] and enclose your output in <output> </output> tags. ** DO NOT OUTPUT ANYTHING ELSE! **
 
 p(y|x,u=0,z) Seed 1/3
-pred_p(y|x,u=0,z): <output>1</output>
-probs_p(y|x,u=0,z): {'0': 0.5, '1': 0.5}
-Extracted prediction: 1
+pred_p(y|x,u=0,z): <output>0</output>
+probs_p(y|x,u=0,z): {'0': 0.81757, '1': 0.18243}
+Extracted prediction: 0
 
 p(y|x,u=0,z) Seed 2/3
 pred_p(y|x,u=0,z): <output>0</output>
-probs_p(y|x,u=0,z): {'0': 0.5, '1': 0.5}
+probs_p(y|x,u=0,z): {'0': 0.81757, '1': 0.18243}
 Extracted prediction: 0
 
 p(y|x,u=0,z) Seed 3/3
 pred_p(y|x,u=0,z): <output>0</output>
-probs_p(y|x,u=0,z): {'0': 0.5, '1': 0.5}
+probs_p(y|x,u=0,z): {'0': 0.81757, '1': 0.18243}
 Extracted prediction: 0
 
 Processing pyxu_z for label '1'
-Prompt for pyxu_z:
+Prompt for p(y|x,u=_,z):
 Based on the sample provided below, predict the "income". 
 "income" takes the form of the following: {'0': '<=50K', '1': '>50K'}.
 
 Age = 25. Race = White. Sex = Female. Marital status = divorced. Relation to head of the household = Unmarried. Native country = United States. Occupation = office and administrative support. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for one or more years without a degree. Work hours per week = 40.
 
-The following are some in-context examples that will help you make your prediction:
+The following is an in-context example that will help you make your prediction:
 
 Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = no schooling. Work hours per week = 15. -> income: 1
 
@@ -1846,20 +2516,22 @@ Please output **ONLY** your predicted income label key from ['0', '1'] and enclo
 
 p(y|x,u=1,z) Seed 1/3
 pred_p(y|x,u=1,z): <output>0</output>
-probs_p(y|x,u=1,z): {'0': 0.93992, '1': 0.06008}
+probs_p(y|x,u=1,z): {'0': 0.93991, '1': 0.06009}
 Extracted prediction: 0
 
 p(y|x,u=1,z) Seed 2/3
 pred_p(y|x,u=1,z): <output>0</output>
-probs_p(y|x,u=1,z): {'0': 0.93992, '1': 0.06008}
+probs_p(y|x,u=1,z): {'0': 0.93991, '1': 0.06009}
 Extracted prediction: 0
 
 p(y|x,u=1,z) Seed 3/3
 pred_p(y|x,u=1,z): <output>0</output>
-probs_p(y|x,u=1,z): {'0': 0.93992, '1': 0.06008}
+probs_p(y|x,u=1,z): {'0': 0.93991, '1': 0.06009}
 Extracted prediction: 0
 
-Averaged pyxu_z probabilities: {'p(y|x,u=0,z)': {'0': 0.5, '1': 0.5}, 'p(y|x,u=1,z)': {'0': 0.93992, '1': 0.06008}}
+Averaged pyxu_z probabilities: {'p(y|x,u=0,z)': {'0': 0.81757, '1': 0.18243}, 'p(y|x,u=1,z)': {'0': 0.9399099999999999, '1': 0.06009}}
+
+Averaged p(y|x,z) probabilities: {'0': 0.8189145165999999, '1': 0.1810854834}
 
 Final z_data with Averaged Probabilities:
                                                 note  \
@@ -1876,23 +2548,23 @@ Final z_data with Averaged Probabilities:
 3  college for one or more years without a degree      0   0.97702   0.02298   
 4                             professional degree      0   0.67917   0.32083   
 
-   p(y|x,u=0,z)=0  p(y|x,u=0,z)=1  p(y|x,u=1,z)=0  p(y|x,u=1,z)=1  \
-0         0.62246         0.37754         0.92414         0.07586   
-1         0.50000         0.50000         0.93992         0.06008   
-2         0.67918         0.32082         0.98201         0.01799   
-3         0.77730         0.22270         0.88080         0.11920   
-4         0.73106         0.26894         0.98593         0.01407   
+   p(u|z,x)=0  p(u|z,x)=1  p(y|x,u=0,z)=0  p(y|x,u=0,z)=1  p(y|x,u=1,z)=0  \
+0     0.95258     0.04742         0.85195         0.14805         0.92414   
+1     0.98593     0.01407         0.81757         0.18243         0.93992   
+2     0.56217     0.43783         0.90465         0.09535         0.95257   
+3     0.96267     0.03733         0.88080         0.11920         0.88080   
+4     0.73106     0.26894         0.92414         0.07586         0.95257   
 
-   H[p(y|x,u=0,z)]  H[p(y|x,u=1,z)]  pred_p(y|x,u=0,z)  pred_p(y|x,u=1,z)  \
-0          0.95629          0.38742                0.0                0.0   
-1          1.00000          0.32776                0.0                0.0   
-2          0.90527          0.13000                0.0                0.0   
-3          0.76507          0.52706                0.0                0.0   
-4          0.83994          0.10670                0.0                0.0   
+   p(y|x,u=1,z)=1  p(y|x,z)=0  p(y|x,z)=1  p(y|x)=0  p(y|x)=1  \
+0         0.07586    0.855373    0.144627    0.8808    0.1192   
+1         0.06008    0.819291    0.180709    0.8808    0.1192   
+2         0.04743    0.925631    0.074369    0.8808    0.1192   
+3         0.11920    0.880800    0.119200    0.8808    0.1192   
+4         0.04743    0.931786    0.068214    0.8808    0.1192   
 
-   E[H[p(y|z,u,x)]]  
-0          0.939616  
-1          0.990548  
-2          0.517635  
-3          0.759601  
-4          0.604695  
+   H[p(y|x,u=0,z)]  H[p(y|x,u=1,z)]  E[H[p(y|z,u,x)]]  
+0          0.60494          0.38742          0.598564  
+1          0.68536          0.32776          0.680332  
+2          0.45408          0.27538          0.364730  
+3          0.52706          0.52706          0.527060  
+4          0.38742          0.27538          0.351474  

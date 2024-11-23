@@ -236,7 +236,7 @@ data = data.drop(initial_row.index)
 # exit() # here first to check whats the feature column names
 
 z_lst = []
-num_icl = 6
+# num_icl = 6
 unique_values = data[selected_feature].dropna().unique()
 # unique_values = np.random.choice(data[selected_feature].dropna().unique(), size=num_icl, replace=False)
 
@@ -268,46 +268,44 @@ seed_num = 3
 x_row = data.sample(n=1, random_state=seed)
 data = data.drop(x_row.index)
 x = x_row['note'].iloc[0]
+x_y = x_row['label'].iloc[0]
 print("x:", x)
-
-avg_puz_probs = {label: 0.0 for label in label_keys}
-
-avg_pyxu_z_probs = {
-    f"p(y|x,u={idx},z)": {label: 0.0 for label in label_keys}
-    for idx in range(len(label_keys))
-}
 
 for i, row in z_data.iterrows():
     print(f"\nProcessing Z Example {i + 1}")
-    icl_z = row['note']
-    icl_y = row['label']
-    print("Row Note:", icl_z)
-
-    # Sampling x from data (assuming 'data' DataFrame is defined)
-    # x_row = data.sample(n=1, random_state=seed)
-    # data = data.drop(x_row.index)
-    # x = x_row['note'].iloc[0]
+    z = row['note']
+    z_y = row['label']
+    print("Row Note:", z)
 
     # Initialize avg_puz_probs
     avg_puz_probs = {label: 0.0 for label in label_keys}
+    
+    # Initialize avg_puzx_probs
+    avg_puzx_probs = {label: 0.0 for label in label_keys}
 
     # Initialize avg_pyxu_z_probs with distinct keys for each label
     avg_pyxu_z_probs = {
         f"p(y|x,u={outer_label},z)": {inner_label: 0.0 for inner_label in label_keys}
         for outer_label in label_keys
     }
+    # pred_pyxu_z_preds = {f"p(y|x,u={outer_label},z)": 0.0 for outer_label in label_keys}
     
-    pred_pyxu_z_preds = {f"p(y|x,u={outer_label},z)": 0.0 for outer_label in label_keys}
-
-    # ----- Processing puz -----
+    # Initialize p(y|x,z)
+    avg_pyxz_probs = {label: 0.0 for label in label_keys}
+    
+    # Initialize p(y|x)
+    avg_pyx_probs = {label: 0.0 for label in label_keys}
+    
+    # ----- Processing p(u|z) and p(u|z,x) -----
     for seed in range(seed_num):
+        ## p(u|z)
         print(f"\np(u|z) Seed {seed + 1}/{seed_num}")
 
         prompt_puz = (
             f"""Based on the sample provided below, predict the "{label_name}".
 "{label_name}" takes the form of the following: {labels}.
 
-{icl_z}
+{z}
 
 Please output **ONLY** your predicted {label_name} label key from {label_keys} and enclose your output in <output> </output> tags. ** DO NOT OUTPUT ANYTHING ELSE! **"""
         )
@@ -316,7 +314,7 @@ Please output **ONLY** your predicted {label_name} label key from {label_keys} a
         pred_puz, probs_puz = get_response(prompt_puz, label_keys, seed=seed)
         print("pred_p(u|z):", pred_puz)
         print("probs_p(u|z):", probs_puz)
-
+        
         # Accumulate probabilities for puz
         for label, prob in probs_puz.items():
             avg_puz_probs[label] += prob
@@ -326,14 +324,86 @@ Please output **ONLY** your predicted {label_name} label key from {label_keys} a
         if match:
             pred_puz_label = match.group(1).strip()
             print(f"Extracted prediction: {pred_puz_label}")
-            print(f"True z label: {icl_y}")
+            print(f"True z label: {z_y}")
+        else:
+            print("Could not find output tags in the response.")
+            raise ValueError("Invalid response format.")
+        
+        ## p(u|z,x)
+        print(f"\np(u|z,x) Seed {seed + 1}/{seed_num}")
+
+        prompt_puzx = (
+            f"""Based on the sample provided below, predict the "{label_name}".
+"{label_name}" takes the form of the following: {labels}.
+
+{z}
+
+The following is an in-context example that will help you make your prediction:
+
+{x}
+
+Please output **ONLY** your predicted {label_name} label key from {label_keys} and enclose your output in <output> </output> tags. ** DO NOT OUTPUT ANYTHING ELSE! **"""
+        )
+
+        # Get the prediction and probabilities from the model
+        pred_puzx, probs_puzx = get_response(prompt_puzx, label_keys, seed=seed)
+        print("pred_p(u|z,x):", pred_puzx)
+        print("probs_p(u|z,x):", probs_puzx)
+
+        # Accumulate probabilities for puz
+        for label, prob in probs_puzx.items():
+            avg_puzx_probs[label] += prob
+
+        # Extract the predicted label using regex
+        match = re.search(r'<output>\s*(.*?)\s*</output>', pred_puzx, re.DOTALL | re.IGNORECASE)
+        if match:
+            pred_puzx_label = match.group(1).strip()
+            print(f"Extracted prediction: {pred_puzx_label}")
+            print(f"True z label: {z_y}")
+        else:
+            print("Could not find output tags in the response.")
+            raise ValueError("Invalid response format.")
+        
+        ## p(y|x)
+        print(f"\np(y|x) Seed {seed + 1}/{seed_num}")
+
+        prompt_pyx = (
+            f"""Based on the sample provided below, predict the "{label_name}".
+"{label_name}" takes the form of the following: {labels}.
+
+{x}
+
+Please output **ONLY** your predicted {label_name} label key from {label_keys} and enclose your output in <output> </output> tags. ** DO NOT OUTPUT ANYTHING ELSE! **"""
+        )
+
+        # Get the prediction and probabilities from the model
+        pred_pyx, probs_pyx = get_response(prompt_pyx, label_keys, seed=seed)
+        print("pred_p(y|x):", pred_pyx)
+        print("probs_p(y|x):", probs_pyx)
+        
+        # Accumulate probabilities for puz
+        for label, prob in probs_pyx.items():
+            avg_pyx_probs[label] += prob
+
+        # Extract the predicted label using regex
+        match = re.search(r'<output>\s*(.*?)\s*</output>', pred_pyx, re.DOTALL | re.IGNORECASE)
+        if match:
+            pred_pyx_label = match.group(1).strip()
+            print(f"Extracted prediction: {pred_pyx_label}")
+            print(f"True x label: {x_y}")
         else:
             print("Could not find output tags in the response.")
             raise ValueError("Invalid response format.")
 
-    # Calculate the average probabilities for puz
+    # Calculate the average probabilities for puz and puzx
     avg_puz_probs = {label: prob / seed_num for label, prob in avg_puz_probs.items()}
     print("\nAveraged puz probabilities:", avg_puz_probs)
+    
+    avg_puzx_probs = {label: prob / seed_num for label, prob in avg_puzx_probs.items()}
+    print("\nAveraged puzx probabilities:", avg_puzx_probs)
+    
+    avg_pyx_probs = {label: prob / seed_num for label, prob in avg_pyx_probs.items()}
+    print("\nAveraged puzx probabilities:", avg_pyx_probs)
 
     # ----- Processing pyxu_z -----
     for outer_label in label_keys:
@@ -345,14 +415,14 @@ Please output **ONLY** your predicted {label_name} label key from {label_keys} a
 
 {x}
 
-The following are some in-context examples that will help you make your prediction:
+The following is an in-context example that will help you make your prediction:
 
-{icl_z} -> {label_name}: {outer_label}
+{z} -> {label_name}: {outer_label}
 
 Please output **ONLY** your predicted {label_name} label key from {label_keys} and enclose your output in <output> </output> tags. ** DO NOT OUTPUT ANYTHING ELSE! **"""
         )
 
-        print("Prompt for pyxu_z:")
+        print("Prompt for p(y|x,u=_,z):")
         print(prompt_pyxuz)
 
         for seed in range(seed_num):
@@ -371,7 +441,7 @@ Please output **ONLY** your predicted {label_name} label key from {label_keys} a
             if match:
                 pred_pyxuz_label = int(match.group(1).strip())
                 print(f"Extracted prediction: {pred_pyxuz_label}")
-                pred_pyxu_z_preds[f"pred_p(y|x,u={outer_label},z)"] = pred_pyxuz_label
+                # pred_pyxu_z_preds[f"pred_p(y|x,u={outer_label},z)"] = pred_pyxuz_label
             else:
                 print("Could not find output tags in the response.")
                 raise ValueError("Invalid response format.")
@@ -381,17 +451,37 @@ Please output **ONLY** your predicted {label_name} label key from {label_keys} a
         avg_pyxu_z_probs[key] = {label: prob / seed_num for label, prob in sub_dict.items()}
 
     print("\nAveraged pyxu_z probabilities:", avg_pyxu_z_probs)
+    
+    # Calculate the average probabilities for p(y|x,z) using p(y|x,u,z) and p(u|z,x)
+    for label in label_keys:  # Iterate over all possible values of y
+        avg_pyxz_probs[label] = sum(
+            avg_pyxu_z_probs[f"p(y|x,u={u_label},z)"][label] * avg_puzx_probs[u_label]
+            for u_label in avg_puzx_probs.keys()
+        )
+    print("\nAveraged p(y|x,z) probabilities:", avg_pyxz_probs)
 
     # ----- Optional: Adding Averages to DataFrame -----
     # Add averaged puz probabilities to the DataFrame
     for label, avg_prob in avg_puz_probs.items():
         z_data.at[i, f"p(u|z)={label}"] = avg_prob
+        
+    # Add averaged puzx probabilities to the DataFrame
+    for label, avg_prob in avg_puzx_probs.items():
+        z_data.at[i, f"p(u|z,x)={label}"] = avg_prob
 
     # Add averaged pyxu_z probabilities to the DataFrame
     for key, sub_dict in avg_pyxu_z_probs.items():
         for label, avg_prob in sub_dict.items():
             z_data.at[i, f"{key}={label}"] = avg_prob
             
+    # Add averaged puzx probabilities to the DataFrame
+    for label, avg_prob in avg_pyxz_probs.items():
+        z_data.at[i, f"p(y|x,z)={label}"] = avg_prob
+        
+    # Add averaged pyx probabilities to the DataFrame
+    for label, avg_prob in avg_pyx_probs.items():
+        z_data.at[i, f"p(y|x)={label}"] = avg_prob
+        
     # ----- Compute Entropy for Each avg_pyxu_z_probs -----
     for key, sub_dict in avg_pyxu_z_probs.items():
         entropy = calculate_entropy(sub_dict)
@@ -400,9 +490,9 @@ Please output **ONLY** your predicted {label_name} label key from {label_keys} a
         z_data.at[i, f"H[{key}]"] = entropy
         
     # ----- Store the Predictions -----
-    for outer_label in label_keys:
-        preds = pred_pyxu_z_preds[f"pred_p(y|x,u={outer_label},z)"]
-        z_data.at[i, f"pred_p(y|x,u={outer_label},z)"] = preds
+    # for outer_label in label_keys:
+    #     preds = pred_pyxu_z_preds[f"pred_p(y|x,u={outer_label},z)"]
+    #     z_data.at[i, f"pred_p(y|x,u={outer_label},z)"] = preds
         
     expected_H = 0.0
     for label in label_keys:
@@ -416,7 +506,7 @@ Please output **ONLY** your predicted {label_name} label key from {label_keys} a
     print(z_data.head())
 
 exit()
-    
+
 ################################################################################################
 ######################################## E[H[p(y|u,z,x)]] ######################################
 ################################################################################################
