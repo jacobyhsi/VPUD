@@ -111,7 +111,7 @@ def get_response(llm, prompt, label_keys, seed):
 
     # Build the probability distribution
     probability_distribution = {
-        label: round(prob_dist[0, tokenizer.convert_tokens_to_ids(label)].item(), 5)
+        label: prob_dist[0, tokenizer.convert_tokens_to_ids(label)].item()
         for label in label_keys
     }
 

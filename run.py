@@ -263,13 +263,12 @@ label_name = label_map['label']
 labels = label_map['map']
 label_keys = list(labels)
 
-seed_num = 3
-
 x_row = data.sample(n=1, random_state=seed)
 data = data.drop(x_row.index)
 x = x_row['note'].iloc[0]
 x_y = x_row['label'].iloc[0]
 print("x:", x)
+seed_num = 5
 
 for i, row in z_data.iterrows():
     print(f"\nProcessing Z Example {i + 1}")
@@ -474,7 +473,7 @@ Please output **ONLY** your predicted {label_name} label key from {label_keys} a
         for label, avg_prob in sub_dict.items():
             z_data.at[i, f"{key}={label}"] = avg_prob
             
-    # Add averaged puzx probabilities to the DataFrame
+    # Add averaged pyxz probabilities to the DataFrame
     for label, avg_prob in avg_pyxz_probs.items():
         z_data.at[i, f"p(y|x,z)={label}"] = avg_prob
         
@@ -489,21 +488,32 @@ Please output **ONLY** your predicted {label_name} label key from {label_keys} a
         # print(f"H[{key}]")
         z_data.at[i, f"H[{key}]"] = entropy
         
+    # ----- Compute Entropy for Each avg_pyx_probs -----
+    z_data.at[i, f"H[p(y|x)]"] = calculate_entropy(avg_pyx_probs)
+        
+    # ----- Compute Entropy for Each avg_pyxz_probs -----
+    z_data.at[i, f"H[p(y|x,z)]"] = calculate_entropy(avg_pyxz_probs)
+    
+    expected_H = 0.0
+    for label in label_keys:
+        avg_puzx_prob = z_data.at[i, f"p(u|z,x)={label}"]
+        avg_pyxuz_entropy = z_data.at[i, f"H[p(y|x,u={label},z)]"]
+        expected_H += avg_puzx_prob * avg_pyxuz_entropy
+    z_data.at[i, "Va = E[H[p(y|x,u,z)]]"] = round(expected_H, 5)
+    
+    # Computing Epistemic Uncertainty
+    z_data["Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)]]"] = z_data["H[p(y|x,z)]"] - z_data["Va = E[H[p(y|x,u,z)]]"]
+        
     # ----- Store the Predictions -----
     # for outer_label in label_keys:
     #     preds = pred_pyxu_z_preds[f"pred_p(y|x,u={outer_label},z)"]
     #     z_data.at[i, f"pred_p(y|x,u={outer_label},z)"] = preds
-        
-    expected_H = 0.0
-    for label in label_keys:
-        avg_puz_prob = z_data.at[i, f"p(u|z)={label}"]
-        avg_pyxu_entropy = z_data.at[i, f"H[p(y|x,u={label},z)]"]
-        expected_H += avg_puz_prob * avg_pyxu_entropy
-    z_data.at[i, "E[H[p(y|z,u,x)]]"] = expected_H
             
     # ----- Final Output -----
     print("\nFinal z_data with Averaged Probabilities:")
     print(z_data.head())
+    
+    z_data.to_csv(f"results_{args.data}.csv", index=False)
 
 exit()
 
