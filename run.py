@@ -16,6 +16,7 @@ from torch.nn.functional import softmax
 
 parser = argparse.ArgumentParser(description='Description of your program')
 parser.add_argument("--seed", default=123)
+parser.add_argument("--seed_num", default="5")
 parser.add_argument("--data", default="income")
 parser.add_argument("--feature", default="Education")
 parser.add_argument("--shots", default=3)
@@ -268,7 +269,8 @@ data = data.drop(x_row.index)
 x = x_row['note'].iloc[0]
 x_y = x_row['label'].iloc[0]
 print("x:", x)
-seed_num = 5
+
+seed_num = int(args.seed_num)
 
 for i, row in z_data.iterrows():
     print(f"\nProcessing Z Example {i + 1}")
@@ -502,7 +504,7 @@ Please output **ONLY** your predicted {label_name} label key from {label_keys} a
     z_data.at[i, "Va = E[H[p(y|x,u,z)]]"] = round(expected_H, 5)
     
     # Computing Epistemic Uncertainty
-    z_data["Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)]]"] = z_data["H[p(y|x,z)]"] - z_data["Va = E[H[p(y|x,u,z)]]"]
+    # z_data["Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)]]"] = z_data["H[p(y|x,z)]"] - z_data["Va = E[H[p(y|x,u,z)]]"]
         
     # ----- Store the Predictions -----
     # for outer_label in label_keys:
@@ -512,6 +514,13 @@ Please output **ONLY** your predicted {label_name} label key from {label_keys} a
     # ----- Final Output -----
     print("\nFinal z_data with Averaged Probabilities:")
     print(z_data.head())
+    
+    total_U = z_data["H[p(y|x)]"][0]
+    print("Total Uncertainty =", total_U)
+    min_Va = z_data["Va = E[H[p(y|x,u,z)]]"].min()
+    print("min Va = E[H[p(y|x,u,z)]] =", min_Va)
+    max_Ve = round(total_U - min_Va, 5)
+    print("max Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)] =", max_Ve)
     
     z_data.to_csv(f"results_{args.data}.csv", index=False)
 

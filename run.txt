@@ -240,12 +240,15 @@ Final z_data with Averaged Probabilities:
 3              NaN              NaN        NaN          NaN   
 4              NaN              NaN        NaN          NaN   
 
-   Va = E[H[p(y|x,u,z)]]  Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)]]  
-0                0.59462                              0.00161  
-1                    NaN                                  NaN  
-2                    NaN                                  NaN  
-3                    NaN                                  NaN  
-4                    NaN                                  NaN  
+   Va = E[H[p(y|x,u,z)]]  
+0                0.59462  
+1                    NaN  
+2                    NaN  
+3                    NaN  
+4                    NaN  
+Total Uncertainty = 0.52706
+min Va = E[H[p(y|x,u,z)]] = 0.59462
+max Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)] = -0.06756
 
 Processing Z Example 2
 Row Note: Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = finished 9th class. Work hours per week = 15.
@@ -462,12 +465,15 @@ Final z_data with Averaged Probabilities:
 3              NaN              NaN        NaN          NaN   
 4              NaN              NaN        NaN          NaN   
 
-   Va = E[H[p(y|x,u,z)]]  Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)]]  
-0                0.59462                              0.00161  
-1                0.68033                              0.00130  
-2                    NaN                                  NaN  
-3                    NaN                                  NaN  
-4                    NaN                                  NaN  
+   Va = E[H[p(y|x,u,z)]]  
+0                0.59462  
+1                0.68033  
+2                    NaN  
+3                    NaN  
+4                    NaN  
+Total Uncertainty = 0.52706
+min Va = E[H[p(y|x,u,z)]] = 0.59462
+max Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)] = -0.06756
 
 Processing Z Example 3
 Row Note: Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = master's degree. Work hours per week = 15.
@@ -684,12 +690,15 @@ Final z_data with Averaged Probabilities:
 3              NaN              NaN        NaN          NaN   
 4              NaN              NaN        NaN          NaN   
 
-   Va = E[H[p(y|x,u,z)]]  Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)]]  
-0                0.59462                              0.00161  
-1                0.68033                              0.00130  
-2                0.37584                              0.00618  
-3                    NaN                                  NaN  
-4                    NaN                                  NaN  
+   Va = E[H[p(y|x,u,z)]]  
+0                0.59462  
+1                0.68033  
+2                0.37584  
+3                    NaN  
+4                    NaN  
+Total Uncertainty = 0.52706
+min Va = E[H[p(y|x,u,z)]] = 0.37584
+max Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)] = 0.15122
 
 Processing Z Example 4
 Row Note: Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for one or more years without a degree. Work hours per week = 15.
@@ -906,12 +915,15 @@ Final z_data with Averaged Probabilities:
 3          0.52706          0.52706    0.52706      0.52706   
 4              NaN              NaN        NaN          NaN   
 
-   Va = E[H[p(y|x,u,z)]]  Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)]]  
-0                0.59462                              0.00161  
-1                0.68033                              0.00130  
-2                0.37584                              0.00618  
-3                0.52706                              0.00000  
-4                    NaN                                  NaN  
+   Va = E[H[p(y|x,u,z)]]  
+0                0.59462  
+1                0.68033  
+2                0.37584  
+3                0.52706  
+4                    NaN  
+Total Uncertainty = 0.52706
+min Va = E[H[p(y|x,u,z)]] = 0.37584
+max Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)] = 0.15122
 
 Processing Z Example 5
 Row Note: Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = professional degree. Work hours per week = 15.
@@ -1128,12 +1140,15 @@ Final z_data with Averaged Probabilities:
 3          0.52706          0.52706    0.52706      0.52706   
 4          0.38742          0.27538    0.52706      0.35922   
 
-   Va = E[H[p(y|x,u,z)]]  Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)]]  
-0                0.59462                              0.00161  
-1                0.68033                              0.00130  
-2                0.37584                              0.00618  
-3                0.52706                              0.00000  
-4                0.35729                              0.00193  
+   Va = E[H[p(y|x,u,z)]]  
+0                0.59462  
+1                0.68033  
+2                0.37584  
+3                0.52706  
+4                0.35729  
+Total Uncertainty = 0.52706
+min Va = E[H[p(y|x,u,z)]] = 0.35729
+max Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)] = 0.16977
 
 Processing Z Example 6
 Row Note: Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = bachelor's degree. Work hours per week = 15.
@@ -1350,12 +1365,15 @@ Final z_data with Averaged Probabilities:
 3          0.52706          0.52706    0.52706      0.52706   
 4          0.38742          0.27538    0.52706      0.35922   
 
-   Va = E[H[p(y|x,u,z)]]  Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)]]  
-0                0.59462                              0.00161  
-1                0.68033                              0.00130  
-2                0.37584                              0.00618  
-3                0.52706                              0.00000  
-4                0.35729                              0.00193  
+   Va = E[H[p(y|x,u,z)]]  
+0                0.59462  
+1                0.68033  
+2                0.37584  
+3                0.52706  
+4                0.35729  
+Total Uncertainty = 0.52706
+min Va = E[H[p(y|x,u,z)]] = 0.35729
+max Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)] = 0.16977
 
 Processing Z Example 7
 Row Note: Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = college for less than one year. Work hours per week = 15.
@@ -1572,12 +1590,15 @@ Final z_data with Averaged Probabilities:
 3          0.52706          0.52706    0.52706      0.52706   
 4          0.38742          0.27538    0.52706      0.35922   
 
-   Va = E[H[p(y|x,u,z)]]  Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)]]  
-0                0.59462                              0.00161  
-1                0.68033                              0.00130  
-2                0.37584                              0.00618  
-3                0.52706                              0.00000  
-4                0.35729                              0.00193  
+   Va = E[H[p(y|x,u,z)]]  
+0                0.59462  
+1                0.68033  
+2                0.37584  
+3                0.52706  
+4                0.35729  
+Total Uncertainty = 0.52706
+min Va = E[H[p(y|x,u,z)]] = 0.35729
+max Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)] = 0.16977
 
 Processing Z Example 8
 Row Note: Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = associate's degree. Work hours per week = 15.
@@ -1794,12 +1815,15 @@ Final z_data with Averaged Probabilities:
 3          0.52706          0.52706    0.52706      0.52706   
 4          0.38742          0.27538    0.52706      0.35922   
 
-   Va = E[H[p(y|x,u,z)]]  Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)]]  
-0                0.59462                              0.00161  
-1                0.68033                              0.00130  
-2                0.37584                              0.00618  
-3                0.52706                              0.00000  
-4                0.35729                              0.00193  
+   Va = E[H[p(y|x,u,z)]]  
+0                0.59462  
+1                0.68033  
+2                0.37584  
+3                0.52706  
+4                0.35729  
+Total Uncertainty = 0.52706
+min Va = E[H[p(y|x,u,z)]] = 0.35729
+max Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)] = 0.16977
 
 Processing Z Example 9
 Row Note: Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = finished 10th class. Work hours per week = 15.
@@ -2016,12 +2040,15 @@ Final z_data with Averaged Probabilities:
 3          0.52706          0.52706    0.52706      0.52706   
 4          0.38742          0.27538    0.52706      0.35922   
 
-   Va = E[H[p(y|x,u,z)]]  Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)]]  
-0                0.59462                              0.00161  
-1                0.68033                              0.00130  
-2                0.37584                              0.00618  
-3                0.52706                              0.00000  
-4                0.35729                              0.00193  
+   Va = E[H[p(y|x,u,z)]]  
+0                0.59462  
+1                0.68033  
+2                0.37584  
+3                0.52706  
+4                0.35729  
+Total Uncertainty = 0.52706
+min Va = E[H[p(y|x,u,z)]] = 0.35729
+max Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)] = 0.16977
 
 Processing Z Example 10
 Row Note: Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = finished 8th class. Work hours per week = 15.
@@ -2238,12 +2265,15 @@ Final z_data with Averaged Probabilities:
 3          0.52706          0.52706    0.52706      0.52706   
 4          0.38742          0.27538    0.52706      0.35922   
 
-   Va = E[H[p(y|x,u,z)]]  Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)]]  
-0                0.59462                              0.00161  
-1                0.68033                              0.00130  
-2                0.37584                              0.00618  
-3                0.52706                              0.00000  
-4                0.35729                              0.00193  
+   Va = E[H[p(y|x,u,z)]]  
+0                0.59462  
+1                0.68033  
+2                0.37584  
+3                0.52706  
+4                0.35729  
+Total Uncertainty = 0.52706
+min Va = E[H[p(y|x,u,z)]] = 0.35729
+max Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)] = 0.16977
 
 Processing Z Example 11
 Row Note: Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = finished 12th class without diploma. Work hours per week = 15.
@@ -2460,12 +2490,15 @@ Final z_data with Averaged Probabilities:
 3          0.52706          0.52706    0.52706      0.52706   
 4          0.38742          0.27538    0.52706      0.35922   
 
-   Va = E[H[p(y|x,u,z)]]  Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)]]  
-0                0.59462                              0.00161  
-1                0.68033                              0.00130  
-2                0.37584                              0.00618  
-3                0.52706                              0.00000  
-4                0.35729                              0.00193  
+   Va = E[H[p(y|x,u,z)]]  
+0                0.59462  
+1                0.68033  
+2                0.37584  
+3                0.52706  
+4                0.35729  
+Total Uncertainty = 0.52706
+min Va = E[H[p(y|x,u,z)]] = 0.35729
+max Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)] = 0.16977
 
 Processing Z Example 12
 Row Note: Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = finished 11th class. Work hours per week = 15.
@@ -2682,12 +2715,15 @@ Final z_data with Averaged Probabilities:
 3          0.52706          0.52706    0.52706      0.52706   
 4          0.38742          0.27538    0.52706      0.35922   
 
-   Va = E[H[p(y|x,u,z)]]  Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)]]  
-0                0.59462                              0.00161  
-1                0.68033                              0.00130  
-2                0.37584                              0.00618  
-3                0.52706                              0.00000  
-4                0.35729                              0.00193  
+   Va = E[H[p(y|x,u,z)]]  
+0                0.59462  
+1                0.68033  
+2                0.37584  
+3                0.52706  
+4                0.35729  
+Total Uncertainty = 0.52706
+min Va = E[H[p(y|x,u,z)]] = 0.35729
+max Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)] = 0.16977
 
 Processing Z Example 13
 Row Note: Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = finished 6th class. Work hours per week = 15.
@@ -2904,12 +2940,15 @@ Final z_data with Averaged Probabilities:
 3          0.52706          0.52706    0.52706      0.52706   
 4          0.38742          0.27538    0.52706      0.35922   
 
-   Va = E[H[p(y|x,u,z)]]  Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)]]  
-0                0.59462                              0.00161  
-1                0.68033                              0.00130  
-2                0.37584                              0.00618  
-3                0.52706                              0.00000  
-4                0.35729                              0.00193  
+   Va = E[H[p(y|x,u,z)]]  
+0                0.59462  
+1                0.68033  
+2                0.37584  
+3                0.52706  
+4                0.35729  
+Total Uncertainty = 0.52706
+min Va = E[H[p(y|x,u,z)]] = 0.35729
+max Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)] = 0.16977
 
 Processing Z Example 14
 Row Note: Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = finished 4th class. Work hours per week = 15.
@@ -3126,12 +3165,15 @@ Final z_data with Averaged Probabilities:
 3          0.52706          0.52706    0.52706      0.52706   
 4          0.38742          0.27538    0.52706      0.35922   
 
-   Va = E[H[p(y|x,u,z)]]  Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)]]  
-0                0.59462                              0.00161  
-1                0.68033                              0.00130  
-2                0.37584                              0.00618  
-3                0.52706                              0.00000  
-4                0.35729                              0.00193  
+   Va = E[H[p(y|x,u,z)]]  
+0                0.59462  
+1                0.68033  
+2                0.37584  
+3                0.52706  
+4                0.35729  
+Total Uncertainty = 0.52706
+min Va = E[H[p(y|x,u,z)]] = 0.35729
+max Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)] = 0.16977
 
 Processing Z Example 15
 Row Note: Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = doctoral degree. Work hours per week = 15.
@@ -3348,12 +3390,15 @@ Final z_data with Averaged Probabilities:
 3          0.52706          0.52706    0.52706      0.52706   
 4          0.38742          0.27538    0.52706      0.35922   
 
-   Va = E[H[p(y|x,u,z)]]  Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)]]  
-0                0.59462                              0.00161  
-1                0.68033                              0.00130  
-2                0.37584                              0.00618  
-3                0.52706                              0.00000  
-4                0.35729                              0.00193  
+   Va = E[H[p(y|x,u,z)]]  
+0                0.59462  
+1                0.68033  
+2                0.37584  
+3                0.52706  
+4                0.35729  
+Total Uncertainty = 0.52706
+min Va = E[H[p(y|x,u,z)]] = 0.25235
+max Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)] = 0.27471
 
 Processing Z Example 16
 Row Note: Age = 22. Race = White. Sex = Male. Marital status = never married. Relation to head of the household = Own-child. Native country = United States. Occupation = sales sector. Work class = private sector employee. Capital gain last year = 0. Capital loss last year = 0. Education = no schooling. Work hours per week = 15.
@@ -3570,9 +3615,12 @@ Final z_data with Averaged Probabilities:
 3          0.52706          0.52706    0.52706      0.52706   
 4          0.38742          0.27538    0.52706      0.35922   
 
-   Va = E[H[p(y|x,u,z)]]  Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)]]  
-0                0.59462                              0.00161  
-1                0.68033                              0.00130  
-2                0.37584                              0.00618  
-3                0.52706                              0.00000  
-4                0.35729                              0.00193  
+   Va = E[H[p(y|x,u,z)]]  
+0                0.59462  
+1                0.68033  
+2                0.37584  
+3                0.52706  
+4                0.35729  
+Total Uncertainty = 0.52706
+min Va = E[H[p(y|x,u,z)]] = 0.25235
+max Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)] = 0.27471

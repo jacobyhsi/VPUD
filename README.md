@@ -11,6 +11,7 @@ Before running ```llm.py```, please fill in your huggingface login token in ```l
 
 now run run.py:
 
+```python run.py --seed 1 --seed_num 1 2>&1 | tee run.txt```
 ```python run.py --data "income" --feature "Education" --shots 3 --sets 10```
 
 --data: dataset
