@@ -13,6 +13,7 @@ now run run.py:
 
 ```python run.py --seed 1 --seed_num 1 2>&1 | tee run.txt```
 ```python run.py --data "income" --feature "Education" --shots 3 --sets 10```
+```python run_fewshot.py --seed 1 --seed_num 3 2>&1 | tee run.txt```
 
 --data: dataset
 

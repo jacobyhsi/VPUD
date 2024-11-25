@@ -207,7 +207,7 @@ note2features = data['note'].apply(parse_note_to_features).apply(pd.Series)
 feature_columns = note2features.columns
 print("Features:", feature_columns)
 
-selected_feature = 'Education'
+selected_feature = 'Occupation'
 print("Feature to vary:", selected_feature)
 note2features = data['note'].apply(parse_note_to_features).apply(pd.Series)[selected_feature]
 
@@ -312,7 +312,11 @@ for i, row in z_data.iterrows():
         print(f"\np(u|z) Seed {seed + 1}/{seed_num}")
 
         prompt_puz = (
-            f"""Predict the "{label_name}" of the following:
+            f"""Here are some Dataset examples:
+
+{D}
+            
+Given the Dataset examples, predict the "{label_name}" of the following:
 
 {z}
 
@@ -347,8 +351,9 @@ Please output **ONLY** your predicted {label_name} label key from {label_keys} a
         print(f"\np(u|z,x) Seed {seed + 1}/{seed_num}")
 
         prompt_puzx =(
-            f"""Here are some examples:
-            
+            f"""Here are some Dataset examples:
+
+{D}
 - {x}
 
 Given the Dataset examples, predict the "{label_name}" of the following:
@@ -399,7 +404,11 @@ Please output **ONLY** your predicted {label_name} label key from {label_keys} a
         print(f"\np(y|x) Seed {seed + 1}/{seed_num}")
 
         prompt_pyx = (
-            f"""Predict the "{label_name}" of the following:
+            f"""Here are some Dataset examples:
+
+{D}
+
+Given the Dataset examples, predict the "{label_name}" of the following:
             
 {x}
 
@@ -445,11 +454,12 @@ Please output **ONLY** your predicted {label_name} label key from {label_keys} a
         print(f"\nProcessing p(y|x,u=_,z) for label '{outer_label}'")
 
         prompt_pyxuz = (
-            f"""Here is an example:
+            f"""Here are some Dataset examples:
 
 - {z} -> {label_name}: {outer_label}
+{D}
 
-Given the example, predict the "{label_name}" of the following:
+Given the Dataset examples, predict the "{label_name}" of the following:
 
 {x}            
 
@@ -478,11 +488,9 @@ Please output **ONLY** your predicted {label_name} label key from {label_keys} a
             print(f"\np(y|x,u={outer_label},z) Seed {seed + 1}/{seed_num}")
 
             pred_pyxuz, probs_pyxuz = get_response(prompt_pyxuz, label_keys, seed=seed)
-            print(f"pred_p(y|x,u={outer_label},z):", pred_pyxuz)
-            print(f"probs_p(y|x,u={outer_label},z):", probs_pyxuz)
+            # print(f"pred_p(y|x,u={outer_label},z):", pred_pyxuz)
+            # print(f"probs_p(y|x,u={outer_label},z):", probs_pyxuz)
 
-            exit()
-            
             # Accumulate probabilities for pyxu_z
             for inner_label, prob in probs_pyxuz.items():
                 avg_pyxu_z_probs[f"p(y|x,u={outer_label},z)"][inner_label] += prob
