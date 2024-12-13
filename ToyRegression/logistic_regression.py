@@ -54,28 +54,56 @@ def create_save_path(file_name: str, directory: str):
     
     return abs_path_file
 
-if __name__ == "__main__":
-    feature_dim = 2
-    
-    feature_means = np.array([1,4])
-    
-    feature_stds = np.array([4,3])
-    
-    bias = 1.0
-    
-    coefficients = np.array([3.,-3.])
-    
-    x = create_normal_features(100,feature_dim,feature_means, feature_stds)
+def create_and_save_dataset(
+    dataset_name: str,
+    feature_dimensions: int = 1,
+    feature_means: list[float] = [0.0],
+    feature_stds: list[float] = [1.0],
+    bias: float = 0.0,
+    coefficients: list[float] = [0.0],
+    dataset_size = 100,
+    seed: int = 0
+    ):
         
-    y = create_labels(x, bias, coefficients)
+        x = create_normal_features(dataset_size, feature_dimensions, np.array(feature_means), np.array(feature_stds), seed=seed)
+            
+        y = create_labels(x, bias, np.array(coefficients), seed=seed)
+        
+        dataset = create_pandas_dataset(x, y)
+        
+        print(dataset.head(20))
+        
+        dataset.to_csv(create_save_path(f"{dataset_name}.csv", "logistic_regression_data"))
+        
+        with open(create_save_path(f"{dataset_name}.json", "logistic_regression_info"), "w") as f:
+            json.dump(
+                {
+                    "bias": bias,
+                    "coefficients": coefficients,
+                    "feature_means": feature_means,
+                    "feature_stds": feature_stds,
+                    "dataset_size": dataset_size,
+                    "column_names": list(dataset.columns),
+                }, f)
     
-    dataset = create_pandas_dataset(x, y)
+
+if __name__ == "__main__":
+    #TODO: Add as file args
     
-    print(dataset.head(20))
+    dataset_name = "logistic_regression_1"
+    feature_dim = 1
+    feature_means = [1.3]
+    feature_stds = [1.]
+    bias = - 1.5
+    coefficients = [2.]
+    dataset_size = 500
     
-    dataset.to_csv(create_save_path("logistic_regression_1.csv", "logistic_regression_data"))
-    
-    with open(create_save_path("logistic_regression_1.json", "logistic_regression_info"), "w") as f:
-        json.dump({"bias": bias, "coefficients": list(coefficients)}, f)
-    
-    
+    create_and_save_dataset(
+        dataset_name,
+        feature_dim,
+        feature_means,
+        feature_stds,
+        bias,
+        coefficients,
+        dataset_size,
+        )
