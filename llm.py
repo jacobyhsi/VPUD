@@ -7,6 +7,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 from transformers import set_seed
 from huggingface_hub import login
 
+login(token = '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')
 parser = argparse.ArgumentParser(description='Description of your program')
 parser.add_argument("--llm", default="llama70b-nemo")
 args = parser.parse_args()
