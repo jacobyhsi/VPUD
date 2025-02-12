@@ -26,12 +26,14 @@ parser.add_argument("--data", default="logistic_regression_1")
 parser.add_argument("--feature", default="x1")
 parser.add_argument("--shots", default=3)
 parser.add_argument("--sets", default=10)
+parser.add_argument("--num_modified_z", default=3)
 parser.add_argument("--llm", default="llama70b-nemo")
 args = parser.parse_args()
 seed = int(args.seed)
 np.random.seed(seed)
 shots = int(args.shots)
 sets = int(args.sets)
+num_modified_z = int(args.num_modified_z)
 pd.set_option('display.max_columns', None)
 
 ################################################################################################
@@ -99,8 +101,7 @@ print("x:", x)
 
 data = data.drop(x_row.index)
 
-num_D = 3
-D_rows = data.sample(n=num_D, random_state=seed)
+D_rows = data.sample(n=shots, random_state=seed)
 
 D = "\n".join(
     [f" {row['note']} -> {label_name}: {row['label']}" for _, row in D_rows.iterrows()]
@@ -134,12 +135,11 @@ z_lst = []
 initial_selected_value = initial_row[selected_feature].values[0]
 D_selected_values = D_rows[selected_feature].values
 
-num_modified_icl = 3
 decimal_places = 1
 previous_values = [initial_selected_value]
 # Take new z values by sampling a normal distribution with mean from z and std from D values
 
-for i in range(num_modified_icl):
+for i in range(num_modified_z):
     for i in range(100):
         new_value = np.random.normal(initial_selected_value, 10*np.std(D_selected_values), 1)[0]
         new_value = round(new_value, decimal_places)
@@ -202,6 +202,10 @@ Please output **ONLY** your predicted {label_name} from {label_keys} and enclose
         print(prompt_puz)
         
         # Get the prediction and probabilities from the model
+        # print("Getting response...")
+        # print("Prompt:", prompt_puz)
+        # print("Label Keys:", label_keys)
+        # print("Seed:", seed)
         pred_puz, probs_puz = get_response(prompt_puz, label_keys, seed=seed)
         # print("pred_p(u|z):", pred_puz)
         # print("probs_p(u|z):", probs_puz)
@@ -359,7 +363,7 @@ Please output **ONLY** your predicted {label_name} from {label_keys} and enclose
             print(f"pred_p(y|x,u={outer_label},z):", pred_pyxuz)
             print(f"probs_p(y|x,u={outer_label},z):", probs_pyxuz)
 
-            exit()
+            # exit()
             
             # Accumulate probabilities for pyxu_z
             for inner_label, prob in probs_pyxuz.items():
@@ -393,24 +397,25 @@ Please output **ONLY** your predicted {label_name} from {label_keys} and enclose
     # ----- Optional: Adding Averages to DataFrame -----
     # Add averaged puz probabilities to the DataFrame
     for label, avg_prob in avg_puz_probs.items():
-        z_data.at[i, f"p(u|z)={label}"] = avg_prob
+        z_data.at[i, f"p(u={label}|z)"] = avg_prob
         
     # Add averaged puzx probabilities to the DataFrame
     for label, avg_prob in avg_puzx_probs.items():
-        z_data.at[i, f"p(u|z,x)={label}"] = avg_prob
+        z_data.at[i, f"p(u={label}|z,x)"] = avg_prob
 
     # Add averaged pyxu_z probabilities to the DataFrame
     for key, sub_dict in avg_pyxu_z_probs.items():
         for label, avg_prob in sub_dict.items():
-            z_data.at[i, f"{key}={label}"] = avg_prob
+            new_key = re.sub(r'y', f'y={label}', key, count=1)
+            z_data.at[i, new_key] = avg_prob
             
     # Add averaged pyxz probabilities to the DataFrame
     for label, avg_prob in avg_pyxz_probs.items():
-        z_data.at[i, f"p(y|x,z)={label}"] = avg_prob
+        z_data.at[i, f"p(y={label}|x,z)"] = avg_prob
         
     # Add averaged pyx probabilities to the DataFrame
     for label, avg_prob in avg_pyx_probs.items():
-        z_data.at[i, f"p(y|x)={label}"] = avg_prob
+        z_data.at[i, f"p(y={label}|x)"] = avg_prob
         
     # ----- Compute Entropy for Each avg_pyxu_z_probs -----
     for key, sub_dict in avg_pyxu_z_probs.items():
@@ -427,7 +432,7 @@ Please output **ONLY** your predicted {label_name} from {label_keys} and enclose
     
     expected_H = 0.0
     for label in label_keys:
-        avg_puzx_prob = z_data.at[i, f"p(u|z,x)={label}"]
+        avg_puzx_prob = z_data.at[i, f"p(u={label}|z,x)"]
         avg_pyxuz_entropy = z_data.at[i, f"H[p(y|x,u={label},z)]"]
         expected_H += avg_puzx_prob * avg_pyxuz_entropy
     z_data.at[i, "Va = E[H[p(y|x,u,z)]]"] = round(expected_H, 5)
