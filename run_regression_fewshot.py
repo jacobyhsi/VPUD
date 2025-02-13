@@ -9,12 +9,8 @@ import numpy as np
 from datasets import load_from_disk
 from sklearn.model_selection import train_test_split
 
-import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM
-from huggingface_hub import login
-from torch.nn.functional import softmax
-
-from thresholding import find_threshold_given_max_entropy_distance
+from vpud_utils import calculate_entropy
+from regression_data_processing import parse_features_to_note
 
 parser = argparse.ArgumentParser(description='Description of your program')
 parser.add_argument("--seed", default=123)
@@ -27,6 +23,7 @@ parser.add_argument("--sets", default=10)
 parser.add_argument("--num_modified_z", default=3)
 parser.add_argument("--llm", default="llama70b-nemo")
 parser.add_argument("--run_name", default="fewshot")
+parser.add_argument("--save_directory", default="other")
 args = parser.parse_args()
 seed = int(args.seed)
 np.random.seed(seed)
@@ -35,6 +32,7 @@ shots = int(args.shots)
 sets = int(args.sets)
 num_modified_z = int(args.num_modified_z)
 run_name = args.run_name
+save_directory = args.save_directory
 pd.set_option('display.max_columns', None)
 
 ################################################################################################
@@ -58,116 +56,48 @@ def get_response(prompt, label_keys, seed):
     
     return response_text, probabilities
 
-# login(token = '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')
-
-# if args.llm == "gemma9b":
-#     model_id = "google/gemma-2-9b-it"
-# elif args.llm == "gemma27b":
-#     model_id = "google/gemma-2-27b-it"
-# elif args.llm == "llama70b":
-#     model_id = "meta-llama/Meta-Llama-3.1-70B-Instruct"
-# elif args.llm == "llama70b-nemo":
-#     model_id = "nvidia/Llama-3.1-Nemotron-70B-Instruct-HF"
-
-# # Load the model and tokenizer
-
-# tokenizer = AutoTokenizer.from_pretrained(model_id)
-# tokenizer.pad_token = tokenizer.eos_token
-# model = AutoModelForCausalLM.from_pretrained(model_id, device_map="auto", torch_dtype=torch.bfloat16)
-
-# # Create the LLM instance
-# llm = {"tokenizer": tokenizer, "model": model}
-
-# # Define get_response function
-# def get_response(llm, prompt, label_keys, seed):
-    
-#     print("seed", seed)
-    
-#     torch.manual_seed(seed)
-#     torch.cuda.manual_seed_all(seed)
-    
-#     tokenizer, model = llm["tokenizer"], llm["model"]
-#     input_ids = tokenizer(prompt, return_tensors="pt").to("cuda")
-#     outputs = model.generate(**input_ids, max_new_tokens=2048, pad_token_id=tokenizer.eos_token_id,
-#                              output_scores=True, return_dict_in_generate=True, do_sample = True, top_p=0.9, top_k = 50)
-#     gen_text = tokenizer.decode(outputs.sequences[0])
-    
-#     # Find the starting point of the prompt in the generated text
-#     start_pos = gen_text.find(prompt)
-#     if start_pos == -1:
-#         return "Prompt not found in the generated text."
-
-#     # Extract the response starting from the prompt
-#     response_text = gen_text[start_pos + len(prompt):].strip()
-
-#     # Find the end position of <end_of_turn> if it exists -- Gemma
-#     end_pos = response_text.find("<end_of_turn>")
-#     if end_pos != -1:
-#         response_text = response_text[:end_pos].strip()
-
-#     # Find the end position of <end_of_turn> if it exists -- Llama
-#     end_pos = response_text.find("<|eot_id|>")
-#     if end_pos != -1:
-#         response_text = response_text[:end_pos].strip()
-    
-#     # Process end-of-turn tags for different models
-#     for end_tag in ["<end_of_turn>", "<|eot_id|>"]:
-#         end_pos = response_text.find(end_tag)
-#         if end_pos != -1:
-#             response_text = response_text[:end_pos].strip()
-
-#     # Extract the predicted token within <output> </output> tags
-#     match = re.search(r'<output>\s*(.*?)\s*</output>', response_text)
-#     if not match:
-#         print("Prediction not found in expected format.")
-#         exit()
-
-#     predicted_token = match.group(1).strip()
-#     if predicted_token not in label_keys:
-#         print(f"Predicted token '{predicted_token}' not in label_keys.")
-#         exit()
-
-#     # Now find the position where the predicted token was generated
-#     # Tokenize the predicted token to get its token ids
-#     predicted_token_ids = tokenizer(predicted_token, add_special_tokens=False)['input_ids']
-
-#     # Get the generated token ids (excluding the input prompt)
-#     generated_token_ids = outputs.sequences[0][input_ids['input_ids'].shape[1]:].tolist()
-    
-#     # Find the index where the predicted token starts in generated_token_ids
-#     def find_sublist(sublist, main_list):
-#         for i in range(len(main_list) - len(sublist) + 1):
-#             if main_list[i:i+len(sublist)] == sublist:
-#                 return i
-#         return -1
-
-#     start_idx = find_sublist(predicted_token_ids, generated_token_ids)
-#     if start_idx == -1:
-#         return "Predicted token ids not found in generated token ids.", None, None
-
-#     # At the position where the predicted token starts, get the probability distribution
-#     # Get the score at that position
-#     score = outputs.scores[start_idx]
-
-#     # Get the probabilities
-#     prob_dist = softmax(score, dim=-1)
-
-#     # Build the probability distribution
-#     probability_distribution = {
-#         label: round(prob_dist[0, tokenizer.convert_tokens_to_ids(label)].item(), 5)
-#         for label in label_keys
-#     }
-
-#     total_prob = sum(probability_distribution.values())
-#     normalized_probability_distribution = {
-#         label: round(prob / total_prob, 5)
-#         for label, prob in probability_distribution.items()
-#     }
-    
-#     return response_text, normalized_probability_distribution
-
 ################################################################################################
 ############################################ LLM ###############################################
+################################################################################################
+
+################################################################################################
+########################################## Prompts #############################################
+################################################################################################
+
+def prompt_start():
+    prompt = f"""Here are some samples from a dataset:"""
+    
+    return prompt
+
+def prompt_middle(label_name):
+    prompt = f"""Given the dataset samples, predict "{label_name}" from the following:"""
+    
+    return prompt
+
+def prompt_end(label_name, label_keys):
+    prompt =  f""""{label_name}" takes the form of the following: {label_keys[0]} or {label_keys[1]}.
+
+Please output **ONLY** your predicted {label_name} label key from {label_keys} and enclose your output in <output> </output> tags. ** DO NOT OUTPUT ANYTHING ELSE! **
+"""
+    return prompt
+
+def full_prompt(incontext_examples: list[str], example: str, label_name: str = "y", label_keys: list[str] = ["0", "1"]):
+    incontext_examples_str = "\n".join(incontext_examples)
+    
+    prompt = f"""{prompt_start()}
+
+{incontext_examples_str}
+
+{prompt_middle(label_name)}
+
+{example}
+
+{prompt_end(label_name, label_keys)}"""
+
+    return prompt
+
+################################################################################################
+########################################## Prompts #############################################
 ################################################################################################
 
 ################################################################################################
@@ -185,13 +115,6 @@ data['label'] = data['label'].astype(int)
 feature_columns = [col for col in data.columns if col != 'label']
 
 data, test_data = train_test_split(data, test_size=0.2, random_state=seed)
-
-def parse_features_to_note(row, feature_columns: list[str]):
-    note = []
-    for feature in feature_columns:
-        note.append(f"{feature} = {row[feature]}")
-    # join note with ;
-    return "; ".join(note)
 
 data["note"] = data.apply(lambda row: parse_features_to_note(row, feature_columns), axis=1)
 
@@ -216,14 +139,6 @@ D = "\n".join(
 ##################################### Data Preprocessing #######################################
 ################################################################################################
 
-def calculate_entropy(probs):
-    # Calculate entropy using all probabilities in the dictionary
-    entropy = 0.0
-    for p in probs.values():
-        if p > 0:
-            entropy -= p * math.log2(p)
-    return round(entropy, 5)
-
 data_rows = []
 
 set_dict = {}
@@ -246,7 +161,7 @@ previous_values = [initial_selected_value]
 
 for i in range(num_modified_z):
     for i in range(100):
-        new_value = np.random.normal(np.mean(D_selected_values), 3*np.std(D_selected_values), 1)[0]
+        new_value = np.random.normal(np.mean(D_selected_values), 2*np.std(D_selected_values), 1)[0]
         new_value = round(new_value, decimal_places)
         if new_value not in previous_values:
             previous_values.append(new_value)
@@ -264,6 +179,41 @@ z_data = pd.concat(z_lst, ignore_index=True)
 
 seed_num = int(args.seed_num)
 
+for i, row in z_data.iterrows():
+    # print(f"\nProcessing Z Example {i + 1}")
+    z = row['note']
+
+    avg_puz_probs = {label: 0.0 for label in label_keys}
+
+    for seed in range(seed_num):
+        # Initialize avg_puz_probs
+        
+        ## p(u|z)
+        print(f"\np(u|z) Seed {seed + 1}/{seed_num}")
+
+        prompt_puz = full_prompt([D], z)
+        
+        print("Prompt for p(u|z):")
+        print(prompt_puz)
+
+        # Get the prediction and probabilities from the model
+        pred_puz, probs_puz = get_response(prompt_puz, label_keys, seed=seed)
+        # print("pred_p(u|z):", pred_puz)
+        # print("probs_p(u|z):", probs_puz)
+        # Accumulate probabilities for puz
+        for label, prob in probs_puz.items():
+            avg_puz_probs[label] += prob
+            
+    # Calculate the average probabilities for puz and puzx
+    avg_puz_probs = {label: prob / seed_num for label, prob in avg_puz_probs.items()}
+    # print("\nAveraged puz probabilities:", avg_puz_probs)
+    
+    # Add averaged puz probabilities to the DataFrame
+    for label, avg_prob in avg_puz_probs.items():
+        z_data.at[i, f"p(u={label}|z)"] = avg_prob
+        
+    z_data.at[i, "H[p(u|z)]"] = calculate_entropy(avg_puz_probs)
+
 for j in range(num_x_values):
     x = x_row['note'].iloc[j]
     x_y = x_row['label'].iloc[j]
@@ -273,9 +223,6 @@ for j in range(num_x_values):
         z = row['note']
         z_y = row['label']
         # print("Row Note:", z)
-
-        # Initialize avg_puz_probs
-        avg_puz_probs = {label: 0.0 for label in label_keys}
         
         # Initialize avg_puzx_probs
         avg_puzx_probs = {label: 0.0 for label in label_keys}
@@ -285,8 +232,7 @@ for j in range(num_x_values):
             f"p(y|x,u={outer_label},z)": {inner_label: 0.0 for inner_label in label_keys}
             for outer_label in label_keys
         }
-        # pred_pyxu_z_preds = {f"p(y|x,u={outer_label},z)": 0.0 for outer_label in label_keys}
-        
+       
         # Initialize p(y|x,z)
         avg_pyxz_probs = {label: 0.0 for label in label_keys}
         
@@ -295,114 +241,43 @@ for j in range(num_x_values):
         
         # ----- Processing p(u|z) and p(u|z,x) -----
         for seed in range(seed_num):
-            ## p(u|z)
-            print(f"\np(u|z) Seed {seed + 1}/{seed_num}")
+            # ## p(u|z)
+            # print(f"\np(u|z) Seed {seed + 1}/{seed_num}")
 
-            prompt_puz = (
-                f"""Here are some Dataset examples:
-
-{D}
+            # prompt_puz = full_prompt([D], z)
             
-Given the Dataset examples, predict "{label_name}" from the following:
+            # print("Prompt for p(u|z):")
+            # print(prompt_puz)
 
-{z}
-
-"{label_name}" takes the form of the following: {label_keys[0]} or {label_keys[1]}.
-
-Please output **ONLY** your predicted {label_name} label key from {label_keys} and enclose your output in <output> </output> tags. ** DO NOT OUTPUT ANYTHING ELSE! **"""
-            )
+            # # Get the prediction and probabilities from the model
+            # pred_puz, probs_puz = get_response(prompt_puz, label_keys, seed=seed)
+            # # print("pred_p(u|z):", pred_puz)
+            # # print("probs_p(u|z):", probs_puz)
             
-            print("Prompt for p(u|z):")
-            print(prompt_puz)
-
-            # Get the prediction and probabilities from the model
-            pred_puz, probs_puz = get_response(prompt_puz, label_keys, seed=seed)
-            # print("pred_p(u|z):", pred_puz)
-            # print("probs_p(u|z):", probs_puz)
-            
-            # Accumulate probabilities for puz
-            for label, prob in probs_puz.items():
-                avg_puz_probs[label] += prob
-
-            # Extract the predicted label using regex
-            match = re.search(r'<output>\s*(.*?)\s*</output>', pred_puz, re.DOTALL | re.IGNORECASE)
-            if match:
-                pred_puz_label = match.group(1).strip()
-                # print(f"Extracted prediction: {pred_puz_label}")
-                # print(f"True z label: {z_y}")
-            else:
-                print("Could not find output tags in the response.")
-                raise ValueError("Invalid response format.")
+            # # Accumulate probabilities for puz
+            # for label, prob in probs_puz.items():
+            #     avg_puz_probs[label] += prob
             
             ## p(u|z,x)
             print(f"\np(u|z,x) Seed {seed + 1}/{seed_num}")
 
-            prompt_puzx =(
-                f"""Here are some Dataset examples:
-
-{D}
-- {x}
-
-Given the Dataset examples, predict the "{label_name}" of the following:
-
-{z}
-
-"{label_name}" takes the form of the following: {label_keys[0]} or {label_keys[1]}.
-
-Please output **ONLY** your predicted {label_name} label key from {label_keys} and enclose your output in <output> </output> tags. ** DO NOT OUTPUT ANYTHING ELSE! **"""
-            )
-            
-    #         f"""Based on the sample provided below, predict the "{label_name}" of the following.
-            
-    # {z}
-
-    # "{label_name}" takes the form of the following: {labels}.
-
-    # Here are some examples:
-
-    # {D}
-    # {x}
-
-    # Please output **ONLY** your predicted {label_name} label key from {label_keys} and enclose your output in <output> </output> tags. ** DO NOT OUTPUT ANYTHING ELSE! **"""
+            prompt_puzx = full_prompt([D, f"- {x}"], z)
             
             print("Prompt for p(u|z,x):")
             print(prompt_puzx)
-
             # Get the prediction and probabilities from the model
             pred_puzx, probs_puzx = get_response(prompt_puzx, label_keys, seed=seed)
             # print("pred_p(u|z,x):", pred_puzx)
             # print("probs_p(u|z,x):", probs_puzx)
-
+            print("GOODBYE")
             # Accumulate probabilities for puz
             for label, prob in probs_puzx.items():
                 avg_puzx_probs[label] += prob
-
-            # Extract the predicted label using regex
-            match = re.search(r'<output>\s*(.*?)\s*</output>', pred_puzx, re.DOTALL | re.IGNORECASE)
-            if match:
-                pred_puzx_label = match.group(1).strip()
-                # print(f"Extracted prediction: {pred_puzx_label}")
-                # print(f"True z label: {z_y}")
-            else:
-                print("Could not find output tags in the response.")
-                raise ValueError("Invalid response format.")
             
             ## p(y|x)
             print(f"\np(y|x) Seed {seed + 1}/{seed_num}")
 
-            prompt_pyx = (
-                f"""Here are some Dataset examples:
-
-{D}
-
-Given the Dataset examples, predict the "{label_name}" of the following:
-            
-{x}
-
-"{label_name}" takes the form of the following: {label_keys[0]} or {label_keys[1]}.
-
-Please output **ONLY** your predicted {label_name} label key from {label_keys} and enclose your output in <output> </output> tags. ** DO NOT OUTPUT ANYTHING ELSE! **"""
-            )
+            prompt_pyx = full_prompt([D], x)
             
             print("Prompt for p(y|x,D):")
             print(prompt_pyx)
@@ -416,19 +291,9 @@ Please output **ONLY** your predicted {label_name} label key from {label_keys} a
             for label, prob in probs_pyx.items():
                 avg_pyx_probs[label] += prob
 
-            # Extract the predicted label using regex
-            match = re.search(r'<output>\s*(.*?)\s*</output>', pred_pyx, re.DOTALL | re.IGNORECASE)
-            if match:
-                pred_pyx_label = match.group(1).strip()
-                # print(f"Extracted prediction: {pred_pyx_label}")
-                # print(f"True x label: {x_y}")
-            else:
-                print("Could not find output tags in the response.")
-                raise ValueError("Invalid response format.")
-
-        # Calculate the average probabilities for puz and puzx
-        avg_puz_probs = {label: prob / seed_num for label, prob in avg_puz_probs.items()}
-        # print("\nAveraged puz probabilities:", avg_puz_probs)
+        # # Calculate the average probabilities for puz and puzx
+        # avg_puz_probs = {label: prob / seed_num for label, prob in avg_puz_probs.items()}
+        # # print("\nAveraged puz probabilities:", avg_puz_probs)
         
         avg_puzx_probs = {label: prob / seed_num for label, prob in avg_puzx_probs.items()}
         # print("\nAveraged puzx probabilities:", avg_puzx_probs)
@@ -440,33 +305,7 @@ Please output **ONLY** your predicted {label_name} label key from {label_keys} a
         for outer_label in label_keys:
             print(f"\nProcessing p(y|x,u=_,z) for label '{outer_label}'")
 
-            prompt_pyxuz = (
-                f"""Here are some Dataset examples:
-
-    - {z} -> {label_name}: {outer_label}
-    {D}
-
-    Given the Dataset examples, predict the "{label_name}" of the following:
-
-    {x}            
-
-    "{label_name}" takes the form of the following: {label_keys[0]} or {label_keys[1]}.
-
-    Please output **ONLY** your predicted {label_name} label key from {label_keys} and enclose your output in <output> </output> tags. ** DO NOT OUTPUT ANYTHING ELSE! **"""
-            )
-            
-    #         prompt_pyxuz = (
-    #             f"""Based on the sample provided below, predict the "{label_name}". 
-    # "{label_name}" takes the form of the following: {labels}.
-
-    # {x}
-
-    # The following is an in-context example that will help you make your prediction:
-
-    # {z} -> {label_name}: {outer_label}
-
-    # Please output **ONLY** your predicted {label_name} label key from {label_keys} and enclose your output in <output> </output> tags. ** DO NOT OUTPUT ANYTHING ELSE! **"""
-    #         )
+            prompt_pyxuz = full_prompt([f"- {z} -> {label_name}: {outer_label}", D], x)
 
             print("Prompt for p(y|x,u=_,z):")
             print(prompt_pyxuz)
@@ -481,16 +320,6 @@ Please output **ONLY** your predicted {label_name} label key from {label_keys} a
                 # Accumulate probabilities for pyxu_z
                 for inner_label, prob in probs_pyxuz.items():
                     avg_pyxu_z_probs[f"p(y|x,u={outer_label},z)"][inner_label] += prob
-                    
-                match = re.search(r'<output>\s*(.*?)\s*</output>', pred_pyxuz, re.DOTALL | re.IGNORECASE)
-
-                if match:
-                    pred_pyxuz_label = int(match.group(1).strip())
-                    # print(f"Extracted prediction: {pred_pyxuz_label}")
-                    # pred_pyxu_z_preds[f"pred_p(y|x,u={outer_label},z)"] = pred_pyxuz_label
-                else:
-                    print("Could not find output tags in the response.")
-                    raise ValueError("Invalid response format.")
 
         # Calculate the average probabilities for pyxu_z
         for key, sub_dict in avg_pyxu_z_probs.items():
@@ -502,15 +331,20 @@ Please output **ONLY** your predicted {label_name} label key from {label_keys} a
         # Marginalization
         for label in label_keys:  # Iterate over all possible values of y
             avg_pyxz_probs[label] = sum(
-                avg_pyxu_z_probs[f"p(y|x,u={u_label},z)"][label] * avg_puz_probs[u_label]
+                avg_pyxu_z_probs[f"p(y|x,u={u_label},z)"][label] * z_data.at[i, f"p(u={u_label}|z)"]
                 for u_label in avg_puz_probs.keys()
-            )
+            )            
+            
+            # avg_pyxz_probs[label] = sum(
+            #     avg_pyxu_z_probs[f"p(y|x,u={u_label},z)"][label] * avg_puz_probs[u_label]
+            #     for u_label in avg_puz_probs.keys()
+            # )
         # print("\nAveraged p(y|x,z) probabilities:", avg_pyxz_probs)
 
         # ----- Optional: Adding Averages to DataFrame -----
-        # Add averaged puz probabilities to the DataFrame
-        for label, avg_prob in avg_puz_probs.items():
-            z_data.at[i, f"p(u={label}|z)"] = avg_prob
+        # # Add averaged puz probabilities to the DataFrame
+        # for label, avg_prob in avg_puz_probs.items():
+        #     z_data.at[i, f"p(u={label}|z)"] = avg_prob
             
         # Add averaged puzx probabilities to the DataFrame
         for label, avg_prob in avg_puzx_probs.items():
@@ -549,14 +383,6 @@ Please output **ONLY** your predicted {label_name} label key from {label_keys} a
             avg_pyxuz_entropy = z_data.at[i, f"H[p(y|x,u={label},z)]"]
             expected_H += avg_puzx_prob * avg_pyxuz_entropy
         z_data.at[i, "Va = E[H[p(y|x,u,z)]]"] = round(expected_H, 5)
-        
-        # Computing Epistemic Uncertainty
-        # z_data["Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)]]"] = z_data["H[p(y|x,z)]"] - z_data["Va = E[H[p(y|x,u,z)]]"]
-            
-        # ----- Store the Predictions -----
-        # for outer_label in label_keys:
-        #     preds = pred_pyxu_z_preds[f"pred_p(y|x,u={outer_label},z)"]
-        #     z_data.at[i, f"pred_p(y|x,u={outer_label},z)"] = preds
                 
         # ----- Final Output -----
         print(f"\nx value: {x} -> {label_name}: {x_y}")
@@ -564,7 +390,7 @@ Please output **ONLY** your predicted {label_name} label key from {label_keys} a
         print(z_data.head())
         z_data["true_x"] = x_row.iloc[j][selected_feature]
         
-        z_data.to_csv(f"results/results_{run_name}_{args.data}_x{j}.csv", index=False)
+        z_data.to_csv(f"results/{save_directory}/results_{run_name}_{args.data}_x{j}.csv", index=False)
         
     total_U = z_data["H[p(y|x)]"][0]
     print("\nTotal Uncertainty =", total_U)
@@ -588,5 +414,5 @@ Please output **ONLY** your predicted {label_name} label key from {label_keys} a
     print("max Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)] =", max_Ve)
     z_data["min_Va"] = min_Va
     z_data["max_Ve"] = max_Ve
-    z_data.to_csv(f"results/results_{run_name}_{args.data}_x{j}.csv", index=False)
+    z_data.to_csv(f"results/{save_directory}/results_{run_name}_{args.data}_x{j}.csv", index=False)
 
