@@ -11,6 +11,7 @@ from sklearn.model_selection import train_test_split
 
 from vpud_utils import calculate_entropy
 from regression_data_processing import parse_features_to_note
+from bayesian_optimisation import new_candidate
 
 parser = argparse.ArgumentParser(description='Description of your program')
 parser.add_argument("--seed", default=123)
@@ -160,15 +161,21 @@ initial_selected_value = initial_row[selected_feature].values[0]
 D_selected_values = D_rows[selected_feature].values
 
 decimal_places = 1
-previous_values = [initial_selected_value]
+previous_z_values = []
+z_entropy_list = []
 # Take new z values by sampling a normal distribution with mean from z and std from D values
 
-for i in range(num_modified_z):
+num_random_z = 3
+
+if num_random_z > num_modified_z:
+    raise ValueError("Number of initial random z values cannot be greater than number of modified z values.")
+
+for i in range(num_random_z):
     for i in range(100):
         new_value = np.random.normal(np.mean(D_selected_values), 2*np.std(D_selected_values), 1)[0]
         new_value = round(new_value, decimal_places)
-        if new_value not in previous_values:
-            previous_values.append(new_value)
+        if new_value not in previous_z_values:
+            previous_z_values.append(new_value)
             break
         
     modified_row = initial_row.copy()
@@ -179,12 +186,26 @@ for i in range(num_modified_z):
     z_lst.append(modified_row)
     
 z_data = pd.concat(z_lst, ignore_index=True)
-# print("Modified ICL rows:\n", icl_data)
 
 seed_num = int(args.seed_num)
 
 for i in range(num_modified_z):
     # print(f"\nProcessing Z Example {i + 1}")
+    
+    if i >= num_random_z:
+        # Bayesian Optimization for new z values
+        new_value = new_candidate(z_values=previous_z_values, entropy_values=z_entropy_list)
+        new_value = round(new_value, decimal_places)
+        
+        print(f"New Z Value: {new_value}")
+        previous_z_values.append(new_value)
+        
+        modified_row = z_data.loc[0].copy()
+        modified_row[selected_feature] = new_value
+        
+        modified_row['note'] = parse_features_to_note(modified_row, feature_columns)
+        
+        z_data.loc[i] = modified_row
     
     row = z_data.iloc[i]
     
@@ -220,7 +241,12 @@ for i in range(num_modified_z):
         z_data.at[i, f"p(u={label}|z)"] = avg_prob
         
     z_data.at[i, "H[p(u|z)]"] = calculate_entropy(avg_puz_probs)
+    
+    z_entropy_list.append(z_data.at[i, "H[p(u|z)]"])
 
+print(z_data.head(num_modified_z))
+
+exit()
 ################################################################################################
 ######################################## Z Selection ###########################################
 ################################################################################################
@@ -431,3 +457,4 @@ for j in range(num_x_values):
     z_data["max_Ve"] = max_Ve
     z_data.to_csv(f"results/{save_directory}/results_{run_name}_{args.data}_x{j}.csv", index=False)
 
+D_rows.to_csv(f"results/{save_directory}/D_{run_name}_{args.data}.csv", index=False)
