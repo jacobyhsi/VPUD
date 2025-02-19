@@ -24,7 +24,12 @@ elif args.llm == "llama70b":
     model_id = "meta-llama/Meta-Llama-3.1-70B-Instruct"
 elif args.llm == "llama70b-nemo":
     model_id = "nvidia/Llama-3.1-Nemotron-70B-Instruct-HF"
-
+elif args.llm == "qwen7b":
+    model_id = "Qwen/Qwen2.5-7B-Instruct"
+elif args.llm == "qwen14b":
+    model_id = "Qwen/Qwen2.5-14B-Instruct"
+elif args.llm == "qwen32b":
+    model_id = "Qwen/Qwen2.5-32B-Instruct"
 # Load the model and tokenizer
 
 tokenizer = AutoTokenizer.from_pretrained(model_id)

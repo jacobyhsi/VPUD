@@ -75,6 +75,8 @@ def create_and_save_dataset(
         
         dataset.to_csv(create_save_path(f"{dataset_name}.csv", "logistic_regression_data"))
         
+        print("Labels distribution")
+        print(dataset["y"].value_counts())
         with open(create_save_path(f"{dataset_name}.json", "logistic_regression_info"), "w") as f:
             json.dump(
                 {
@@ -84,18 +86,20 @@ def create_and_save_dataset(
                     "feature_stds": feature_stds,
                     "dataset_size": dataset_size,
                     "column_names": list(dataset.columns),
+                    "label_name": "y",
                 }, f)
+            
     
 
 if __name__ == "__main__":
     #TODO: Add as file args
     
-    dataset_name = "logistic_regression_1"
+    dataset_name = "logistic_regression_3"
     feature_dim = 1
-    feature_means = [1.3]
-    feature_stds = [1.]
-    bias = - 1.5
-    coefficients = [2.]
+    feature_means = [1.5]
+    feature_stds = [3.]
+    bias = - 0.5
+    coefficients = [0.25]
     dataset_size = 500
     
     create_and_save_dataset(
