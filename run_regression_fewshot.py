@@ -10,11 +10,12 @@ from datasets import load_from_disk
 from sklearn.model_selection import train_test_split
 
 from vpud_utils import calculate_entropy
-from regression_data_processing import parse_features_to_note
+from regression_data_processing import parse_features_to_note, create_x_row_from_x_features
 
 parser = argparse.ArgumentParser(description='Description of your program')
 parser.add_argument("--seed", default=123)
 parser.add_argument("--num_x_values", default="1")
+parser.add_argument("--x_values", default=None)
 parser.add_argument("--seed_num", default="5")
 parser.add_argument("--data", default="logistic_regression_3")
 parser.add_argument("--feature", default="x1")
@@ -29,6 +30,7 @@ args = parser.parse_args()
 seed = int(args.seed)
 np.random.seed(seed)
 num_x_values = int(args.num_x_values)
+x_features = args.x_values
 shots = int(args.shots)
 sets = int(args.sets)
 num_modified_z = int(args.num_modified_z)
@@ -132,7 +134,11 @@ print("Feature to vary:", selected_feature)
 
 # exit() # here first to check whats the feature column names
 
-x_row = data.sample(n=num_x_values, random_state=seed)
+if x_features is None:
+    x_row = data.sample(n=num_x_values, random_state=seed)
+    data = data.drop(x_row.index)
+else:
+    x_row = create_x_row_from_x_features(x_features, feature_columns)
 
 data = data.drop(x_row.index)
 
@@ -141,6 +147,8 @@ D_rows = data.sample(n=shots, random_state=seed)
 D = "\n".join(
     [f"- {row['note']} -> {label_name}: {row['label']}" for _, row in D_rows.iterrows()]
 )
+
+D_rows.to_csv(f"results/{save_directory}/D_{run_name}_{args.data}.csv", index=False)
 
 ################################################################################################
 ##################################### Data Preprocessing #######################################
@@ -430,4 +438,3 @@ for j in range(num_x_values):
     z_data["min_Va"] = min_Va
     z_data["max_Ve"] = max_Ve
     z_data.to_csv(f"results/{save_directory}/results_{run_name}_{args.data}_x{j}.csv", index=False)
-

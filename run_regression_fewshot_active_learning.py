@@ -10,18 +10,20 @@ from datasets import load_from_disk
 from sklearn.model_selection import train_test_split
 
 from vpud_utils import calculate_entropy
-from regression_data_processing import parse_features_to_note
+from regression_data_processing import parse_features_to_note, create_x_row_from_x_features
 from bayesian_optimisation import new_candidate
 
 parser = argparse.ArgumentParser(description='Description of your program')
 parser.add_argument("--seed", default=123)
 parser.add_argument("--num_x_values", default="1")
+parser.add_argument("--x_values", default=None)
 parser.add_argument("--seed_num", default="5")
 parser.add_argument("--data", default="logistic_regression_3")
 parser.add_argument("--feature", default="x1")
 parser.add_argument("--shots", default=3)
 parser.add_argument("--sets", default=10)
 parser.add_argument("--num_modified_z", default=3)
+parser.add_argument("--num_random_z", default=3)
 parser.add_argument("--llm", default="llama70b-nemo")
 parser.add_argument("--run_name", default="fewshot")
 parser.add_argument("--save_directory", default="other")
@@ -30,9 +32,11 @@ args = parser.parse_args()
 seed = int(args.seed)
 np.random.seed(seed)
 num_x_values = int(args.num_x_values)
+x_features = args.x_values
 shots = int(args.shots)
 sets = int(args.sets)
 num_modified_z = int(args.num_modified_z)
+num_random_z = int(args.num_random_z)
 run_name = args.run_name
 save_directory = args.save_directory
 specify_dataset_type = int(args.specify_dataset_type)
@@ -133,15 +137,19 @@ print("Feature to vary:", selected_feature)
 
 # exit() # here first to check whats the feature column names
 
-x_row = data.sample(n=num_x_values, random_state=seed)
-
-data = data.drop(x_row.index)
+if x_features is None:
+    x_row = data.sample(n=num_x_values, random_state=seed)
+    data = data.drop(x_row.index)
+else:
+    x_row = create_x_row_from_x_features(x_features, feature_columns)
 
 D_rows = data.sample(n=shots, random_state=seed)
 
 D = "\n".join(
     [f"- {row['note']} -> {label_name}: {row['label']}" for _, row in D_rows.iterrows()]
 )
+
+D_rows.to_csv(f"results/{save_directory}/D_{run_name}_{args.data}.csv", index=False)
 
 ################################################################################################
 ##################################### Data Preprocessing #######################################
@@ -165,7 +173,7 @@ previous_z_values = []
 z_entropy_list = []
 # Take new z values by sampling a normal distribution with mean from z and std from D values
 
-num_random_z = 3
+num_random_z = int(num_random_z)
 
 if num_random_z > num_modified_z:
     raise ValueError("Number of initial random z values cannot be greater than number of modified z values.")
@@ -246,7 +254,6 @@ for i in range(num_modified_z):
 
 print(z_data.head(num_modified_z))
 
-exit()
 ################################################################################################
 ######################################## Z Selection ###########################################
 ################################################################################################
@@ -456,5 +463,3 @@ for j in range(num_x_values):
     z_data["min_Va"] = min_Va
     z_data["max_Ve"] = max_Ve
     z_data.to_csv(f"results/{save_directory}/results_{run_name}_{args.data}_x{j}.csv", index=False)
-
-D_rows.to_csv(f"results/{save_directory}/D_{run_name}_{args.data}.csv", index=False)
