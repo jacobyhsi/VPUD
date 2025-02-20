@@ -26,6 +26,7 @@ parser.add_argument("--llm", default="llama70b-nemo")
 parser.add_argument("--run_name", default="fewshot")
 parser.add_argument("--save_directory", default="other")
 parser.add_argument("--specify_dataset_type", default=0)
+parser.add_argument("--predict_probabilities", default=0)
 args = parser.parse_args()
 seed = int(args.seed)
 np.random.seed(seed)
@@ -37,6 +38,7 @@ num_modified_z = int(args.num_modified_z)
 run_name = args.run_name
 save_directory = args.save_directory
 specify_dataset_type = int(args.specify_dataset_type)
+predict_probabilities = int(args.predict_probabilities)
 pd.set_option('display.max_columns', None)
 
 ################################################################################################
@@ -78,16 +80,28 @@ def prompt_start():
     
     return prompt
 
-def prompt_middle(label_name):
-    prompt = f"""Given the dataset samples, predict "{label_name}" from the following:"""
-    
+def prompt_middle(label_name, label_keys):
+    if predict_probabilities == 0:
+        prompt = f"""Given the dataset samples, predict "{label_name}" from the following:"""
+    elif predict_probabilities == 1:
+        prompt = f"""Given the dataset samples, predict the probability of {label_name} = {label_keys[0]} from the following:"""
+    else:
+        raise ValueError("predict_probabilities can only be 0 or 1.")
     return prompt
 
 def prompt_end(label_name, label_keys):
-    prompt =  f""""{label_name}" takes the form of the following: {label_keys[0]} or {label_keys[1]}.
+    if predict_probabilities == 0:
+        prompt =  f""""{label_name}" takes the form of the following: {label_keys[0]} or {label_keys[1]}.
 
 Please output **ONLY** your predicted {label_name} label key from {label_keys} and enclose your output in <output> </output> tags. ** DO NOT OUTPUT ANYTHING ELSE! **
 """
+    elif predict_probabilities == 1:
+        prompt =  f""""{label_name}" can take the values: {label_keys[0]} or {label_keys[1]}.
+
+Please output **ONLY** your predicted probability of {label_name} = {label_keys[0]} and enclose your output in <output> </output> tags. ** DO NOT OUTPUT ANYTHING ELSE! **
+"""
+    else:
+        raise ValueError("predict_probabilities can only be 0 or 1.")
     return prompt
 
 def full_prompt(incontext_examples: list[str], example: str, label_name: str = "y", label_keys: list[str] = ["0", "1"]):
@@ -97,7 +111,7 @@ def full_prompt(incontext_examples: list[str], example: str, label_name: str = "
 
 {incontext_examples_str}
 
-{prompt_middle(label_name)}
+{prompt_middle(label_name, label_keys)}
 
 {example}
 
@@ -139,7 +153,8 @@ if x_features is None:
     data = data.drop(x_row.index)
 else:
     x_row = create_x_row_from_x_features(x_features, feature_columns)
-
+    num_x_values = len(x_row)
+    
 data = data.drop(x_row.index)
 
 D_rows = data.sample(n=shots, random_state=seed)
@@ -428,9 +443,11 @@ for j in range(num_x_values):
         print("No Va values found within threshold. Using the minimum Va value for whole z dataset.")
         min_Va = z_data["Va = E[H[p(y|x,u,z)]]"].min()
         z_data["within_threshold"] = False
+        z_data["z_value_for_min_Va"] = False
     else:
         min_Va = min(valid_Va)
-        z_data["within_threshold"] = True
+        z_data["within_threshold"] = z_data["Va = E[H[p(y|x,u,z)]]"].apply(lambda x: x in valid_Va)
+        z_data["z_value_for_min_Va"] = z_data["Va = E[H[p(y|x,u,z)]]"].apply(lambda x: x == min_Va)
     # min_Va = z_data["Va = E[H[p(y|x,u,z)]]"].min()
     print("min Va = E[H[p(y|x,u,z)]] =", min_Va)
     max_Ve = round(total_U - min_Va, 5)
