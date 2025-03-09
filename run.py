@@ -5,9 +5,6 @@ from src.prompt import *
 from src.chat import *
 from src.utils import *
 
-# Temperature scaling
-def temperature():
-    pass
 
 # Main
 def main():
@@ -227,10 +224,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run VPUD')
     parser.add_argument("--seed", default=123)
     parser.add_argument("--data_path", default="datasets_serialized/adult")
-    parser.add_argument("--temperature", default=False)
     args = parser.parse_args()
 
-    if args.temperature:
-        temperature()
-    else:
-        main()
+    main()
