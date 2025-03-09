@@ -6,4 +6,4 @@ export CUDA_VISIBLE_DEVICES=3
 # CUDA_VISIBLE_DEVICES=2,3 vllm serve "Qwen/Qwen2.5-32B-Instruct" --dtype auto --tensor-parallel-size 2
 # vllm serve "Qwen/Qwen2.5-32B" --dtype auto --tensor-parallel-size 2
 # vllm serve "Qwen/Qwen2.5-14B" --dtype auto --tensor-parallel-size 1 --max_model_len 8192
-vllm serve "Qwen/Qwen2.5-14B" --dtype auto --tensor-parallel-size 1 --max_model_len 8192 --gpu-memory-utilization 0.6
+vllm serve "Qwen/Qwen2.5-14B" --dtype auto --tensor-parallel-size 1 --max_model_len 8192 --gpu-memory-utilization 0.7
