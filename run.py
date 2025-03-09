@@ -31,7 +31,6 @@ def main():
     print("z:", z)
     data_z = pertube_z(data, df_z, z_samples=10) # z_samples number of pertubations per z
 
-    seed_num = 3
     prompt = Prompt(label_name, label_map, label_keys)
     
     min_Va_lst = []
@@ -52,8 +51,13 @@ def main():
         seed = 0
         seed_num = 5  # target number of successful seeds
         while successful_seeds < seed_num:
-            print(f"\nSeed {seed + 1}")
+            print(f"\nSample: {i}; Seed: {seed + 1}")
             print(f"Successful Seeds: {successful_seeds}/{seed_num}")
+
+            # Create temporary dictionaries for this seed
+            temp_avg_puzD = {label: 0.0 for label in label_keys}
+            temp_avg_pyxuzD = {f"p(y|x,u{outer_label},z,D)": {inner_label: 0.0 for inner_label in label_keys} for outer_label in label_keys}
+            temp_avg_pyxD = {label: 0.0 for label in label_keys}
 
             ## Shuffle D
             df_D_shuffled = df_D.sample(frac=1, random_state=seed).reset_index(drop=True)
@@ -83,8 +87,9 @@ def main():
                 seed += 1
                 continue
 
+            # Accumulate into the temporary dictionary
             for label, prob in puzD.items():
-                avg_puzD_probs[label] += prob
+                temp_avg_puzD[label] += prob
             
             # p(y|x,u,z,D)
             skip_seed = False  # flag to skip the seed if any probability is empty
@@ -126,7 +131,7 @@ def main():
                     skip_seed = True
                     break
                 for label, prob in pyxuzD.items():
-                    avg_pyxuzD_probs[f"p(y|x,u{u_value},z,D)"][label] += prob
+                    temp_avg_pyxuzD[f"p(y|x,u{u_value},z,D)"][label] += prob
 
             if skip_seed:
                 seed += 1
@@ -154,13 +159,20 @@ def main():
                 continue
 
             for label, prob in pyxD.items():
-                avg_pyxD_probs[label] += prob
+                temp_avg_pyxD[label] += prob
+
+            # Only update the global accumulators if all outputs are valid
+            for label in label_keys:
+                avg_puzD_probs[label] += temp_avg_puzD[label]
+                avg_pyxD_probs[label] += temp_avg_pyxD[label]
+                for u_label in label_keys:
+                    avg_pyxuzD_probs[f"p(y|x,u{u_label},z,D)"][label] += temp_avg_pyxuzD[f"p(y|x,u{u_label},z,D)"][label]
 
             successful_seeds += 1
             print(f"Successful Seeds: {successful_seeds}/{seed_num}")
             successful_seeds_lst.append(seed)
             seed += 1
-        
+
         print(f"Successful Seeds: {successful_seeds_lst}")
 
         # Average probabilities
@@ -186,7 +198,7 @@ def main():
         kl = kl_divergence(avg_pyxzD_probs, avg_pyxD_probs)
         print(f"\nKL divergence between p(y|x,z,D) and p(y|x,D): {kl}")
 
-        if kl < 0.01:
+        if kl < 0.001:
             # Compute Va
             H_pyxuzD = {}
             for key, probs in avg_pyxuzD_probs.items():
