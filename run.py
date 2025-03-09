@@ -216,7 +216,6 @@ def main():
     Ve = H_pyxD - min_Va['Va']
     print(f"Ve = {Ve}")
 
-    # do thresholding here
 
 if __name__ == "__main__":
     # Argument Parser
