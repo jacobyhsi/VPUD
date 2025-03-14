@@ -3,9 +3,9 @@ from sklearn.model_selection import train_test_split
 import pandas as pd
 import json
 
-def load_dataset(data_path):
+def load_dataset(data_path, data_type='tabular'):
     # Load Dataset
-    dataset = Dataset(data_path=data_path)
+    dataset = DATATYPE_TO_DATACLASS[data_type](data_path=data_path)
     data = dataset.get_train_data()
     test = dataset.get_test_data()
     # exit() # inspect feature names
@@ -43,6 +43,23 @@ def parse_features_to_note(features, feature_order=None):
 
 class Dataset():
     def __init__(self, data_path, seed=123):
+        data = self.load_data(data_path)
+        # Split data
+        self.data, self.test_data = train_test_split(data, test_size=0.2, random_state=seed)
+
+    def get_train_data(self):
+        print("Train Data Shape:", self.data.shape)
+        return self.data
+
+    def get_test_data(self):
+        print("Test Data Shape:", self.test_data.shape)
+        return self.test_data
+    
+    def load_data(self, data_path):
+        raise NotImplementedError
+
+class TabularDataset(Dataset):
+    def load_data(self, data_path):
         # Load Dataset
         data = load_from_disk(data_path).to_pandas()
 
@@ -72,15 +89,16 @@ class Dataset():
         )
 
         df_filtered = data[['label', 'note']].copy()  # Ensure 'note' and 'label' are included
+        
         data = pd.concat([df_filtered, note2features[salient_features]], axis=1)
-
-        # Split data
-        self.data, self.test_data = train_test_split(data, test_size=0.2, random_state=seed)
-
-    def get_train_data(self):
-        print("Train Data Shape:", self.data.shape)
-        return self.data
-
-    def get_test_data(self):
-        print("Test Data Shape:", self.test_data.shape)
-        return self.test_data
+        
+        return data
+    
+class ToyClassificationDataset(Dataset):
+    def load_data(self, data_path):
+        raise NotImplementedError
+    
+DATATYPE_TO_DATACLASS = {
+    "tabular": TabularDataset,
+    "toy_classification": ToyClassificationDataset,
+}
