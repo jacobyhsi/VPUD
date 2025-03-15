@@ -1,9 +1,11 @@
 import argparse
+import numpy as np
 import pandas as pd
-from src.dataset import *
-from src.prompt import *
-from src.chat import *
-from src.utils import *
+import re
+from src.dataset import load_dataset
+from src.prompt import Prompt
+from src.chat import get_first_token_probs
+from src.utils import calculate_entropy, kl_divergence, TabularUtils
 
 
 # Main
@@ -11,9 +13,10 @@ def main():
     # Load dataset
     data, test, label_name, label_map, label_keys = load_dataset(args.data_path)
 
+    global_seed = int(args.seed)
     # Sampling x
-    x_row = data.sample(n=1, random_state=args.seed)
-    data = data.drop(x_row.index) # drop the sampled x
+    x_row = test.sample(n=1, random_state=global_seed)
+    test = test.drop(x_row.index) # drop the sampled x
     x = x_row['note'].iloc[0]
     print("x:", x)
     x_y = x_row['label'].iloc[0]
@@ -21,19 +24,20 @@ def main():
 
     # Sampling D as icl
     num_D = 3
-    df_D = data.sample(n=num_D, random_state=args.seed)
+    df_D = data.sample(n=num_D, random_state=global_seed)
     data = data.drop(df_D.index)
 
     # Sample z
-    df_z = data.sample(n=1, random_state=args.seed)
+    df_z = data.sample(n=1, random_state=global_seed)
     data = data.drop(df_z.index)
     z = df_z['note'].iloc[0]
     print("z:", z)
-    data_z = pertube_z(data, df_z, z_samples=10) # z_samples number of pertubations per z
+    data_z = TabularUtils.pertube_z(data, df_z, z_samples=10) # z_samples number of pertubations per z
 
-    prompt = Prompt(label_name, label_map, label_keys)
+    prompt = Prompt(label_name, label_map, label_keys, prompt_type="tabular")
     
     min_Va_lst = []
+    failed_seeds = 0
     # Processing z Probabilities
     for i, row in data_z.iterrows():
         z = row['note']
@@ -71,13 +75,14 @@ def main():
             print("\n########## <Prompt p(u|z,D)> ##########")
             print(prompt_puzD)
             print("########## <Prompt p(u|z,D)\> ##########")
-            output_puzD, puzD = chat(prompt_puzD, label_keys, seed)
+            output_puzD, puzD = get_first_token_probs(prompt_puzD, label_keys, seed)
             print("\n########## <Output p(u|z,D)\> ##########")
             print(output_puzD)
             print("########## <Output p(u|z,D)\> ##########")
             if not re.search(r'\d+</output>', output_puzD):
                 print("Output format not as expected for p(u|z,D), retrying with new seed...")
                 seed += 1
+                failed_seeds += 1
                 continue
             print("\n########## <Probabilities p(u|z,D)\> ##########")
             print(puzD)
@@ -85,6 +90,7 @@ def main():
             if not puzD:
                 print("Empty probabilities detected (p(u|z,D)), retrying with new seed...")
                 seed += 1
+                failed_seeds += 1
                 continue
 
             # Accumulate into the temporary dictionary
@@ -115,13 +121,14 @@ def main():
                 print("\n########## <Prompt p(y|x,u,z,D)> ##########")
                 print(prompt_pyxuzD)
                 print("########## <Prompt p(y|x,u,z,D)\> ##########")
-                output_pyxuzD, pyxuzD = chat(prompt_pyxuzD, label_keys, seed)
+                output_pyxuzD, pyxuzD = get_first_token_probs(prompt_pyxuzD, label_keys, seed)
                 print("\n########## <Output p(y|x,u,z,D)\> ##########")
                 print(output_pyxuzD)
                 print("########## <Output p(y|x,u,z,D)\> ##########")
                 if not re.search(r'\d+</output>', output_pyxuzD):
                     print("Output format not as expected for p(y|x,u,z,D), retrying with new seed...")
                     skip_seed = True
+                    failed_seeds += 1
                     break
                 print(f"\n########## <p(y|x,u{u_value},z,D) Probabilities> ##########")
                 print(pyxuzD)
@@ -129,6 +136,7 @@ def main():
                 if not pyxuzD:
                     print(f"Empty probabilities detected (p(y|x,u{u_value},z,D)), retrying with new seed...")
                     skip_seed = True
+                    failed_seeds += 1
                     break
                 for label, prob in pyxuzD.items():
                     temp_avg_pyxuzD[f"p(y|x,u{u_value},z,D)"][label] += prob
@@ -142,13 +150,14 @@ def main():
             print("\n########## <Prompt p(y|x,D)> ##########")
             print(prompt_pyxD)
             print("########## <Prompt p(y|x,D)\> ##########")
-            output_pyxD, pyxD = chat(prompt_pyxD, label_keys, seed)
+            output_pyxD, pyxD = get_first_token_probs(prompt_pyxD, label_keys, seed)
             print("\n########## <Output p(y|x,D)> ##########")
             print(output_pyxD)
             print("########## <Output p(y|x,D)\> ##########")
             if not re.search(r'\d+</output>', output_pyxD):
                 print("Output format not as expected for p(y|x,D), retrying with new seed...")
                 seed += 1
+                failed_seeds += 1
                 continue
             print("\n########## <Probabilities p(y|x,D)> ##########")
             print(pyxD)
@@ -156,6 +165,7 @@ def main():
             if not pyxD:
                 print("Empty probabilities detected (p(y|x,D)), retrying with new seed...")
                 seed += 1
+                failed_seeds += 1
                 continue
 
             for label, prob in pyxD.items():
@@ -210,22 +220,33 @@ def main():
 
         print("No. Rows before threshold", len(data_z))
         print("No. Rows after threshold", len(min_Va_lst))
-
+        
+    print(f"Failed Seeds: {failed_seeds}")
     # Entropy Calculations
     ## Compute Total Uncertainty
     H_pyxD = calculate_entropy(avg_pyxD_probs)
     print(f"\nTotal Uncertainty = H(p(y|x,D)) = {H_pyxD}")
 
     ## Compute min aleatoric uncertainty, Va
-    min_Va = min(min_Va_lst, key=lambda row: row['Va'])
+    if len(min_Va_lst) == 0:
+        print("No valid Va values found.")
+        min_Va = np.nan
+    else:
+        min_Va = min(min_Va_lst, key=lambda row: row['Va'])
     print(f"\nMin Va: {min_Va}")
 
     ## Compute epistemic uncertainty, Ve
     print()
     print(f"Ve = H[p(y|x,D)] - Va = H[p(y|x,D)] - E_p(u|z,D)[H[p(y|x,u,z,D)]]")
     print(f"Total Uncertainty = H[p(y|x,D)] = {H_pyxD}")
-    print(f"min Va = {min_Va['Va']}")
-    Ve = H_pyxD - min_Va['Va']
+    
+    if min_Va is np.nan:
+        print("No valid Va values found.")
+        Ve = np.nan
+    else:
+        print(f"min Va = {min_Va['Va']}")
+        Ve = H_pyxD - min_Va['Va']
+        
     print(f"Ve = {Ve}")
 
 
