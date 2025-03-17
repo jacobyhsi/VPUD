@@ -12,13 +12,13 @@ def calculate_entropy(probs):
     entropy = -np.sum(probs * np.log2(probs))
     return round(entropy, 5)
 
-def kl_divergence(p, q):
+def calculate_kl_divergence(p, q):
     epsilon = 1e-12  # small constant to avoid log(0)
     kl = 0.0
     for label in p:
         p_val = p[label] + epsilon
         q_val = q[label] + epsilon
-        kl += p_val * np.log(p_val / q_val)
+        kl += p_val * (np.log(p_val) - np.log(q_val))
     return kl
 
 def extract(text):
@@ -75,5 +75,41 @@ class TabularUtils:
 
         return z_data
     
-class RegressionUtils:
-    pass
+    @staticmethod
+    def parse_note_to_features(note, feature=None):
+        features = {}
+        for feature_str in note.strip('.').split('. '):
+            key_value = feature_str.split(' = ')
+            if len(key_value) == 2:
+                key, value = key_value
+                features[key.strip()] = value.strip()
+        if feature:
+            return features.get(feature.strip(), None)
+        
+        return features
+
+    @staticmethod
+    def parse_features_to_note(features, feature_order=None):
+        if feature_order is None:
+            feature_order = list(features.keys())
+            
+        note_parts = []
+        for key in feature_order:
+            if key in features and features[key] is not None:
+                note_parts.append(f"{key} = {features[key]}")
+        note = ". ".join(note_parts) + "."
+        return note
+    
+class ToyClassificationUtils:
+    @staticmethod
+    def parse_features_to_note(row: pd.Series, feature_columns: list[str]):
+        note_parts = []
+        for feature in feature_columns:
+            note_parts.append(f"{feature} = {row[feature]}")
+        # join note with ;
+        return "; ".join(note_parts)
+    
+    @staticmethod
+    def get_feature_columns(data: pd.DataFrame):
+        return [col for col in data.columns if col not in ['note', 'label']]
+    

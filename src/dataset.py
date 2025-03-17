@@ -2,64 +2,47 @@ from datasets import load_from_disk
 from sklearn.model_selection import train_test_split
 import pandas as pd
 import json
+import os
+from src.utils import TabularUtils, ToyClassificationUtils
 
-def load_dataset(data_path, data_type='tabular'):
+def load_dataset(
+    data_path,
+    data_type='tabular',
+    data_split_seed=123
+    ) -> tuple[pd.DataFrame, pd.DataFrame, list]:
     # Load Dataset
-    dataset = DATATYPE_TO_DATACLASS[data_type](data_path=data_path)
+    dataset: Dataset = DATATYPE_TO_DATACLASS[data_type](
+        data_path=data_path,
+        data_split_seed=data_split_seed,
+        )
     data = dataset.get_train_data()
     test = dataset.get_test_data()
     # exit() # inspect feature names
 
     # Load Dataset Configs
     file_config = json.load(open(f'{data_path}/info.json'))
-    label_name = file_config['label']
     label_map = file_config['map']
     label_keys = list(label_map)
 
-    return data, test, label_name, label_map, label_keys
-
-def parse_note_to_features(note, feature=None):
-    features = {}
-    for feature_str in note.strip('.').split('. '):
-        key_value = feature_str.split(' = ')
-        if len(key_value) == 2:
-            key, value = key_value
-            features[key.strip()] = value.strip()
-    if feature:
-        return features.get(feature.strip(), None)
-    
-    return features
-
-def parse_features_to_note(features, feature_order=None):
-    if feature_order is None:
-        feature_order = list(features.keys())
-        
-    note_parts = []
-    for key in feature_order:
-        if key in features and features[key] is not None:
-            note_parts.append(f"{key} = {features[key]}")
-    note = ". ".join(note_parts) + "."
-    return note
+    return data, test, label_keys
 
 class Dataset():
-    def __init__(self, data_path, seed=123):
+    def __init__(self, data_path, data_split_seed: int = 123):
         data = self.load_data(data_path)
         # Split data
-        self.data, self.test_data = train_test_split(data, test_size=0.2, random_state=seed)
+        self.data, self.test_data = train_test_split(data, test_size=0.2, random_state=data_split_seed)
 
     def get_train_data(self):
-        print("Train Data Shape:", self.data.shape)
         return self.data
 
     def get_test_data(self):
-        print("Test Data Shape:", self.test_data.shape)
         return self.test_data
     
     def load_data(self, data_path):
         raise NotImplementedError
 
 class TabularDataset(Dataset):
-    def load_data(self, data_path):
+    def load_data(self, data_path: str):
         # Load Dataset
         data = load_from_disk(data_path).to_pandas()
 
@@ -72,7 +55,7 @@ class TabularDataset(Dataset):
                         .str.lstrip())
 
         # Convert Note to Features, then concat to dataset
-        note2features = data['note'].apply(parse_note_to_features).apply(pd.Series)
+        note2features = data['note'].apply(TabularUtils.parse_note_to_features).apply(pd.Series)
         print("Features:", ", ".join(note2features.columns))
 
         if "adult" in data_path.lower():
@@ -84,7 +67,7 @@ class TabularDataset(Dataset):
             salient_features = note2features.columns.tolist()
 
         data['note'] = note2features[salient_features].apply(
-            lambda row: parse_features_to_note(row.to_dict(), feature_order=salient_features),
+            lambda row: TabularUtils.parse_features_to_note(row.to_dict(), feature_order=salient_features),
             axis=1
         )
 
@@ -95,10 +78,22 @@ class TabularDataset(Dataset):
         return data
     
 class ToyClassificationDataset(Dataset):
-    def load_data(self, data_path):
-        raise NotImplementedError
-    
-DATATYPE_TO_DATACLASS = {
+    def load_data(self, data_path: str):
+        data = pd.read_csv(os.path.join(data_path, 'data.csv'), index_col=0)
+                    
+        data['label'] = data['label'].astype(int)
+        
+        feature_column = ToyClassificationUtils.get_feature_columns(data)
+        
+        data['note'] = data.apply(
+            lambda row: ToyClassificationUtils.parse_features_to_note(row, feature_column),
+            axis=1
+        )
+        
+        return data
+        
+        
+DATATYPE_TO_DATACLASS: dict[str, Dataset] = {
     "tabular": TabularDataset,
     "toy_classification": ToyClassificationDataset,
 }
