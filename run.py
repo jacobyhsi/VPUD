@@ -4,9 +4,10 @@ import pandas as pd
 import re
 from src.dataset import load_dataset
 from src.prompt import Prompt
-from src.chat import get_first_token_probs
+from src.chat import chat_tabular
 from src.utils import calculate_entropy, calculate_kl_divergence, TabularUtils
 
+# note to self: play around with seed_num and z_samples
 
 # Main
 def main():
@@ -22,8 +23,12 @@ def main():
     x_y = x_row['label'].iloc[0]
     print("x label:", x_y)
 
+    # Perturb x
+    data_x = TabularUtils.pertube_x(data, x_row, 'Work class')
+    # Perturb x
+
     # Sampling D as icl
-    num_D = 3
+    num_D = 10
     df_D = data.sample(n=num_D, random_state=global_seed)
     data = data.drop(df_D.index)
 
@@ -75,7 +80,7 @@ def main():
             print("\n########## <Prompt p(u|z,D)> ##########")
             print(prompt_puzD)
             print("########## <Prompt p(u|z,D)\> ##########")
-            output_puzD, puzD = get_first_token_probs(prompt_puzD, label_keys, seed)
+            output_puzD, puzD = chat_tabular(prompt_puzD, label_keys, seed)
             print("\n########## <Output p(u|z,D)\> ##########")
             print(output_puzD)
             print("########## <Output p(u|z,D)\> ##########")
@@ -121,7 +126,7 @@ def main():
                 print("\n########## <Prompt p(y|x,u,z,D)> ##########")
                 print(prompt_pyxuzD)
                 print("########## <Prompt p(y|x,u,z,D)\> ##########")
-                output_pyxuzD, pyxuzD = get_first_token_probs(prompt_pyxuzD, label_keys, seed)
+                output_pyxuzD, pyxuzD = chat_tabular(prompt_pyxuzD, label_keys, seed)
                 print("\n########## <Output p(y|x,u,z,D)\> ##########")
                 print(output_pyxuzD)
                 print("########## <Output p(y|x,u,z,D)\> ##########")
@@ -150,7 +155,7 @@ def main():
             print("\n########## <Prompt p(y|x,D)> ##########")
             print(prompt_pyxD)
             print("########## <Prompt p(y|x,D)\> ##########")
-            output_pyxD, pyxD = get_first_token_probs(prompt_pyxD, label_keys, seed)
+            output_pyxD, pyxD = chat_tabular(prompt_pyxD, label_keys, seed)
             print("\n########## <Output p(y|x,D)> ##########")
             print(output_pyxD)
             print("########## <Output p(y|x,D)\> ##########")
@@ -208,7 +213,8 @@ def main():
         kl = calculate_kl_divergence(avg_pyxzD_probs, avg_pyxD_probs)
         print(f"\nKL divergence between p(y|x,z,D) and p(y|x,D): {kl}")
 
-        if kl < 0.001:
+        kl_threshold = 0.02
+        if kl < kl_threshold:
             # Compute Va
             H_pyxuzD = {}
             for key, probs in avg_pyxuzD_probs.items():

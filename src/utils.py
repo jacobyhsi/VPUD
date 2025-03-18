@@ -75,6 +75,39 @@ class TabularUtils:
             print(f"z_{i}: {row['note']}")
 
         return z_data
+
+    def pertube_x(data, x_row, feature_to_perturb):
+        # Get all unique values for the specified feature
+        
+        if feature_to_perturb not in data.columns:
+            print(f"Feature '{feature_to_perturb}' not found in the dataset.")
+            print(f"Please reselect a feature from the following list: {data.columns}")
+            raise ValueError("Invalid feature selection.")
+
+        possible_vals = data[feature_to_perturb].dropna().unique()
+        
+        perturbed_rows = []
+        
+        for new_value in possible_vals:
+            modified_row = x_row.copy()
+            
+            # Update the feature with the new value
+            modified_row[feature_to_perturb] = new_value
+            
+            # Update the note using regex substitution
+            original_note = modified_row['note'].iloc[0]
+            pattern = rf'({re.escape(feature_to_perturb)} = )(.*?)(\.|$)'
+            new_note = re.sub(pattern, lambda m: f"{m.group(1)}{new_value}{m.group(3)}", original_note)
+
+            modified_row['note'] = new_note
+            perturbed_rows.append(modified_row)
+        
+        x_data = pd.concat(perturbed_rows, ignore_index=True)
+
+        for i, row in x_data.iterrows():
+            print(f"x_{i}: {row['note']}")
+
+        return x_data
     
     @staticmethod
     def parse_note_to_features(note, feature=None):
