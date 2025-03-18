@@ -1,5 +1,3 @@
-
-from src.chat import get_first_token_probs
 import os
 import re
 import argparse
@@ -13,7 +11,7 @@ from src.dataset import load_dataset
 from src.bayesian_optimisation import new_candidate
 from src.utils import ToyClassificationUtils, calculate_entropy, calculate_kl_divergence
 from src.prompt import ToyClassificationPrompt
-from src.chat import get_first_token_probs
+from src.chat import chat
 
 pd.set_option('display.max_columns', None)
 
@@ -148,7 +146,7 @@ class ToyClassificationExperiment:
                     print(prompt)
 
                 # Get the prediction and probabilities from the model
-                pred, probs = get_first_token_probs(prompt, self.label_keys, seed=seed)
+                pred, probs = chat(prompt, self.label_keys, seed=seed)
                 
                 # Accumulate probabilities
                 for label, prob in probs.items():
