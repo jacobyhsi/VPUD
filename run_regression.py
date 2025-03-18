@@ -1,456 +1,337 @@
-import requests
-import math
-from src.chat import get_first_token_probs
-message = \
-"""
- x1 = 2.8 <output>1</output>
- x1 = 0.9 <output>0</output>
- x1 = -6.7 <output>0</output>
- x1 = 2.0 <output>1</output>
- x1 = 3.5 <output>1</output>
- x1 = -2.7 <output>0</output>
- x1 = 1.0 <output>0</output>
- x1 = 0.5 <output>0</output>
- x1 = -3.1 <output>0</output>
- x1 = 0.2 <output>0</output>
- x1 = 14.3 <output>0</output>
- x1 = 4.2 <output>1</output>
- x1 = 0.8 <output>0</output>
- x1 = 0.6 <output>0</output>
- x1 = -1.6 <output>0</output>
- x1 = 0.8 <output>0</output>
- x1 = 6.8 <output>"""
 
-import json
-import requests
+from src.chat import get_first_token_probs
+import os
 import re
 import argparse
-import math
 import pandas as pd
-import matplotlib.pyplot as plt
 import numpy as np
 from typing import Optional
-from datasets import load_from_disk
-from sklearn.model_selection import train_test_split
+from tqdm import tqdm
+from dataclasses import dataclass
 
-from bayesian_optimisation import new_candidate
+from src.dataset import load_dataset
+from src.bayesian_optimisation import new_candidate
+from src.utils import ToyClassificationUtils, calculate_entropy, calculate_kl_divergence
+from src.prompt import ToyClassificationPrompt
+from src.chat import get_first_token_probs
 
-parser = argparse.ArgumentParser(description='Description of your program')
-parser.add_argument("--seed", default=123)
-parser.add_argument("--num_x_values", default="1")
-parser.add_argument("--x_values", default=None)
-parser.add_argument("--x_range", default=None)
-parser.add_argument("--seed_num", default="5")
-parser.add_argument("--data", default="logistic_regression_3")
-parser.add_argument("--feature", default="x1")
-parser.add_argument("--shots", default=3)
-parser.add_argument("--sets", default=10)
-parser.add_argument("--num_modified_z", default=3)
-parser.add_argument("--num_random_z", default=3)
-parser.add_argument("--llm", default="llama70b-nemo")
-parser.add_argument("--run_name", default="fewshot")
-parser.add_argument("--save_directory", default="other")
-parser.add_argument("--port", default=5000)
-parser.add_argument("--x_save_value", default=0)
-args = parser.parse_args()
-seed = int(args.seed)
-np.random.seed(seed)
-num_x_values = int(args.num_x_values)
-x_features = args.x_values
-x_range = args.x_range
-shots = int(args.shots)
-sets = int(args.sets)
-num_modified_z = int(args.num_modified_z)
-num_random_z = int(args.num_random_z)
-run_name = args.run_name
-save_directory = args.save_directory
-x_save_value = int(args.x_save_value)
-port = args.port
 pd.set_option('display.max_columns', None)
 
-################################################################################################
-########################################## Prompts #############################################
-################################################################################################
+parser = argparse.ArgumentParser(description='Running Toy Classification')
 
-def short_prompt(incontext_examples: list[str], example: str, *args, **kwargs):
-    incontext_examples_str = "\n".join(incontext_examples)
-    
-    prompt = f"""{incontext_examples_str}\n {example} <output>"""
-    
-    return prompt
+parser.add_argument("--dataset_name", default="logistic_regression_3")
 
-def note_label_prompt(note: str, label: str):
-    prompt = f""" {note} <output>{label}</output>"""
-    
-    return prompt
+parser.add_argument("--x_row_method", default="x_range")
+parser.add_argument("--num_x_samples", default=1, type=int)
+parser.add_argument("--x_features", default=None)
+parser.add_argument("--x_range", default=None)
+parser.add_argument("--x_sample_seed", default=0, type=int)
 
-def note_label_df_to_icl_examples(
-        note_label_df: pd.DataFrame,
-        seed: int,
-        z_note: Optional[str] = None,
-        u_label: Optional[str|int] = None,
+parser.add_argument("--numpy_seed", default=0, type=int)
+parser.add_argument("--data_split_seed", default=0, type=int)
+parser.add_argument("--icl_sample_seed", default=0, type=int)
+
+parser.add_argument("--shots", default=3, type=int)
+parser.add_argument("--num_permutations", default="5", type=int)
+parser.add_argument("--num_modified_z", default=3, type=int)
+parser.add_argument("--num_random_z", default=3, type=int)
+parser.add_argument("--perturbation_std", default=1.0, type=float)
+parser.add_argument("--num_candidates", default=3, type=int)
+parser.add_argument("--decimal_places", default=1, type=int)
+
+parser.add_argument("--run_name", default="test")
+parser.add_argument("--save_directory", default="other")
+parser.add_argument("--x_save_value", default=0, type=int)
+
+parser.add_argument("--verbose_output", default=0, type=int)
+args = parser.parse_args()
+
+@dataclass
+class ToyClassificationExperimentConfig:
+    dataset_name: str
+    numpy_seed: int
+    data_split_seed: int
+    icl_sample_seed: int
+    shots: int
+    x_row_method: int
+    num_x_samples: int
+    x_features: str
+    x_range: str
+    x_sample_seed: int
+    num_modified_z: int
+    num_random_z: int
+    perturbation_std: float
+    num_candidates: int
+    num_permutations: int
+    decimal_places: int
+    run_name: int
+    save_directory: int
+    x_save_value: int
+    verbose_output: int
+
+class ToyClassificationExperiment:
+    def __init__(self, config: ToyClassificationExperimentConfig):
+        self.config = config
+        
+        np.random.seed(self.config.numpy_seed)
+
+        self.prompter = ToyClassificationPrompt()
+        
+        if self.config.num_random_z > self.config.num_modified_z:
+            raise ValueError("Number of initial random z values cannot be greater than number of modified z values.")
+
+        self.data_preprocessing()
+
+    def data_preprocessing(self):
+        self.data_path = f'datasets_toy_classification/{self.config.dataset_name}'
+
+        data, test_data, self.label_keys = load_dataset(
+            data_path=self.data_path,
+            data_type='toy_classification',
+            data_split_seed=self.config.data_split_seed,
+        )
+
+        self.feature_columns = ToyClassificationUtils.get_feature_columns(data)
+
+        print("Features:", self.feature_columns)
+
+        self.x_row = ToyClassificationUtils.create_x_row(
+            method_name=self.config.x_row_method,
+            x_features=self.config.x_features,
+            x_range=self.config.x_range,
+            feature_columns=self.feature_columns,
+            decimal_places=self.config.decimal_places,
+            num_x_samples=self.config.num_x_samples,
+            test_data=test_data,
+            x_sample_seed=self.config.x_sample_seed,
+        )
+            
+        self.num_x_values = len(self.x_row)
+
+        D_rows = data.sample(n=self.config.shots, random_state=self.config.icl_sample_seed)
+        self.D_feature_stds = D_rows[self.feature_columns].std().to_numpy()
+
+        self.D_note_label_df = D_rows[['note', 'label']]
+
+        if not os.path.exists(f"results/{self.config.dataset_name}/{self.config.save_directory}"):
+            os.makedirs(f"results/{self.config.dataset_name}/{self.config.save_directory}")
+        D_rows.to_csv(f"results/{self.config.dataset_name}/{self.config.save_directory}/D_{self.config.run_name}.csv", index=False)
+    
+    def calculate_avg_probs(
+        self,
+        query_note: str,
+        probability_calculated: str,
+        icl_z_note: Optional[str]=None,
+        icl_u_label: Optional[str|int]=None,
     ):
-    """
-    Converts a DataFrame of notes and labels to incontext examples for LLM.
-    Shuffles the DataFrame before converting.
-    
-    If z_note and u_label are provided, the z_note and u_label will be added to data as well.
-    """
-    
-    if z_note is not None and u_label is not None:
-        z_note_label_df = pd.DataFrame([{"note": z_note, "label": u_label}])
-        note_label_df = pd.concat([note_label_df, z_note_label_df], ignore_index=True)
-        
-    note_label_df = note_label_df.sample(frac=1, random_state=seed).reset_index(drop=True)
-    
-    incontext_examples = []
-    
-    for _, row in note_label_df.iterrows():
-        incontext_examples.append(note_label_prompt(row['note'], row['label']))
-    
-    return incontext_examples
-
-
-################################################################################################
-########################################## Prompts #############################################
-################################################################################################
-
-################################################################################################
-##################################### Data Preprocessing #######################################
-################################################################################################
-data_path = f'ToyRegression/logistic_regression_data/{args.data}.csv'
-
-data = pd.read_csv(data_path, index_col=0)
-
-label_name = "y"
-label_keys = ["0", "1"]
-data = data.rename(columns={label_name: 'label'})
-data['label'] = data['label'].astype(int)
-
-feature_columns = [col for col in data.columns if col != 'label']
-
-data, test_data = train_test_split(data, test_size=0.2, random_state=seed)
-
-data["note"] = data.apply(lambda row: parse_features_to_note(row, feature_columns), axis=1)
-
-print("Features:", feature_columns)
-
-selected_feature = args.feature
-print("Feature to vary:", selected_feature)
-
-# exit() # here first to check whats the feature column names
-
-if x_features is not None:
-    x_row = create_x_row_from_x_features(x_features, feature_columns)
-    num_x_values = len(x_row)
-elif x_range is not None:
-    x_row = create_x_row_from_x_range(x_range, feature_columns)
-    num_x_values = len(x_row)
-else:
-    x_row = data.sample(n=num_x_values, random_state=seed)
-    data = data.drop(x_row.index)
-D_rows = data.sample(n=shots, random_state=seed)
-
-D_note_label_df = D_rows[['note', 'label']]
-
-D = "\n".join(f" {row['note']} <output>{row['label']}</output>" for _, row in D_rows.iterrows())
-
-D_rows.to_csv(f"results/{save_directory}/D_{run_name}_{args.data}.csv", index=False)
-
-################################################################################################
-##################################### Data Preprocessing #######################################
-################################################################################################
-
-################################################################################################
-######################################## E[H[p(y|u,z,x)]] ######################################
-################################################################################################
-
-initial_row = data.sample(n=1)
-print("Initial Row:\n", initial_row['note'])
-data = data.drop(initial_row.index)
-
-initial_selected_value = initial_row[selected_feature].values[0]
-D_selected_values = D_rows[selected_feature].values
-
-decimal_places = 1
-previous_z_values = []
-
-z_negative_Va_negative_kl_list = []
-# Take new z values by sampling a normal distribution with mean from z and std from D values
-
-num_random_z = int(num_random_z)
-
-if num_random_z > num_modified_z:
-    raise ValueError("Number of initial random z values cannot be greater than number of modified z values.")
-
-
-seed_num = int(args.seed_num)
-
-for j in range(num_x_values):
-    x = x_row['note'].iloc[j]
-    x_y = x_row['label'].iloc[j]
-    print("x:", x)
-    
-    # Initialize p(y|x)
-    avg_pyx_probs = {label: 0.0 for label in label_keys}
-    
-    # ----- Processing p(y|x) -----
-    successful_seeds = 0
-    for seed in range(seed_num):
-    
-        ## p(y|x)
-        print(f"\np(y|x) Seed {seed + 1}/{seed_num}")
-
-        try:
-            prompt_pyx = short_prompt(note_label_df_to_icl_examples(D_note_label_df, seed), x)
-            
-            print("Prompt for p(y|x,D):")
-            print(prompt_pyx)
-
-            # Get the prediction and probabilities from the model
-            pred_pyx, probs_pyx = get_response(prompt_pyx, label_keys, seed=seed)
-            # print("pred_p(y|x):", pred_pyx)
-            # print("probs_p(y|x):", probs_pyx)
-            
-            # Accumulate probabilities for puz
-            for label, prob in probs_pyx.items():
-                avg_pyx_probs[label] += prob
-            
-            successful_seeds += 1
-        except:
-            print(f"Seed {seed + 1} failed.")
-            
-    avg_pyx_probs = {label: prob / successful_seeds for label, prob in avg_pyx_probs.items()}
-    # print("\nAveraged puzx probabilities:", avg_pyx_probs)
-        
-    for i in range(num_modified_z):
-        if i < num_random_z:
-            for _ in range(100):
-                new_value = np.random.normal(np.mean(D_selected_values), 2*np.std(D_selected_values), 1)[0]
-                new_value = round(new_value, decimal_places)
-                if new_value not in previous_z_values:
-                    previous_z_values.append(new_value)
-                    break
-                
-            
-            if i == 0:
-                modified_row = initial_row.copy()
-                modified_row[selected_feature] = new_value
-
-                # Create a new DataFrame for z_data with note and selected feature
-                dict_data = {"note": modified_row.apply(lambda row: parse_features_to_note(row, feature_columns), axis=1)}
-                dict_data.update({col: modified_row[col] for col in feature_columns})
-
-                z_data = pd.DataFrame(dict_data).reset_index(drop=True)
-            else:
-                modified_row = z_data.loc[i-1].copy()
-                modified_row[selected_feature] = new_value
-                modified_row["note"] = parse_features_to_note(modified_row, feature_columns)
-                
-                z_data.loc[i] = modified_row
-                        
-        if i >= num_random_z:
-            # Bayesian Optimization for new z values
-            new_value = new_candidate(
-                z_values=previous_z_values,
-                maximisation_quantity=z_negative_Va_negative_kl_list,
-                lower_bound=x_row.iloc[j][selected_feature] -  3*np.std(D_selected_values),
-                upper_bound=x_row.iloc[j][selected_feature] + 3*np.std(D_selected_values),
-            )
-            new_value = round(new_value, decimal_places)
-            
-            print(f"New Z Value: {new_value}")
-            previous_z_values.append(new_value)
-            
-            modified_row = z_data.loc[i-1].copy()
-            modified_row[selected_feature] = new_value
-            
-            modified_row['note'] = parse_features_to_note(modified_row, feature_columns)
-                    
-            z_data.loc[i] = modified_row
-            
-        row = z_data.iloc[i]
-        
-        z = row['note']
-
-        avg_puz_probs = {label: 0.0 for label in label_keys}
-
+        # Initialize p(y|x)
+        avg_probs = {label: 0.0 for label in self.label_keys}
+        # ----- Processing p(y|x) -----
         successful_seeds = 0
-        for seed in range(seed_num):
-            # Initialize avg_puz_probs
-            
-            ## p(u|z)
-            print(f"\np(u|z) Seed {seed + 1}/{seed_num}")
+        for seed in range(self.config.num_permutations):
+        
+            # p(y|x)
+            if self.config.verbose_output:
+                print(f"\n{probability_calculated} Seed {seed + 1}/{self.config.num_permutations}")
+
             try:
-                prompt_puz = short_prompt(note_label_df_to_icl_examples(D_note_label_df, seed), z)
+                prompt = self.prompter.get_general_prompt(
+                    D_df=self.D_note_label_df,
+                    query_note=query_note,
+                    permutation_seed=seed,
+                    icl_z_note=icl_z_note,
+                    icl_u_label=icl_u_label,
+                )
                 
-                print("Prompt for p(u|z):")
-                print(prompt_puz)
+                if self.config.verbose_output:
+                    print(f"Prompt for {probability_calculated}:")
+                    print(prompt)
 
                 # Get the prediction and probabilities from the model
-                pred_puz, probs_puz = get_response(prompt_puz, label_keys, seed=seed)
-                # print("pred_p(u|z):", pred_puz)
-                # print("probs_p(u|z):", probs_puz)
-                # Accumulate probabilities for puz
-                for label, prob in probs_puz.items():
-                    avg_puz_probs[label] += prob
+                pred, probs = get_first_token_probs(prompt, self.label_keys, seed=seed)
                 
+                # Accumulate probabilities
+                for label, prob in probs.items():
+                    avg_probs[label] += prob
+                    
                 successful_seeds += 1
             except:
                 print(f"Seed {seed + 1} failed.")
+        
+        avg_probs = {label: prob / successful_seeds for label, prob in avg_probs.items()}
+        
+        if self.config.verbose_output:
+            print(f"\nAveraged {probability_calculated} probabilities: {avg_probs}")
+            
+        return avg_probs
+    
+    def get_next_z(self, z_idx: int, x_idx: int):
+        if z_idx < self.config.num_random_z:
+            for _ in range(100):
+                new_value = np.random.normal(self.x_row.iloc[x_idx][self.feature_columns].to_numpy(np.float32), self.config.perturbation_std * self.D_feature_stds, len(self.feature_columns))
+                new_value = np.round(new_value, self.config.decimal_places)
+                if not any(np.array_equal(new_value, previous_z_value) for previous_z_value in self.previous_z_values):
+                    self.previous_z_values.append(new_value)
+                    break
+            
+            if z_idx == 0:
                 
-        # Calculate the average probabilities for puz and puzx
-        avg_puz_probs = {label: prob / successful_seeds for label, prob in avg_puz_probs.items()}
-        # print("\nAveraged puz probabilities:", avg_puz_probs)
-        
-        # Add averaged puz probabilities to the DataFrame
-        for label, avg_prob in avg_puz_probs.items():
-            z_data.at[i, f"p(u={label}|z)"] = avg_prob
-            
-        z_data.at[i, "H[p(u|z)]"] = calculate_entropy(avg_puz_probs)
-        
-        # print(f"\nProcessing Z Example {i + 1}")
-        z = row['note']
-        # print("Row Note:", z)
-
-        # Initialize avg_pyxu_z_probs with distinct keys for each label
-        avg_pyxu_z_probs = {
-            f"p(y|x,u={outer_label},z)": {inner_label: 0.0 for inner_label in label_keys}
-            for outer_label in label_keys
-        }
-       
-        # Initialize p(y|x,z)
-        avg_pyxz_probs = {label: 0.0 for label in label_keys}
-
-        successful_seeds = {}
-        # ----- Processing pyxu_z -----
-        for outer_label in label_keys:
-            print(f"\nProcessing p(y|x,u=_,z) for label '{outer_label}'")
-
-            prompt_pyxuz = short_prompt(note_label_df_to_icl_examples(D_note_label_df, seed, z, outer_label), x)
-            print("Prompt for p(y|x,u=_,z):")
-            print(prompt_pyxuz)
-
-            successful_seeds[f"p(y|x,u={outer_label},z)"] = 0
-            for seed in range(seed_num):
-                print(f"\np(y|x,u={outer_label},z) Seed {seed + 1}/{seed_num}")
-
-                try:
-                    pred_pyxuz, probs_pyxuz = get_response(prompt_pyxuz, label_keys, seed=seed)
-                    # print(f"pred_p(y|x,u={outer_label},z):", pred_pyxuz)
-                    # print(f"probs_p(y|x,u={outer_label},z):", probs_pyxuz)
-
-                    # Accumulate probabilities for pyxu_z
-                    for inner_label, prob in probs_pyxuz.items():
-                        avg_pyxu_z_probs[f"p(y|x,u={outer_label},z)"][inner_label] += prob
-                    successful_seeds[f"p(y|x,u={outer_label},z)"] += 1
-                except:
-                    print(f"Seed {seed + 1} failed.")
-        # Calculate the average probabilities for pyxu_z
-        for key, sub_dict in avg_pyxu_z_probs.items():
-            avg_pyxu_z_probs[key] = {label: prob / successful_seeds[key] for label, prob in sub_dict.items()}
-
-        # print("\nAveraged pyxu_z probabilities:", avg_pyxu_z_probs)
-        
-        # Calculate the average probabilities for p(y|x,z) using p(y|x,u,z) and p(u|z,x)/could also be p(u|z)???
-        # Marginalization
-        for label in label_keys:  # Iterate over all possible values of y
-            avg_pyxz_probs[label] = sum(
-                avg_pyxu_z_probs[f"p(y|x,u={u_label},z)"][label] * z_data.at[i, f"p(u={u_label}|z)"]
-                for u_label in avg_puz_probs.keys()
-            )            
-            
-            # avg_pyxz_probs[label] = sum(
-            #     avg_pyxu_z_probs[f"p(y|x,u={u_label},z)"][label] * avg_puz_probs[u_label]
-            #     for u_label in avg_puz_probs.keys()
-            # )
-        # print("\nAveraged p(y|x,z) probabilities:", avg_pyxz_probs)
-
-        # ----- Optional: Adding Averages to DataFrame -----
-        # # Add averaged puz probabilities to the DataFrame
-        # for label, avg_prob in avg_puz_probs.items():
-        #     z_data.at[i, f"p(u={label}|z)"] = avg_prob
-
-        # Add averaged pyxu_z probabilities to the DataFrame
-        for key, sub_dict in avg_pyxu_z_probs.items():
-            for label, avg_prob in sub_dict.items():
-                new_key = re.sub(r'y', f'y={label}', key, count=1)
-                z_data.at[i, new_key] = avg_prob
+                dict_data = {feature_column: new_value[i] for i, feature_column in enumerate(self.feature_columns)}
+                self.z_data = pd.DataFrame([dict_data])
+                self.z_data["note"] = self.z_data.apply(lambda row: ToyClassificationUtils.parse_features_to_note(row, self.feature_columns), axis=1)
                 
-        # Add averaged pyxz probabilities to the DataFrame
-        for label, avg_prob in avg_pyxz_probs.items():
-            z_data.at[i, f"p(y={label}|x,z)"] = avg_prob
-            
-        # Add averaged pyx probabilities to the DataFrame
-        for label, avg_prob in avg_pyx_probs.items():
-            z_data.at[i, f"p(y={label}|x)"] = avg_prob
-            
-        # ----- Compute Entropy for Each avg_pyxu_z_probs -----
-        for key, sub_dict in avg_pyxu_z_probs.items():
-            entropy = calculate_entropy(sub_dict)
-            # H[p(y|x,u0,z)]
-            # print(f"H[{key}]")
-            z_data.at[i, f"H[{key}]"] = entropy
-            
-        # ----- Compute Entropy for Each avg_pyx_probs -----
-        z_data.at[i, f"H[p(y|x)]"] = calculate_entropy(avg_pyx_probs)
-            
-        # ----- Compute Entropy for Each avg_pyxz_probs -----
-        z_data.at[i, f"H[p(y|x,z)]"] = calculate_entropy(avg_pyxz_probs)
-        
-        expected_H = 0.0
-        for label in label_keys:
-            avg_puz_prob = z_data.at[i, f"p(u={label}|z)"]
-            avg_pyxuz_entropy = z_data.at[i, f"H[p(y|x,u={label},z)]"]
-            expected_H += avg_puz_prob * avg_pyxuz_entropy
-        z_data.at[i, "Va = E[H[p(y|x,u,z)]]"] = round(expected_H, 5)
-        
-        kl_pyx_pyxz = calculate_kl_divergence(avg_pyx_probs, avg_pyxz_probs)
-        z_data.at[i, "kl_pyx_pyxz"] = round(kl_pyx_pyxz, 5)
-        
-        kl_pyxz_pyx = calculate_kl_divergence(avg_pyxz_probs, avg_pyx_probs)
-        z_data.at[i, "kl_pyxz_pyx"] = round(kl_pyxz_pyx, 5)
-        
-        z_negative_Va_negative_kl_list.append(-expected_H - kl_pyx_pyxz)
+            else:
+                modified_row = self.z_data.loc[z_idx-1].copy()
+                modified_row[self.feature_columns] = new_value
+                modified_row["note"] = ToyClassificationUtils.parse_features_to_note(modified_row, self.feature_columns)
                 
-        # ----- Final Output -----
-        print(f"\nx value: {x} -> {label_name}: {x_y}")
-        print("\nFinal z_data with Averaged Probabilities:")
-        print(z_data.head())
-        z_data["true_x"] = x_row.iloc[j][selected_feature]
-        
-        z_data.to_csv(f"results/{save_directory}/results_{run_name}_{args.data}_x{j + x_save_value}.csv", index=False)
-        
-    total_U = z_data["H[p(y|x)]"][0]
-    print("\nTotal Uncertainty =", total_U)
-    maximum_entropic_distance = total_U/20
-    print("\nMaximum Entropic Distance =", maximum_entropic_distance)
-    # Find the valid z values
-    valid_Va = []
-    for i, row in z_data.iterrows():
-        if abs(total_U - row["H[p(y|x,z)]"]) <= maximum_entropic_distance:
-            valid_Va.append(row["Va = E[H[p(y|x,u,z)]]"])
-    if len(valid_Va) == 0:
-        print("No Va values found within threshold. Using the minimum Va value for whole z dataset.")
-        min_Va = z_data["Va = E[H[p(y|x,u,z)]]"].min()
-        z_data["within_threshold"] = False
-        z_data["z_value_for_min_Va"] = False
-    else:
-        min_Va = min(valid_Va)
-        z_data["within_threshold"] = z_data["Va = E[H[p(y|x,u,z)]]"].apply(lambda x: x in valid_Va)
-        z_data["z_value_for_min_Va"] = z_data["Va = E[H[p(y|x,u,z)]]"].apply(lambda x: x == min_Va)
-    # min_Va = z_data["Va = E[H[p(y|x,u,z)]]"].min()
-    print("min Va = E[H[p(y|x,u,z)]] =", min_Va)
-    max_Ve = round(total_U - min_Va, 5)
-    print("max Ve = H[p(y|x,z)] - E[H[p(y|x,u,z)] =", max_Ve)
-    z_data["min_Va"] = min_Va
-    z_data["max_Ve"] = max_Ve
-    z_data.to_csv(f"results/{save_directory}/results_{run_name}_{args.data}_x{j + x_save_value}.csv", index=False)
+                self.z_data.loc[z_idx] = modified_row
+                                
+        if z_idx >= self.config.num_random_z:
+            # Bayesian Optimization for new z values
+    
+            new_values = new_candidate(
+                z_values=self.previous_z_values,
+                maximisation_quantity=self.z_BO_maximisation_objective,
+                lower_bound=self.x_row.iloc[x_idx][self.feature_columns].to_numpy(np.float32) - 2*self.D_feature_stds,
+                upper_bound=self.x_row.iloc[x_idx][self.feature_columns].to_numpy(np.float32) + 2*self.D_feature_stds,
+                num_candidates=self.config.num_candidates,
+            )
+            
+            new_values = np.round(new_values, self.config.decimal_places)
+            
+            new_value = None
+            
+            for test_value in new_values:
+                if not any(np.array_equal(test_value, previous_z_value) for previous_z_value in self.previous_z_values):
+                    new_value = test_value
+                    break
+                else:
+                    if self.config.verbose_output:
+                        print(f"Duplicate Candidate: {test_value}")            
+            if new_value is None:
+                if self.config.verbose_output:
+                    print("No new candidate found. Using first candidate.")
+                new_value = new_values[0]
+            
+            if self.config.verbose_output:
+                print(f"New Z Value: {new_value}")
+            self.previous_z_values.append(new_value)
+            
+            modified_row = self.z_data.loc[z_idx-1].copy()
+            modified_row[self.feature_columns] = new_value
+            
+            modified_row['note'] = ToyClassificationUtils.parse_features_to_note(modified_row, self.feature_columns)
+            
+            self.z_data.loc[z_idx] = modified_row
+            
+    def process_single_x_value(self, x_idx: int):
+        self.previous_z_values = []
 
+        self.z_BO_maximisation_objective = []
+    
+        x = self.x_row['note'].iloc[x_idx]
+        x_y = self.x_row['label'].iloc[x_idx]
+        print("x:", x)
+        
+        # Compute p(y|x,D)
+        avg_pyx_probs = self.calculate_avg_probs(x, "p(y|x,D)")
+        Hyx = calculate_entropy(avg_pyx_probs)
+                
+        save_dict_list = []
+            
+        for i in tqdm(range(self.config.num_modified_z)):
+
+            self.get_next_z(i, x_idx)
+            
+            row = self.z_data.iloc[i]
+            
+            z = row['note']
+            
+            # Compute p(u|z,D)
+            avg_puz_probs = self.calculate_avg_probs(z, "p(u|z,D)")
+            
+            # Compute p(y|x,u,z,D)
+            avg_pyxu_z_probs = {}
+            
+            for outer_label in self.label_keys:
+                probability_calculated = f"p(y|x,u={outer_label},z,D)"
+                
+                avg_probs_for_outer_label = self.calculate_avg_probs(
+                    query_note=x,
+                    probability_calculated=probability_calculated,
+                    icl_z_note=z,
+                    icl_u_label=outer_label
+                )
+                
+                avg_pyxu_z_probs.update({probability_calculated: avg_probs_for_outer_label})
+            
+            # Marginalisation
+            avg_pyxz_probs = {}
+
+            for label in self.label_keys:  # Iterate over all possible values of y
+                avg_pyxz_probs[label] = sum(
+                    avg_pyxu_z_probs[f"p(y|x,u={u_label},z,D)"][label] * avg_puz_probs[u_label]
+                    for u_label in self.label_keys
+                )
+                
+            # Entropy
+            Huz = calculate_entropy(avg_puz_probs)
+            Hyxuz = {f"H[{key}]": calculate_entropy(value) for key, value in avg_pyxu_z_probs.items()}          
+            E_Hyxz = 0.0
+            for label in self.label_keys:
+                E_Hyxz += Hyxuz[f"H[p(y|x,u={label},z,D)]"]*avg_puz_probs[label]
+            Va = np.round(E_Hyxz, 5)
+            Ve = Hyx - Va
+            
+            # KL Divergence
+            kl_pyx_pyxz = calculate_kl_divergence(avg_pyx_probs, avg_pyxz_probs)
+            kl_pyxz_pyx = calculate_kl_divergence(avg_pyxz_probs, avg_pyx_probs)
+            
+            self.z_BO_maximisation_objective.append(-Va - kl_pyx_pyxz)
+        
+            # Save            
+            save_dict = {f"z_{feature}": row[feature] for feature in self.feature_columns}
+            save_dict["z_note"] = z
+            save_dict_x = {f"x_{feature}": self.x_row.iloc[x_idx][feature] for feature in self.feature_columns}
+            save_dict_x["x_note"] = x
+            save_dict = {**save_dict, **save_dict_x}
+            for label, prob in avg_pyx_probs.items():
+                save_dict[f"p(y={label}|x,D)"] = prob
+            for label, prob in avg_puz_probs.items():
+                save_dict[f"p(u={label}|z,D)"] = prob
+            for key, outer_label_probs in avg_pyxu_z_probs.items():
+                for label, prob in outer_label_probs.items():
+                    new_key = re.sub(r'y', f'y={label}', key, count=1)
+                    save_dict[new_key] = prob
+            for label, prob in avg_pyxz_probs.items():
+                save_dict[f"p(y={label}|x,z,D)"] = prob
+            save_dict["H[p(u|z,D)]"] = Huz
+            for key, entropy in Hyxuz.items():
+                save_dict[key] = entropy
+            save_dict["H[p(y|x,D)]"] = Hyx
+            save_dict["Va"] = Va
+            save_dict["Ve"] = Ve
+            save_dict["kl_pyx_pyxz"] = kl_pyx_pyxz
+            save_dict["kl_pyxz_pyx"] = kl_pyxz_pyx
+            
+            save_dict_list.append(save_dict)
+            
+        save_df = pd.DataFrame(save_dict_list)
+        
+        return save_df
+            
+    def run_experiment(self):
+        for x_idx in range(self.num_x_values):
+            save_df = self.process_single_x_value(x_idx)
+            save_df.to_csv(f"results/{self.config.dataset_name}/{self.config.save_directory}/results_{self.config.run_name}_x{x_idx + self.config.x_save_value}.csv", index=False)
+        
+def main():
+    config = ToyClassificationExperimentConfig(**vars(args))
+    
+    experiment = ToyClassificationExperiment(config)
+    
+    experiment.run_experiment()
 
 if __name__ == "__main__":
-    label_keys = ['0', '1']
-    seed = 123
-    text_output, normalized_probs = get_first_token_probs(message, label_keys, seed)
-    print(f"Text Output: {text_output}")
-    print(f"Normalized Probabilities: {normalized_probs}")
+    main()

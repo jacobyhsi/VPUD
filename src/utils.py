@@ -3,6 +3,7 @@ import re
 import ast
 import numpy as np
 import pandas as pd
+from itertools import product
 
 # Helper Functions
 
@@ -112,4 +113,76 @@ class ToyClassificationUtils:
     @staticmethod
     def get_feature_columns(data: pd.DataFrame):
         return [col for col in data.columns if col not in ['note', 'label']]
+    
+    @staticmethod
+    def create_x_row_from_x_features(x_features: str, feature_columns: list[str], **kwargs):
+        """ 
+        Create x_row from given x_features.
+        
+        x_features is a string with the format "{'feature1': [f1_1, ..., f1_n], 'feature2': [f2_1, ..., f2_n], ...}"
+        """
+        x_features = ast.literal_eval(x_features)
+        x_row = pd.DataFrame(x_features)
+        x_row["label"] = 0
+        x_row["note"] = x_row.apply(
+            lambda row: ToyClassificationUtils.parse_features_to_note(row, feature_columns),
+            axis=1,
+        )
+                
+        return x_row
+
+    @staticmethod
+    def create_x_row_from_x_range(x_range: str, feature_columns: list[str], decimal_places: int, **kwargs):
+        """
+        Create x_row grid for a given x_range.
+        
+        x_range is a string with the format "start, end, step" for each feature.
+        
+        Example:
+        x_range = "{'x1': [0, 10, 0.2],'x2': [1, 5, 1]}"
+        """
+        
+        x_range = ast.literal_eval(x_range)
+        x_row = pd.DataFrame()
+        
+        for feature, (start, end, step) in x_range.items():
+            x_range[feature] = np.round(np.arange(float(start), float(end), float(step)), decimal_places)
+
+        values = product(*x_range.values())
+        x_row = pd.DataFrame(values, columns=x_range.keys())
+        
+        x_row["label"] = 0
+        x_row["note"] = x_row.apply(
+            lambda row: ToyClassificationUtils.parse_features_to_note(row, feature_columns),
+            axis=1
+        )
+                
+        return x_row
+
+    @staticmethod
+    def create_x_row_from_test_data(
+        test_data: pd.DataFrame,
+        num_x_samples: int,
+        x_sample_seed: int,
+        **kwargs,
+    ):
+        x_row = test_data.sample(n=num_x_samples, random_state=x_sample_seed)
+        
+        return x_row
+    
+    @staticmethod
+    def create_x_row(method_name: str, **kwargs):
+        if method_name == "x_features":
+            return ToyClassificationUtils.create_x_row_from_x_features(**kwargs)
+        elif method_name == "x_range":
+            return ToyClassificationUtils.create_x_row_from_x_range(**kwargs)
+        elif method_name == "sample":
+            return ToyClassificationUtils.create_x_row_from_test_data(**kwargs)
+        else:
+            raise ValueError(f"Invalid method_name: {method_name}")
+        
+    @staticmethod
+    def create_icl_data(num_shots: int, data: pd.DataFrame, icl_sample_seed: int):
+        pass
+    
     
