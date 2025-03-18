@@ -3,6 +3,7 @@ import re
 import ast
 import numpy as np
 import pandas as pd
+from itertools import product
 
 # Helper Functions
 
@@ -12,13 +13,13 @@ def calculate_entropy(probs):
     entropy = -np.sum(probs * np.log2(probs))
     return round(entropy, 5)
 
-def kl_divergence(p, q):
+def calculate_kl_divergence(p, q):
     epsilon = 1e-12  # small constant to avoid log(0)
     kl = 0.0
     for label in p:
         p_val = p[label] + epsilon
         q_val = q[label] + epsilon
-        kl += p_val * np.log(p_val / q_val)
+        kl += p_val * (np.log(p_val) - np.log(q_val))
     return kl
 
 def extract(text):
@@ -75,5 +76,113 @@ class TabularUtils:
 
         return z_data
     
-class RegressionUtils:
-    pass
+    @staticmethod
+    def parse_note_to_features(note, feature=None):
+        features = {}
+        for feature_str in note.strip('.').split('. '):
+            key_value = feature_str.split(' = ')
+            if len(key_value) == 2:
+                key, value = key_value
+                features[key.strip()] = value.strip()
+        if feature:
+            return features.get(feature.strip(), None)
+        
+        return features
+
+    @staticmethod
+    def parse_features_to_note(features, feature_order=None):
+        if feature_order is None:
+            feature_order = list(features.keys())
+            
+        note_parts = []
+        for key in feature_order:
+            if key in features and features[key] is not None:
+                note_parts.append(f"{key} = {features[key]}")
+        note = ". ".join(note_parts) + "."
+        return note
+    
+class ToyClassificationUtils:
+    @staticmethod
+    def parse_features_to_note(row: pd.Series, feature_columns: list[str]):
+        note_parts = []
+        for feature in feature_columns:
+            note_parts.append(f"{feature} = {row[feature]}")
+        # join note with ;
+        return "; ".join(note_parts)
+    
+    @staticmethod
+    def get_feature_columns(data: pd.DataFrame):
+        return [col for col in data.columns if col not in ['note', 'label']]
+    
+    @staticmethod
+    def create_x_row_from_x_features(x_features: str, feature_columns: list[str], **kwargs):
+        """ 
+        Create x_row from given x_features.
+        
+        x_features is a string with the format "{'feature1': [f1_1, ..., f1_n], 'feature2': [f2_1, ..., f2_n], ...}"
+        """
+        x_features = ast.literal_eval(x_features)
+        x_row = pd.DataFrame(x_features)
+        x_row["label"] = 0
+        x_row["note"] = x_row.apply(
+            lambda row: ToyClassificationUtils.parse_features_to_note(row, feature_columns),
+            axis=1,
+        )
+                
+        return x_row
+
+    @staticmethod
+    def create_x_row_from_x_range(x_range: str, feature_columns: list[str], decimal_places: int, **kwargs):
+        """
+        Create x_row grid for a given x_range.
+        
+        x_range is a string with the format "start, end, step" for each feature.
+        
+        Example:
+        x_range = "{'x1': [0, 10, 0.2],'x2': [1, 5, 1]}"
+        """
+        
+        x_range = ast.literal_eval(x_range)
+        x_row = pd.DataFrame()
+        
+        for feature, (start, end, step) in x_range.items():
+            x_range[feature] = np.round(np.arange(float(start), float(end), float(step)), decimal_places)
+
+        values = product(*x_range.values())
+        x_row = pd.DataFrame(values, columns=x_range.keys())
+        
+        x_row["label"] = 0
+        x_row["note"] = x_row.apply(
+            lambda row: ToyClassificationUtils.parse_features_to_note(row, feature_columns),
+            axis=1
+        )
+                
+        return x_row
+
+    @staticmethod
+    def create_x_row_from_test_data(
+        test_data: pd.DataFrame,
+        num_x_samples: int,
+        x_sample_seed: int,
+        **kwargs,
+    ):
+        x_row = test_data.sample(n=num_x_samples, random_state=x_sample_seed)
+        
+        return x_row
+    
+    @staticmethod
+    def create_x_row(method_name: str, **kwargs):
+        if method_name == "x_features":
+            return ToyClassificationUtils.create_x_row_from_x_features(**kwargs)
+        elif method_name == "x_range":
+            return ToyClassificationUtils.create_x_row_from_x_range(**kwargs)
+        elif method_name == "sample":
+            return ToyClassificationUtils.create_x_row_from_test_data(**kwargs)
+        else:
+            raise ValueError(f"Invalid method_name: {method_name}")
+        
+    @staticmethod
+    def create_icl_data(num_shots: int, data: pd.DataFrame, icl_sample_seed: int):
+        pass
+    
+    

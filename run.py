@@ -5,13 +5,13 @@ import re
 from src.dataset import load_dataset
 from src.prompt import Prompt
 from src.chat import get_first_token_probs
-from src.utils import calculate_entropy, kl_divergence, TabularUtils
+from src.utils import calculate_entropy, calculate_kl_divergence, TabularUtils
 
 
 # Main
 def main():
     # Load dataset
-    data, test, label_name, label_map, label_keys = load_dataset(args.data_path)
+    data, test, label_keys = load_dataset(args.data_path)
 
     global_seed = int(args.seed)
     # Sampling x
@@ -34,7 +34,7 @@ def main():
     print("z:", z)
     data_z = TabularUtils.pertube_z(data, df_z, z_samples=10) # z_samples number of pertubations per z
 
-    prompt = Prompt(label_name, label_map, label_keys, prompt_type="tabular")
+    prompt = Prompt(prompt_type="tabular")
     
     min_Va_lst = []
     failed_seeds = 0
@@ -205,7 +205,7 @@ def main():
         print(f"\np(y|x,D) = {avg_pyxD_probs}")
 
         ## Thresholding p(y|x,z,D) and p(y|x,D) via KL Divergence
-        kl = kl_divergence(avg_pyxzD_probs, avg_pyxD_probs)
+        kl = calculate_kl_divergence(avg_pyxzD_probs, avg_pyxD_probs)
         print(f"\nKL divergence between p(y|x,z,D) and p(y|x,D): {kl}")
 
         if kl < 0.001:
