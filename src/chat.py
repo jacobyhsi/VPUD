@@ -38,7 +38,7 @@ def chat(message: str, label_keys, seed: int):
 
     return text_output, normalized_probs
 
-def get_first_token_probs(message: str, label_keys, seed: int):
+def chat_tabular(message: str, label_keys, seed: int):
     url = "http://localhost:8000/v1/completions"
     headers = {"Content-Type": "application/json"}
     data = {
