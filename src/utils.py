@@ -22,6 +22,69 @@ def calculate_kl_divergence(p, q):
         kl += p_val * (np.log(p_val) - np.log(q_val))
     return kl
 
+def calculate_kl_divergence_for_z_data(df: pd.DataFrame):
+    kl_divergence_pyx_pyxz = []
+    kl_divergence_pyxz_pyx = []
+
+    PROB_LABELS = ["0", "1"]
+    for index, row in df.iterrows():
+        prob_y_x = {}
+        prob_y_xz = {}
+        for label in PROB_LABELS:
+            prob_y_x[label] = row[f"p(y={label}|x,D)"]
+            prob_y_xz[label] = row[f"p(y={label}|x,z,D)"]
+        kl_divergence_pyx_pyxz.append(calculate_kl_divergence(prob_y_x, prob_y_xz))
+        kl_divergence_pyxz_pyx.append(calculate_kl_divergence(prob_y_xz, prob_y_x))
+        
+    df["kl_pyx_pyxz"] = kl_divergence_pyx_pyxz
+    df["kl_pyxz_pyx"] = kl_divergence_pyxz_pyx
+    
+    return df
+
+def calculate_min_Va_by_KL_threshold(save_data: pd.DataFrame, threshold: float = 0.01, forward_kl = True):
+    valid_Va = []
+    total_U = save_data["H[p(y|x,D)]"][0]
+    for i, row in save_data.iterrows():
+        if forward_kl:
+            if row["kl_pyx_pyxz"] <= threshold:
+                valid_Va.append(row["Va"])
+        else:
+            if row["kl_pyxz_pyx"] <= threshold:
+                valid_Va.append(row["Va"])
+    if len(valid_Va) == 0:
+        min_Va = np.nan
+        save_data["within_threshold"] = False
+        save_data["z_value_for_min_Va"] = False
+    else:
+        min_Va = min(valid_Va)
+        save_data["within_threshold"] = save_data["Va"].apply(lambda x: x in valid_Va)
+        save_data["z_value_for_min_Va"] = save_data["Va"].apply(lambda x: x == min_Va)
+    save_data["min_Va"] = min_Va
+    max_Ve = round(total_U - min_Va, 5)
+    if min_Va == np.nan:
+        save_data["max_Ve"] = np.nan
+    else:
+        save_data["max_Ve"] = max_Ve
+    
+    return save_data
+
+def calculate_min_Va_by_KL_rank(save_data: pd.DataFrame, num_valid_Va: int = 5, forward_kl = True):
+    if forward_kl:
+        kl_values = save_data["kl_pyx_pyxz"]
+    else:
+        kl_values = save_data["kl_pyxz_pyx"]
+    # min kl values
+    min_kl_values = kl_values.nsmallest(num_valid_Va)
+    save_data["within_threshold"] = kl_values.isin(min_kl_values)
+    min_Va = save_data[save_data["within_threshold"]]["Va"].min()
+    save_data["z_value_for_min_Va"] = save_data["Va"].apply(lambda x: x == min_Va)
+    save_data["min_Va"] = min_Va
+    total_U = save_data["H[p(y|x,D)]"][0]
+    max_Ve = round(total_U - min_Va, 5)
+    save_data["max_Ve"] = max_Ve
+    
+    return save_data
+
 def extract(text):
     match = re.search(r'(.*?)</output>', text, re.DOTALL | re.IGNORECASE)
     if match:
