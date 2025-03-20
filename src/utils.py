@@ -209,8 +209,6 @@ class TabularUtils:
         # Define step size as 5% of the max value
         step_size = int(0.02 * max_val)
 
-        print(min_val, max_val, step_size)
-
         # Generate perturbations from min to max in steps of `step_size`
         perturbed_values = np.arange(min_val, max_val + step_size, step_size)
 
