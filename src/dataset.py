@@ -56,15 +56,20 @@ class TabularDataset(Dataset):
 
         # Convert Note to Features, then concat to dataset
         note2features = data['note'].apply(TabularUtils.parse_note_to_features).apply(pd.Series)
-        print("Features:", ", ".join(note2features.columns))
 
         if "adult" in data_path.lower():
+            # salient_features = [
+            #     'Work class', 'Marital status', 'Relation to head of the household', 
+            #     'Race', 'Capital gain last year', 'Work hours per week'
+            # ] # Based on InterpreTabNet https://arxiv.org/abs/2406.00426
+
             salient_features = [
-                'Work class', 'Marital status', 'Relation to head of the household', 
-                'Race', 'Capital gain last year', 'Work hours per week'
+                'Work hours per week'
             ] # Based on InterpreTabNet https://arxiv.org/abs/2406.00426
         else:
             salient_features = note2features.columns.tolist()
+        
+        print("Salient Features:", ", ".join(salient_features))
 
         data['note'] = note2features[salient_features].apply(
             lambda row: TabularUtils.parse_features_to_note(row.to_dict(), feature_order=salient_features),

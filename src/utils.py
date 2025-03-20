@@ -101,66 +101,127 @@ def extract(text):
     
 class TabularUtils:
     @staticmethod
-    def pertube_z(data, z_row, z_samples=10):
+    # def perturb_z(data, z_row, z_samples=10):
+    #     # Identify all feature columns to perturb (exclude 'note' and 'label')
+    #     features_to_perturb = [col for col in data.columns if col not in ['note', 'label']]
+        
+    #     # Precompute unique values for each feature
+    #     unique_vals = {feature: data[feature].dropna().unique() for feature in features_to_perturb}
+        
+    #     perturbed_rows = []
+        
+    #     for _ in range(z_samples):
+    #         modified_row = z_row.copy()
+    #         # Get the current note string (assuming z_row has one row)
+    #         new_note = modified_row['note'].iloc[0]
+            
+    #         # Perturb all features by randomly assigning new values
+    #         for feature in features_to_perturb:
+    #             original_value = modified_row[feature].iloc[0]
+    #             possible_vals = unique_vals[feature]
+
+    #             # Exclude the original value if alternative values exist
+    #             alt_vals = [val for val in possible_vals if val != original_value]
+    #             if alt_vals:
+    #                 new_value = np.random.choice(alt_vals)
+    #             else:
+    #                 new_value = original_value  # If no alternative values, keep it the same
+
+    #             modified_row[feature] = new_value
+                
+    #             # Update the note string using regex substitution with a lambda for safety
+    #             pattern = rf'({re.escape(feature)} = )(.*?)(\.|$)'
+    #             new_note = re.sub(pattern, lambda m: f"{m.group(1)}{new_value}{m.group(3)}", new_note)
+            
+    #         modified_row['note'] = new_note
+    #         perturbed_rows.append(modified_row)
+        
+    #     z_data = pd.concat(perturbed_rows, ignore_index=True)
+
+    #     # for i, row in z_data.iterrows():
+    #         # print(f"z_{i}: {row['note']}")
+
+    #     return z_data
+
+    def perturb_z(data, z_row, x_row, z_samples=10, range_fraction=0.01): # perturbing z aroudn the x
         # Identify all feature columns to perturb (exclude 'note' and 'label')
         features_to_perturb = [col for col in data.columns if col not in ['note', 'label']]
         
-        # Precompute unique values for each feature
-        unique_vals = {feature: data[feature].dropna().unique() for feature in features_to_perturb}
+        # Compute min and max for numerical features
+        feature_ranges = {feature: (data[feature].min(), data[feature].max()) 
+                        for feature in features_to_perturb if np.issubdtype(data[feature].dtype, np.number)}
         
         perturbed_rows = []
-        
+
         for _ in range(z_samples):
             modified_row = z_row.copy()
-            # Get the current note string (assuming z_row has one row)
             new_note = modified_row['note'].iloc[0]
-            
-            # Perturb all features by randomly assigning new values
+
             for feature in features_to_perturb:
                 original_value = modified_row[feature].iloc[0]
-                possible_vals = unique_vals[feature]
+                x_value = x_row[feature]
 
-                # Exclude the original value if alternative values exist
-                alt_vals = [val for val in possible_vals if val != original_value]
-                if alt_vals:
-                    new_value = np.random.choice(alt_vals)
+                if feature in feature_ranges:
+                    # Numerical feature: Perturb within a fraction of its range around x
+                    min_val, max_val = feature_ranges[feature]
+                    delta = range_fraction * (max_val - min_val)
+                    
+                    lower_bound = max(min_val, x_value - delta)
+                    upper_bound = min(max_val, x_value + delta)
+                    
+                    new_value = np.random.uniform(lower_bound, upper_bound)
+                    new_value = round(new_value, 2)  # Round to avoid excessive decimals
                 else:
-                    new_value = original_value  # If no alternative values, keep it the same
+                    # Categorical feature: Sample similar values
+                    possible_vals = data[feature].dropna().unique()
+                    alt_vals = [val for val in possible_vals if val != x_value]  # Exclude x value
+                    
+                    if alt_vals:
+                        new_value = np.random.choice(alt_vals)
+                    else:
+                        new_value = original_value  # Keep the same if no alternatives
 
                 modified_row[feature] = new_value
                 
-                # Update the note string using regex substitution with a lambda for safety
+                # Update the note string using regex substitution
                 pattern = rf'({re.escape(feature)} = )(.*?)(\.|$)'
                 new_note = re.sub(pattern, lambda m: f"{m.group(1)}{new_value}{m.group(3)}", new_note)
-            
+
             modified_row['note'] = new_note
             perturbed_rows.append(modified_row)
-        
-        z_data = pd.concat(perturbed_rows, ignore_index=True)
 
-        for i, row in z_data.iterrows():
-            print(f"z_{i}: {row['note']}")
+        z_data = pd.concat(perturbed_rows, ignore_index=True)
 
         return z_data
 
-    def pertube_x(data, x_row, feature_to_perturb):
-        # Get all unique values for the specified feature
-        
+
+    def perturb_x(data, x_row, feature_to_perturb):
+        # Ensure the feature exists in the dataset
         if feature_to_perturb not in data.columns:
             print(f"Feature '{feature_to_perturb}' not found in the dataset.")
             print(f"Please reselect a feature from the following list: {data.columns}")
             raise ValueError("Invalid feature selection.")
 
-        possible_vals = data[feature_to_perturb].dropna().unique()
-        
+        # Get the min and max of the feature
+        min_val = int(data[feature_to_perturb].min())
+        max_val = int(data[feature_to_perturb].max())
+
+        # Define step size as 5% of the max value
+        step_size = int(0.02 * max_val)
+
+        print(min_val, max_val, step_size)
+
+        # Generate perturbations from min to max in steps of `step_size`
+        perturbed_values = np.arange(min_val, max_val + step_size, step_size)
+
         perturbed_rows = []
-        
-        for new_value in possible_vals:
+
+        for new_value in perturbed_values:
             modified_row = x_row.copy()
-            
-            # Update the feature with the new value
+
+            # Update the feature with the new perturbed value
             modified_row[feature_to_perturb] = new_value
-            
+
             # Update the note using regex substitution
             original_note = modified_row['note'].iloc[0]
             pattern = rf'({re.escape(feature_to_perturb)} = )(.*?)(\.|$)'
@@ -168,13 +229,45 @@ class TabularUtils:
 
             modified_row['note'] = new_note
             perturbed_rows.append(modified_row)
-        
+
+        # Concatenate perturbed rows into a DataFrame
         x_data = pd.concat(perturbed_rows, ignore_index=True)
 
-        for i, row in x_data.iterrows():
-            print(f"x_{i}: {row['note']}")
-
         return x_data
+
+
+    # def perturb_x(data, x_row, feature_to_perturb): # original perturb x where we pick 1 feature to perturb
+    #     # Get all unique values for the specified feature
+        
+    #     if feature_to_perturb not in data.columns:
+    #         print(f"Feature '{feature_to_perturb}' not found in the dataset.")
+    #         print(f"Please reselect a feature from the following list: {data.columns}")
+    #         raise ValueError("Invalid feature selection.")
+
+    #     possible_vals = data[feature_to_perturb].dropna().unique()
+        
+    #     perturbed_rows = []
+        
+    #     for new_value in possible_vals:
+    #         modified_row = x_row.copy()
+            
+    #         # Update the feature with the new value
+    #         modified_row[feature_to_perturb] = new_value
+            
+    #         # Update the note using regex substitution
+    #         original_note = modified_row['note'].iloc[0]
+    #         pattern = rf'({re.escape(feature_to_perturb)} = )(.*?)(\.|$)'
+    #         new_note = re.sub(pattern, lambda m: f"{m.group(1)}{new_value}{m.group(3)}", original_note)
+
+    #         modified_row['note'] = new_note
+    #         perturbed_rows.append(modified_row)
+        
+    #     x_data = pd.concat(perturbed_rows, ignore_index=True)
+
+    #     # for i, row in x_data.iterrows():
+    #     #     print(f"x_{i}: {row['note']}")
+
+    #     return x_data
     
     @staticmethod
     def parse_note_to_features(note, feature=None):
