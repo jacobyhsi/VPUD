@@ -17,7 +17,6 @@ def load_dataset(
         )
     data = dataset.get_train_data()
     test = dataset.get_test_data()
-    # exit() # inspect feature names
 
     # Load Dataset Configs
     file_config = json.load(open(f'{data_path}/info.json'))
@@ -58,27 +57,27 @@ class TabularDataset(Dataset):
         note2features = data['note'].apply(TabularUtils.parse_note_to_features).apply(pd.Series)
 
         if "adult" in data_path.lower():
-            # salient_features = [
+            # features = [
             #     'Work class', 'Marital status', 'Relation to head of the household', 
             #     'Race', 'Capital gain last year', 'Work hours per week'
             # ] # Based on InterpreTabNet https://arxiv.org/abs/2406.00426
 
-            salient_features = [
-                'Work hours per week'
-            ] # Based on InterpreTabNet https://arxiv.org/abs/2406.00426
+            features = [
+                'Age', 'Work hours per week', 'Capital gain last year'
+            ]
         else:
-            salient_features = note2features.columns.tolist()
+            features = note2features.columns.tolist()
         
-        print("Salient Features:", ", ".join(salient_features))
+        print("Features:", ", ".join(features))
 
-        data['note'] = note2features[salient_features].apply(
-            lambda row: TabularUtils.parse_features_to_note(row.to_dict(), feature_order=salient_features),
+        data['note'] = note2features[features].apply(
+            lambda row: TabularUtils.parse_features_to_note(row.to_dict(), feature_order=features),
             axis=1
         )
 
         df_filtered = data[['label', 'note']].copy()  # Ensure 'note' and 'label' are included
         
-        data = pd.concat([df_filtered, note2features[salient_features]], axis=1)
+        data = pd.concat([df_filtered, note2features[features]], axis=1)
         
         return data
     

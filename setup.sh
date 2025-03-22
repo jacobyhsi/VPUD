@@ -27,7 +27,7 @@ uv pip install gpytorch botorch
 bash llm.sh
 
 # Run the script (check run.log for run details)
-python run.py 2>&1 | tee run.log
+python run_tabular.py 2>&1 | tee run_tabular.log
 
 # To Zip:
 # tar --exclude='*.csv' --exclude='*.pt' --exclude='*.npy' --exclude='.git' --exclude='*.bkp' \
