@@ -13,35 +13,35 @@ from src.utils import calculate_entropy, calculate_kl_divergence, TabularUtils
 
 # Main
 def main():
+    global_seed = int(args.seed)
+    perturb_x = args.perturb_x
+
     # Load dataset
     data, test, label_keys = load_dataset(args.data_path)
-
-    global_seed = int(args.seed)
-    # Sampling x
-    x_row = test.sample(n=1, random_state=global_seed)
-    test = test.drop(x_row.index) # drop the sampled x
-    x = x_row['note'].iloc[0]
-    # print("x:", x)
-    # x_y = x_row['label'].iloc[0]
-    # print("x label:", x_y)
-    # Perturb x
-    # x perturbations should be in a range of values from the min of capital gains to the max of capital gains
-    perturb_x = args.perturb_x
-    data_x = TabularUtils.perturb_x(data, x_row, perturb_x)
 
     # Sampling D as icl
     num_D = 20
     df_D = data.sample(n=num_D, random_state=global_seed)
     data = data.drop(df_D.index)
+    df_D.to_csv(f"df_D_{perturb_x}.csv", index=False)
+
+    # Sampling x
+    x_row = test.sample(n=1, random_state=global_seed)
+    test = test.drop(x_row.index) # drop the sampled x
+    x = x_row['note'].iloc[0]
+    # Perturb x
+    # x perturbations should be in a range of values from the min of capital gains to the max of capital gains
+    if perturb_x != 'all':
+        data_x = TabularUtils.perturb_x(data, x_row, perturb_x)
+    else:
+        data_x = TabularUtils.perturb_all_x(data, x_row, df_D)
+    # Perturb x
 
     # Sample z
     df_z = data.sample(n=1, random_state=global_seed)
     data = data.drop(df_z.index)
     z = df_z['note'].iloc[0]
     # print("z:", z)
-    # data_z = TabularUtils.perturb_z(data, df_z, z_samples=5) # z_samples number of pertubations per z; higher dims, more zs
-    
-    # perturbed x should be close to x.
 
     prompt = Prompt(prompt_type="tabular")
     
@@ -55,6 +55,8 @@ def main():
         # Processing z Probabilities
         min_Va_lst = []
 
+        # perturbed z should be close to x.
+        # data_z = TabularUtils.perturb_all_z(data, df_z, df_D)
         data_z = TabularUtils.perturb_z(data, df_z, x_row, z_samples=10)
 
         for i, row in tqdm(data_z.iterrows(), total=len(data_z), desc="Processing z perturbations"):
@@ -279,37 +281,29 @@ def main():
         # print(x_row)
         # print(min_Va)
         # Example x_row and min_Va (assuming they are pandas Series)
-
-        x_z = {
-            'x_note': x_row['note'],
-            f'x_{perturb_x}': x_row[perturb_x],
-            'TU': min_Va['TU'],
-            'Va': min_Va['Va'],
-            'Ve': min_Va['Ve']
-        }
+        if perturb_x != 'all':
+            x_z = {
+                'x_note': x_row['note'],
+                f'x_{perturb_x}': x_row[perturb_x],
+                'TU': min_Va['TU'],
+                'Va': min_Va['Va'],
+                'Ve': min_Va['Ve']
+            }
+        else:
+            x_z = {
+                'x_note': x_row['note'],
+                'radius': x_row['radius'],
+                'TU': min_Va['TU'],
+                'Va': min_Va['Va'],
+                'Ve': min_Va['Ve']
+            }
         x_z = pd.DataFrame([x_z])
         x_z_lst.append(x_z)
 
+        
+
     df_plot = pd.concat(x_z_lst, ignore_index=True)
     df_plot.to_csv(f"df_plot_{perturb_x}.csv", index=False)
-
-    plt.figure(figsize=(12, 10))
-    plt.scatter(df_plot[f"x_{perturb_x}"], df_plot["TU"], label="Total Uncertainty (TU)", s=100)
-    plt.scatter(df_plot[f"x_{perturb_x}"], df_plot["Va"], label="Minimum Va (Aleatoric Uncertainty)", s=100)
-    for _, row in df_D.iterrows():
-        work_hours = row["Work hours per week"]
-        label = row["label"]
-        
-        # Color coding: Blue for label 0, Red for label 1
-        color = "blue" if label == 0 else "red"
-        
-        plt.axvline(x=work_hours, color=color, linestyle="--", alpha=0.5, linewidth=1)
-    plt.xlabel(f"{perturb_x}")
-    plt.ylabel("Uncertainty")
-    plt.title(f"Total Uncertainty and Minimum Aleatoric Uncertainty (Va) by {perturb_x}")
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig(f"tabular_plt_{perturb_x}.pdf")
 
 if __name__ == "__main__":
     # Argument Parser
@@ -318,7 +312,6 @@ if __name__ == "__main__":
     parser.add_argument("--seed", default=123)
     parser.add_argument("--data_path", default="datasets_tabular/adult")
     parser.add_argument("--num_seeds", default=5)
-    parser.add_argument("--perturb_x", default="Work hours per week")
+    parser.add_argument("--perturb_x", default="all")
     args = parser.parse_args()
-
     main()
