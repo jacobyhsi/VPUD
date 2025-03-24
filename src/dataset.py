@@ -43,6 +43,7 @@ class Dataset():
 class TabularDataset(Dataset):
     def load_data(self, data_path: str):
         # Load Dataset
+        print(data_path)
         data = load_from_disk(data_path).to_pandas()
 
         # Preprocess Dataset
@@ -63,7 +64,7 @@ class TabularDataset(Dataset):
             # ] # Based on InterpreTabNet https://arxiv.org/abs/2406.00426
 
             features = [
-                'Age', 'Work hours per week', 'Capital gain last year'
+                'Age', 'Work hours per week', 'Education years'
             ]
         else:
             features = note2features.columns.tolist()

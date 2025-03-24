@@ -1,0 +1,9 @@
+{
+    "label": "car acceptability",
+    "map": {
+        "0" : "unacc",
+        "1" : "acc",
+        "2" : "good",
+        "3" : "vgood"
+    }
+}

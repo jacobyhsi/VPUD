@@ -225,25 +225,37 @@ def main():
             # print(f"\np(y|x,D) = {avg_pyxD_probs}")
 
             ## Thresholding p(y|x,z,D) and p(y|x,D) via KL Divergence
-            kl_lst = []
             kl = calculate_kl_divergence(avg_pyxzD_probs, avg_pyxD_probs)
-            kl_lst.append(kl)
-            # print(f"\nKL divergence between p(y|x,z,D) and p(y|x,D): {kl}")
+            data_z.at[i, 'KL'] = kl
 
-            kl_threshold = 0.2
-            if kl < kl_threshold:
-                # Compute Va
-                H_pyxuzD = {}
-                for key, probs in avg_pyxuzD_probs.items():
-                    H_pyxuzD[f"H[{key}]"] = calculate_entropy(probs)
-                E_H_pyxuzD = sum(H_pyxuzD[f"H[p(y|x,u{u_value},z,D)]"] * puzD[u_value] for u_value in puzD.keys())
-                # print(f"\nVa = E_p(u|z,D)[H(p(y|x,u,z,D))] = {E_H_pyxuzD}")
-                row['Va'] = E_H_pyxuzD
-                min_Va_lst.append(row)
-            
-            if len(min_Va_lst) == 0:
-                print(f"kl values:{kl_lst}")
-                raise ValueError("check threshold!")
+        min_kl = data_z.sort_values('KL').head(3)
+        for _, row in min_kl.iterrows():
+            # Compute Va for each of the bottom 3 KL perturbations
+            H_pyxuzD = {}
+            for key, probs in avg_pyxuzD_probs.items():
+                H_pyxuzD[f"H[{key}]"] = calculate_entropy(probs)
+
+            E_H_pyxuzD = sum(
+                H_pyxuzD[f"H[p(y|x,u{u_value},z,D)]"] * puzD[u_value] for u_value in puzD.keys()
+            )
+
+            row['Va'] = E_H_pyxuzD
+            min_Va_lst.append(row)
+
+        # kl_threshold = 0.2
+        # if kl < kl_threshold:
+        #     # Compute Va
+        #     H_pyxuzD = {}
+        #     for key, probs in avg_pyxuzD_probs.items():
+        #         H_pyxuzD[f"H[{key}]"] = calculate_entropy(probs)
+        #     E_H_pyxuzD = sum(H_pyxuzD[f"H[p(y|x,u{u_value},z,D)]"] * puzD[u_value] for u_value in puzD.keys())
+        #     # print(f"\nVa = E_p(u|z,D)[H(p(y|x,u,z,D))] = {E_H_pyxuzD}")
+        #     row['Va'] = E_H_pyxuzD
+        #     min_Va_lst.append(row)
+        
+        # if len(min_Va_lst) == 0:
+        #     print(f"kl values:{kl_lst}")
+        #     raise ValueError("check threshold!")
 
             # print("No. Rows before threshold", len(data_z))
             # print("No. Rows after threshold", len(min_Va_lst))
