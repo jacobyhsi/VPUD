@@ -1,7 +1,0 @@
-{
-    "label": "median house value",
-    "map": {
-        "0" : "below median",
-        "1" : "above median"
-    }
-}

@@ -1,7 +1,0 @@
-{
-    "label": "credit",
-    "map": {
-        "0" : "bad",
-        "1" : "good"
-    }
-}

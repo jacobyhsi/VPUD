@@ -1,7 +1,0 @@
-{
-    "label": "HeartDisease",
-    "map": {
-        "0" : "normal",
-        "1" : "possible heart disease"
-    }
-}
