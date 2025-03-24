@@ -228,7 +228,7 @@ def main():
             kl = calculate_kl_divergence(avg_pyxzD_probs, avg_pyxD_probs)
             data_z.at[i, 'KL'] = kl
 
-        min_kl = data_z.sort_values('KL').head(3)
+        min_kl = data_z.sort_values('KL').head(5)
         for _, row in min_kl.iterrows():
             # Compute Va for each of the bottom 3 KL perturbations
             H_pyxuzD = {}
