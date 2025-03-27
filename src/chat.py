@@ -2,11 +2,11 @@ import requests
 import math
 from openai import OpenAI
 
-def chat(message: str, label_keys, seed: int):
+def chat(message: str, label_keys, seed: int, model: str ="Qwen/Qwen2.5-14B"):
     url = "http://localhost:8000/v1/completions"
     headers = {"Content-Type": "application/json"}
     data = {
-        "model": "Qwen/Qwen2.5-14B",
+        "model": model,
         "prompt": message,
         "temperature": 1.0,
         "max_tokens": 5,

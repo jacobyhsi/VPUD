@@ -18,6 +18,7 @@ pd.set_option('display.max_columns', None)
 parser = argparse.ArgumentParser(description='Running Toy Classification')
 
 parser.add_argument("--dataset_name", default="logistic_regression_3")
+parser.add_argument("--model_name", default="Qwen/Qwen2.5-14B", type=str)
 
 parser.add_argument("--x_row_method", default="x_range")
 parser.add_argument("--num_x_samples", default=1, type=int)
@@ -47,6 +48,7 @@ args = parser.parse_args()
 @dataclass
 class ToyClassificationExperimentConfig:
     dataset_name: str
+    model_name: str
     numpy_seed: int
     data_split_seed: int
     icl_sample_seed: int
@@ -146,7 +148,7 @@ class ToyClassificationExperiment:
                     print(prompt)
 
                 # Get the prediction and probabilities from the model
-                pred, probs = chat(prompt, self.label_keys, seed=seed)
+                pred, probs = chat(prompt, self.label_keys, seed=seed, model=self.config.model_name)
                 
                 # Accumulate probabilities
                 for label, prob in probs.items():
