@@ -57,7 +57,7 @@ def main():
 
         # perturbed z should be close to x.
         # data_z = TabularUtils.perturb_all_z(data, df_z, df_D)
-        data_z = TabularUtils.perturb_z(data, df_z, x_row, z_samples=10)
+        data_z = TabularUtils.perturb_z(data, df_z, x_row, z_samples=20)
 
         for i, row in tqdm(data_z.iterrows(), total=len(data_z), desc="Processing z perturbations"):
             z = row['note']
