@@ -91,9 +91,24 @@ class ToyClassificationDataset(Dataset):
         )
         
         return data
+    
+class ToyRegressionDataset(Dataset):
+    def load_data(self, data_path: str):
+        data = pd.read_csv(os.path.join(data_path, 'data.csv'), index_col=0)
+                    
+        data['label'] = data['label'].astype(float)
         
+        feature_column = ToyClassificationUtils.get_feature_columns(data)
+        
+        data['note'] = data.apply(
+            lambda row: ToyClassificationUtils.parse_features_to_note(row, feature_column),
+            axis=1
+        )
+        
+        return data   
         
 DATATYPE_TO_DATACLASS: dict[str, Dataset] = {
     "tabular": TabularDataset,
     "toy_classification": ToyClassificationDataset,
+    "toy_regression": ToyRegressionDataset,
 }
