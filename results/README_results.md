@@ -3,22 +3,49 @@
 ### Logistic Regression 3
 - Experiment 1:
     - Summary: Bayesian optimisation (with 5 initial random z, 10 z from BO); 15 shots
-    - Run script: `python run_toy_classification.py --x_range "{'x1': [-15, 15, 0.2]}" --shots 15 --num_modified_z 15 --num_random_z 5 --save_directory experiment_1 --run_name 15_shot_15_z_5_random_10_perm --num_permutations 10`
+    - Run scripts:
+        - `python run_toy_classification.py --x_range "{'x1': [-15, 15, 0.2]}" --shots 15 --num_modified_z 15 --num_random_z 5 --save_directory experiment_1 --run_name 15_shot_15_z_5_random_10_perm --num_permutations 10`
+        - `python run_toy_classification.py --x_range "{'x1': [-15, 15, 0.2]}" --shots 15 --num_modified_z 15 --num_random_z 5 --save_directory experiment_1_7b --run_name 15_shot_15_z_5_random_10_perm --num_permutations 10 --model_name Qwen/Qwen2.5-7B`
 - Experiment 2:
     - Summary: Small perturbations of x to obtain z (15 z); 15 shot
-    - Run script: `python run_toy_classification.py --x_range "{'x1': [-15, 15, 0.2]}" --shots 15 --num_modified_z 15 --num_random_z 15 --save_directory experiment_2 --run_name 15_shot_15_z_5_random_10_perm --num_permutations 10 --perturbation_std 0.1` 
+    - Run script:
+        - `python run_toy_classification.py --x_range "{'x1': [-15, 15, 0.2]}" --shots 15 --num_modified_z 15 --num_random_z 15 --save_directory experiment_2 --run_name 15_shot_15_z_5_random_10_perm --num_permutations 10 --perturbation_std 0.1` 
+        - `python run_toy_classification.py --x_range "{'x1': [-15, 15, 0.2]}" --shots 15 --num_modified_z 15 --num_random_z 15 --save_directory experiment_2_7b --run_name 15_shot_15_z_5_random_10_perm --num_permutations 10 --perturbation_std 0.1 --model_name Qwen/Qwen2.5-7B`
+- Experiment 3:
+    - Summary: Repeat x as z; 15 shot
+    - Run scripts:
+        - `python run_toy_classification.py --x_range "{'x1': [-15, 15, 0.2]}" --shots 15 --num_modified_z 1 --num_random_z 1 --save_directory experiment_3 --run_name 15_shot_1_z_10_perm --num_permutations 10 --perturbation_std 0`
+        - `python run_toy_classification.py --x_range "{'x1': [-15, 15, 0.2]}" --shots 15 --num_modified_z 1 --num_random_z 1 --save_directory experiment_3_7b --run_name 15_shot_1_z_10_perm --num_permutations 10 --perturbation_std 0 --model_name Qwen/Qwen2.5-7B`
 
 ### Moons
 - Experiment_1:
     - Summary: Bayesian optimisation (with 5 initial random z, 10 z from BO); 15 shots
-    - `python run_toy_classification.py --x_range "{'x1': [-1, 2, 0.2], 'x2': [-1, 2, 0.2]}" --shots 15 --num_modified_z 15 --num_random_z 5 --save_directory experiment_moons_1 --run_name 15_shot_15_z_5_random_10_perm --num_permutations 10 --decimal_places 2 --dataset_name moons`
+    - Run scripts:
+        - `python run_toy_classification.py --x_range "{'x1': [-1, 2, 0.2], 'x2': [-1, 2, 0.2]}" --shots 15 --num_modified_z 15 --num_random_z 5 --save_directory experiment_moons_1 --run_name 15_shot_15_z_5_random_10_perm --num_permutations 10 --decimal_places 2 --dataset_name moons`
+        - `python run_toy_classification.py --x_range "{'x1': [-1, 2, 0.2], 'x2': [-1, 2, 0.2]}" --shots 15 --num_modified_z 15 --num_random_z 5 --save_directory experiment_moons_1_7b --run_name 15_shot_15_z_5_random_10_perm --num_permutations 10 --decimal_places 2 --dataset_name moons --model_name Qwen/Qwen2.5-7B`
 - Experiment 2:
     - Small perturbations
     - Summary: Small perturbations of x to obtain z (15 z); 15 shot
-    - `python run_toy_classification.py --x_range "{'x1': [-1, 2, 0.2], 'x2': [-1, 2, 0.2]}" --shots 15 --num_modified_z 15 --num_random_z 15 --save_directory experiment_moons_2 --run_name 15_shot_15_z_15_random_10_perm --num_permutations 10 --decimal_places 2 --dataset_name moons --perturbation_std 0.1`
+    - Run scripts:
+        - `python run_toy_classification.py --x_range "{'x1': [-1, 2, 0.2], 'x2': [-1, 2, 0.2]}" --shots 15 --num_modified_z 15 --num_random_z 15 --save_directory experiment_moons_2 --run_name 15_shot_15_z_15_random_10_perm --num_permutations 10 --decimal_places 2 --dataset_name moons --perturbation_std 0.1`
+        - `python run_toy_classification.py --x_range "{'x1': [-1, 2, 0.2], 'x2': [-1, 2, 0.2]}" --shots 15 --num_modified_z 15 --num_random_z 15 --save_directory experiment_moons_2_7b --run_name 15_shot_15_z_15_random_10_perm --num_permutations 10 --decimal_places 2 --dataset_name moons --perturbation_std 0.1 --model_name Qwen/Qwen2.5-7B`
 - Experiment 3:
     - Summary: Bayesian optimisation (with 5 initial random z, 10 z from BO); 30 shots
-    - Run script: `python run_toy_classification.py --x_range "{'x1': [-1.5, 2.5, 0.2], 'x2': [-1, 2, 0.2]}" --shots 30 --num_modified_z 15 --num_random_z 5 --save_directory experiment_moons_3 --run_name 30_shot_15_z_5_random_10_perm --num_permutations 10 --decimal_places 2 --dataset_name moons`
+    - Run scripts:
+        - `python run_toy_classification.py --x_range "{'x1': [-1.5, 2.5, 0.2], 'x2': [-1, 2, 0.2]}" --shots 30 --num_modified_z 15 --num_random_z 5 --save_directory experiment_moons_3 --run_name 30_shot_15_z_5_random_10_perm --num_permutations 10 --decimal_places 2 --dataset_name moons`
+        - `python run_toy_classification.py --x_range "{'x1': [-1.5, 2.5, 0.2], 'x2': [-1, 2, 0.2]}" --shots 30 --num_modified_z 15 --num_random_z 5 --save_directory experiment_moons_3_7b --run_name 30_shot_15_z_5_random_10_perm --num_permutations 10 --decimal_places 2 --dataset_name moons --model_name Qwen/Qwen2.5-7B`
 - Experiment 4:
     - Summary: Small perturbations of x to obtain z (15 z); 30 shot
-    - Run scripts: `python run_toy_classification.py --x_range "{'x1': [-1.5, 2.5, 0.2], 'x2': [-1, 2, 0.2]}" --shots 30 --num_modified_z 15 --num_random_z 15 --save_directory experiment_moons_4 --run_name 30_shot_15_z_15_random_10_perm --num_permutations 10 --decimal_places 2 --dataset_name moons --perturbation_std 0.1`
+    - Run scripts:
+        - `python run_toy_classification.py --x_range "{'x1': [-1.5, 2.5, 0.2], 'x2': [-1, 2, 0.2]}" --shots 30 --num_modified_z 15 --num_random_z 15 --save_directory experiment_moons_4 --run_name 30_shot_15_z_15_random_10_perm --num_permutations 10 --decimal_places 2 --dataset_name moons --perturbation_std 0.1`
+        - `python run_toy_classification.py --x_range "{'x1': [-1.5, 2.5, 0.2], 'x2': [-1, 2, 0.2]}" --shots 30 --num_modified_z 15 --num_random_z 15 --save_directory experiment_moons_4_7b --run_name 30_shot_15_z_15_random_10_perm --num_permutations 10 --decimal_places 2 --dataset_name moons --perturbation_std 0.1 --model_name Qwen/Qwen2.5-7B`
+- Experiment 5:
+    - Summary: Repeat x as z; 15 shot
+    - Run scripts:
+        - `python run_toy_classification.py --x_range "{'x1': [-1.5, 2.5, 0.2], 'x2': [-1, 2, 0.2]}" --shots 15 --num_modified_z 1 --num_random_z 1 --save_directory experiment_moons_5 --run_name 15_shot_1_z_10_perm --num_permutations 10 --decimal_places 2 --dataset_name moons --perturbation_std 0`
+        - `python run_toy_classification.py --x_range "{'x1': [-1.5, 2.5, 0.2], 'x2': [-1, 2, 0.2]}" --shots 15 --num_modified_z 1 --num_random_z 1 --save_directory experiment_moons_5_7b --run_name 15_shot_1_z_10_perm --num_permutations 10 --decimal_places 2 --dataset_name moons --perturbation_std 0 --model_name Qwen/Qwen2.5-7B`
+- Experiment 6:
+    - Summary: Repeat x as z; 30 shot
+    - Run scripts
+        - `python run_toy_classification.py --x_range "{'x1': [-1.5, 2.5, 0.2], 'x2': [-1, 2, 0.2]}" --shots 30 --num_modified_z 1 --num_random_z 1 --save_directory experiment_moons_6 --run_name **30_shot_1_z_10_perm** --num_permutations 10 --decimal_places 2 --dataset_name moons --perturbation_std 0`
+        - `python run_toy_classification.py --x_range "{'x1': [-1.5, 2.5, 0.2], 'x2': [-1, 2, 0.2]}" --shots 30 --num_modified_z 1 --num_random_z 1 --save_directory experiment_moons_6_7b --run_name **30_shot_1_z_10_perm** --num_permutations 10 --decimal_places 2 --dataset_name moons --perturbation_std 0 --model_name Qwen/Qwen2.5-7B`
