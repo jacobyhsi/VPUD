@@ -1,0 +1,11 @@
+<output>-1.086</output>
+<output>0.997</output>
+<output>0.283</output>
+<output>-1.506</output>
+<output>-0.579</output>
+<output>1.651</output>
+<output>-2.427</output>
+<output>-0.429</output>
+<output>1.266</output>
+<output>-0.867</output>
+<output>
