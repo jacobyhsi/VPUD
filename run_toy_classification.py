@@ -29,6 +29,7 @@ parser.add_argument("--x_sample_seed", default=0, type=int)
 parser.add_argument("--numpy_seed", default=0, type=int)
 parser.add_argument("--data_split_seed", default=0, type=int)
 parser.add_argument("--icl_sample_seed", default=0, type=int)
+parser.add_argument("--use_api_call_seed", default=0, type=int)
 
 parser.add_argument("--shots", default=3, type=int)
 parser.add_argument("--num_permutations", default="5", type=int)
@@ -41,6 +42,7 @@ parser.add_argument("--decimal_places", default=1, type=int)
 parser.add_argument("--run_name", default="test")
 parser.add_argument("--save_directory", default="other")
 parser.add_argument("--x_save_value", default=0, type=int)
+parser.add_argument("--num_api_calls_save_value", default=0, type=int)
 
 parser.add_argument("--verbose_output", default=0, type=int)
 args = parser.parse_args()
@@ -52,6 +54,7 @@ class ToyClassificationExperimentConfig:
     numpy_seed: int
     data_split_seed: int
     icl_sample_seed: int
+    use_api_call_seed: int
     shots: int
     x_row_method: int
     num_x_samples: int
@@ -67,6 +70,7 @@ class ToyClassificationExperimentConfig:
     run_name: int
     save_directory: int
     x_save_value: int
+    num_api_calls_save_value: int
     verbose_output: int
 
 class ToyClassificationExperiment:
@@ -81,6 +85,9 @@ class ToyClassificationExperiment:
             raise ValueError("Number of initial random z values cannot be greater than number of modified z values.")
 
         self.data_preprocessing()
+        
+        self.use_api_call_seed = self.config.use_api_call_seed == 1
+        self.num_api_calls = self.config.num_api_calls_save_value
 
     def data_preprocessing(self):
         self.data_path = f'datasets_toy_classification/{self.config.dataset_name}'
@@ -134,11 +141,13 @@ class ToyClassificationExperiment:
             if self.config.verbose_output:
                 print(f"\n{probability_calculated} Seed {seed + 1}/{self.config.num_permutations}")
 
+            permutation_seed = self.num_api_calls if self.use_api_call_seed else seed
+            
             try:
                 prompt = self.prompter.get_general_prompt(
                     D_df=self.D_note_label_df,
                     query_note=query_note,
-                    permutation_seed=seed,
+                    permutation_seed=permutation_seed,
                     icl_z_note=icl_z_note,
                     icl_u_label=icl_u_label,
                 )
@@ -148,7 +157,9 @@ class ToyClassificationExperiment:
                     print(prompt)
 
                 # Get the prediction and probabilities from the model
-                pred, probs = chat(prompt, self.label_keys, seed=seed, model=self.config.model_name)
+                pred, probs = chat(prompt, self.label_keys, seed=permutation_seed, model=self.config.model_name)
+                
+                self.num_api_calls += 1
                 
                 # Accumulate probabilities
                 for label, prob in probs.items():
@@ -314,6 +325,7 @@ class ToyClassificationExperiment:
             save_dict["Ve"] = Ve
             save_dict["kl_pyx_pyxz"] = kl_pyx_pyxz
             save_dict["kl_pyxz_pyx"] = kl_pyxz_pyx
+            save_dict["api_calls"] = self.num_api_calls
             
             save_dict_list.append(save_dict)
             
