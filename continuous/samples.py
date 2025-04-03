@@ -6,7 +6,7 @@ import math
 import numpy as np
 import csv
 
-with open('prompt_neg.txt', 'r') as file:
+with open('prompt_exp.txt', 'r') as file:
     prompt = file.read()
 
 API_URL = "http://localhost:8000/v1/completions"  # Correct vLLM endpoint
@@ -48,9 +48,10 @@ for s in range(num_samples):
         
         if len(generated_text)>0:
             try: float(generated_text)
+
             except:
                 
-                if generated_text not in [".", "-", "-."]:
+                if generated_text not in [".", "-", "-."] and stop_token not in generated_text:
                     valid_number=False
                     print("not valid, " + generated_text)
                     break
@@ -62,7 +63,7 @@ for s in range(num_samples):
         # Save samples to a CSV file
         if s%10 == 0:    
             print(f"Sample {s} of {num_samples}")
-            with open('samples.csv', 'w', newline='') as csvfile:
+            with open('samples_small.csv', 'w', newline='') as csvfile:     #small refers to 1.5b qwen with half precision
                 writer = csv.writer(csvfile)
                 #writer.writerow(["Sample"])  # Header
                 for sample in samples:

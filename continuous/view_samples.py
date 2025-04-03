@@ -5,14 +5,13 @@ import matplotlib.pyplot as plt
 
 # Load the data from the CSV file
 # Load the data from the CSV file without pandas
-with open("samples_exp.csv", newline='') as csvfile:
+with open("samples_small.csv", newline='') as csvfile:
     reader = csv.reader(csvfile)
     print(next(reader))
     data = [float(row[0]) for row in reader]
 
-print(len(data))
 data = [d for d in data if d < 10]
-print(len(data))
+
 
 # Plot a histogram of the values
 plt.hist(data, bins=50, edgecolor='black')
@@ -22,4 +21,4 @@ plt.ylabel("Frequency")
 plt.grid(axis='y', linestyle='--', alpha=0.7)
 
 # Show the plot
-plt.savefig("samples.pdf", format='pdf')
+plt.savefig("samples_small.pdf", format='pdf')

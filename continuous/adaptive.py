@@ -15,9 +15,10 @@ with open('prompt_exp.txt', 'r') as file:
 
 API_URL = "http://localhost:8000/v1/completions"  # Correct vLLM endpoint
 
-branching_number = NUM_LOGPROBS = 15
+#note: can also set maximum number of decimal points for branch
+branching_number = NUM_LOGPROBS = 10
 stop_token = "<"#/output>"
-max_queries = 15
+max_queries = 11
 include_unfinished = True   #interprets unfinished numbers with no decimal point as integers
 threshold_prob = 0#1e-6
 threshold_logprob = -np.inf#math.log(threshold_prob)
@@ -99,13 +100,18 @@ for b in branches:
         if stop_token in bin_label:       #if stop token is there, remove it
             bin_label = bin_label.split(stop_token)[0]
             print("stop token in b", bin_label)
+        bin_label = bin_label.strip()
         bin_label = bin_label.lstrip("0")
+        """if "." in bin_label:
+            while bin_label[-1] == "0" and bin_label[-2] != ".":
+                bin_label = bin_label[:-1]"""
         if len(bin_label) == 0:
             bin_label = "0"
         if bin_label[0] == ".":
             bin_label = "0" + bin_label
         if bin_label[-1] == ".": #if decimal point is at the end, remove it
             bin_label = bin_label[:-1]
+        print(bin_label)
         try:
             assert(abs(float(bin_label)))<np.inf
             assert(float(bin_label) == float(bin_label)) #check if it is a valid number, not Nan
