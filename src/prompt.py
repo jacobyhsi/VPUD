@@ -45,7 +45,7 @@ class ToyPrompt(Prompt):
             note_label_df: pd.DataFrame,
             permutation_seed: int,
             z_note: Optional[str] = None,
-            u_label: Optional[str|int] = None,
+            u_label: Optional[str|int|float] = None,
         ):
         """
         Converts a DataFrame of notes and labels to incontext examples for LLM.
@@ -73,7 +73,7 @@ class ToyPrompt(Prompt):
             query_note: str,
             permutation_seed: int,
             icl_z_note: Optional[str] = None,
-            icl_u_label: Optional[str|int] = None,
+            icl_u_label: Optional[str|int|float] = None,
         ):
         """
         Returns a general prompt for the toy classification task.

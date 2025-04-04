@@ -305,7 +305,9 @@ class GaussianDistribution:
 
 class ToyRegressionUtils(ToyDataUtils):
     @staticmethod
-    def gaussian_from_samples(data: list[float]):
+    def gaussian_from_samples(data: list[float], num_outlier_pairs_to_remove: int = 0):
+        if num_outlier_pairs_to_remove > 0:
+            data = sorted(data)[num_outlier_pairs_to_remove:-num_outlier_pairs_to_remove]
         mean = np.mean(data)
         std = np.std(data) * np.sqrt(len(data) / (len(data) - 1))
         return GaussianDistribution(mean, std)
