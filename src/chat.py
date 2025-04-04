@@ -38,6 +38,23 @@ def chat(message: str, label_keys, seed: int, model: str ="Qwen/Qwen2.5-14B"):
 
     return text_output, normalized_probs
 
+def chat_response_only(message: str, seed: int, max_tokens: int=10, model: str="Qwen/Qwen2.5-14B"):
+    url = "http://localhost:8000/v1/completions"
+    headers = {"Content-Type": "application/json"}
+    data = {
+        "model": model,
+        "prompt": message,
+        "temperature": 1.0,
+        "max_tokens": max_tokens,
+        "logprobs": 10,
+        "seed": seed
+    }
+
+    response = requests.post(url, headers=headers, json=data).json()
+    text_output = response["choices"][0]["text"]
+    
+    return text_output
+
 def chat_tabular(message: str, label_keys, seed: int):
     url = "http://localhost:8000/v1/completions"
     headers = {"Content-Type": "application/json"}
