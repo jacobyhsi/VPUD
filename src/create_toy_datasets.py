@@ -364,16 +364,16 @@ class VaryingLinearNoise(ToyRegressionData):
             return dataset    
         
 if __name__ == "__main__":
-    regression_data = VaryingLinearNoise("linear_noise_1")
+    regression_data = VaryingLinearNoise("linear_noise_2")
     
     regression_data.save_dataset(
         dataset_kwargs={
-            "num_features_per_mode": [50, 100],
-            "mode_means": [-4.0, 4.0],
-            "mode_stds": [0.75, 1.0],
-            "mode_biases": [1.0, -0.5],
-            "mode_coeffs": [0.75, 0],
-            "noise_stds": [0.1, 2],
+            "num_features_per_mode": [50, 50, 100],
+            "mode_means": [-7.0, -1.0, 5.0],
+            "mode_stds": [0.75, 0.75, 1.0],
+            "mode_biases": [1.0, 1.0, -0.5],
+            "mode_coeffs": [0.75, 0.75, 0],
+            "noise_stds": [0.1, 0.1, 2],
             "seed": 2,
             "round_dp": 1
         }
