@@ -20,7 +20,7 @@ def main():
     data, test, label_keys = load_dataset(args.data_path)
 
     # Sampling D as icl
-    num_D = 20
+    num_D = 50
     df_D = data.sample(n=num_D, random_state=global_seed)
     data = data.drop(df_D.index)
     df_D.to_csv(f"df_D_{perturb_x}.csv", index=False)
@@ -287,6 +287,9 @@ def main():
             # print(f"min Va = {min_Va['Va']}")
         Ve = H_pyxD - min_Va['Va']
         min_Va['Ve'] = Ve
+
+        pred_label = max(avg_pyxD_probs, key=avg_pyxD_probs.get)
+        true_label = x_row['label']
             
         # print(f"Ve = {Ve}")
 
@@ -307,12 +310,12 @@ def main():
                 'radius': x_row['radius'],
                 'TU': min_Va['TU'],
                 'Va': min_Va['Va'],
-                'Ve': min_Va['Ve']
+                'Ve': min_Va['Ve'],
+                'true_label': true_label,
+                'pred_label': pred_label,
             }
         x_z = pd.DataFrame([x_z])
         x_z_lst.append(x_z)
-
-        
 
     df_plot = pd.concat(x_z_lst, ignore_index=True)
     df_plot.to_csv(f"df_plot_{perturb_x}.csv", index=False)

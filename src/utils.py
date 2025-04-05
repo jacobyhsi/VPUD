@@ -247,6 +247,74 @@ class TabularUtils:
 
         return z_data
 
+    # def perturb_all_x(data, x_row, df_D, radius_list=[1.0, 5.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0], samples_per_radius=10, max_attempts=1000):
+    #     # Convert relevant columns explicitly to numeric
+    #     for df in [data, df_D, x_row]:
+    #         for col in df.columns:
+    #             if col not in ['note', 'label']:
+    #                 df[col] = pd.to_numeric(df[col], errors='coerce')
+
+    #     numeric_cols = [col for col in data.columns if col not in ['note', 'label'] and data[col].notna().all()]
+    #     features_to_perturb = numeric_cols
+    #     num_features = len(features_to_perturb)
+
+    #     center_point = df_D[features_to_perturb].mean().values
+    #     df_D['radius'] = df_D[features_to_perturb].apply(lambda row: calculate_radius(row.values, center_point), axis=1)
+
+    #     df_D.to_csv(f"df_D_all.csv", index=False)
+
+    #     feature_ranges = {
+    #         feature: (data[feature].min(), data[feature].max())
+    #         for feature in features_to_perturb
+    #     }
+
+    #     perturbed_rows = []
+
+    #     for radius in radius_list:
+    #         samples_collected = 0
+    #         attempts = 0
+
+    #         while samples_collected < samples_per_radius and attempts < max_attempts:
+    #             attempts += 1
+    #             w = np.random.normal(0, 1, num_features)
+    #             w_normalized = w / np.linalg.norm(w)
+    #             perturbation = w_normalized * radius
+    #             perturbed_point = center_point + perturbation
+
+    #             # Check if all features are within valid ranges
+    #             in_range = True
+    #             for idx, feature in enumerate(features_to_perturb):
+    #                 min_val, max_val = feature_ranges[feature]
+    #                 if not (min_val <= perturbed_point[idx] <= max_val):
+    #                     in_range = False
+    #                     break
+
+    #             if not in_range:
+    #                 continue  # Reject and resample
+
+    #             # If in range, apply the perturbation
+    #             modified_row = x_row.copy()
+    #             new_note = modified_row['note'].iloc[0]
+
+    #             for idx, feature in enumerate(features_to_perturb):
+    #                 new_value = int(round(perturbed_point[idx]))
+    #                 modified_row[feature] = new_value
+
+    #                 # Update note using regex substitution
+    #                 pattern = rf'({re.escape(feature)} = )(.*?)(\.|$)'
+    #                 new_note = re.sub(pattern, lambda m: f"{m.group(1)}{new_value}{m.group(3)}", new_note)
+
+    #             modified_row['note'] = new_note
+    #             modified_row['radius'] = radius
+    #             perturbed_rows.append(modified_row)
+    #             samples_collected += 1
+
+    #         if samples_collected < samples_per_radius:
+    #             print(f"[Warning] Only collected {samples_collected}/{samples_per_radius} samples for radius {radius}. May be too large.")
+
+    #     x_data = pd.concat(perturbed_rows, ignore_index=True)
+    #     return x_data
+
     def perturb_all_x(data, x_row, df_D, radius_list=[1.0, 5.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0], samples_per_radius=10, max_attempts=1000):
         # Convert relevant columns explicitly to numeric
         for df in [data, df_D, x_row]:
@@ -254,16 +322,18 @@ class TabularUtils:
                 if col not in ['note', 'label']:
                     df[col] = pd.to_numeric(df[col], errors='coerce')
 
+        # Identify numeric features to perturb
         numeric_cols = [col for col in data.columns if col not in ['note', 'label'] and data[col].notna().all()]
         features_to_perturb = numeric_cols
         num_features = len(features_to_perturb)
 
-        center_point = df_D[features_to_perturb].mean().values
-        
-        df_D['radius'] = df_D[features_to_perturb].apply(lambda row: calculate_radius(row.values, center_point), axis=1)
+        # Store ICL values for nearest-neighbor computation
+        df_D_values = df_D[features_to_perturb].values
 
-        df_D.to_csv(f"df_D_all.csv", index=False)
+        # Save df_D for logging/debugging
+        df_D.to_csv("df_D_all.csv", index=False)
 
+        # Define valid range for each feature
         feature_ranges = {
             feature: (data[feature].min(), data[feature].max())
             for feature in features_to_perturb
@@ -271,29 +341,31 @@ class TabularUtils:
 
         perturbed_rows = []
 
+        # Use radius_list to scale how far from the ICL centroid we explore
+        center_point = df_D[features_to_perturb].mean().values
+
         for radius in radius_list:
             samples_collected = 0
             attempts = 0
 
             while samples_collected < samples_per_radius and attempts < max_attempts:
                 attempts += 1
+
+                # Random direction & perturbation
                 w = np.random.normal(0, 1, num_features)
                 w_normalized = w / np.linalg.norm(w)
                 perturbation = w_normalized * radius
                 perturbed_point = center_point + perturbation
 
-                # Check if all features are within valid ranges
-                in_range = True
-                for idx, feature in enumerate(features_to_perturb):
-                    min_val, max_val = feature_ranges[feature]
-                    if not (min_val <= perturbed_point[idx] <= max_val):
-                        in_range = False
-                        break
-
+                # Validate perturbed point is within bounds
+                in_range = all(
+                    feature_ranges[features_to_perturb[i]][0] <= perturbed_point[i] <= feature_ranges[features_to_perturb[i]][1]
+                    for i in range(num_features)
+                )
                 if not in_range:
-                    continue  # Reject and resample
+                    continue  # Resample
 
-                # If in range, apply the perturbation
+                # Apply perturbation to copy of x_row
                 modified_row = x_row.copy()
                 new_note = modified_row['note'].iloc[0]
 
@@ -301,12 +373,17 @@ class TabularUtils:
                     new_value = int(round(perturbed_point[idx]))
                     modified_row[feature] = new_value
 
-                    # Update note using regex substitution
+                    # Update note text
                     pattern = rf'({re.escape(feature)} = )(.*?)(\.|$)'
                     new_note = re.sub(pattern, lambda m: f"{m.group(1)}{new_value}{m.group(3)}", new_note)
 
                 modified_row['note'] = new_note
-                modified_row['radius'] = radius
+
+                # Compute distance to nearest ICL example
+                distances = np.linalg.norm(df_D_values - perturbed_point, axis=1)
+                min_distance = np.min(distances)
+                modified_row['radius'] = min_distance  # You can rename this field if preferred
+
                 perturbed_rows.append(modified_row)
                 samples_collected += 1
 
@@ -315,6 +392,7 @@ class TabularUtils:
 
         x_data = pd.concat(perturbed_rows, ignore_index=True)
         return x_data
+
 
     def perturb_x(data, x_row, feature_to_perturb): # perturb within min and max range
         # Ensure the feature exists in the dataset

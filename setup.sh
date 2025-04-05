@@ -21,6 +21,7 @@ uv pip install accelerate
 uv pip install openai
 uv pip install pandas matplotlib datasets scikit-learn flask
 uv pip install gpytorch botorch
+uv pip install seaborn
 
 # Serve the llm
 ## Open a screen and serve the LLM. Make sure you Ctrl+C to stop the server before going to bed :D
