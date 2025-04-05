@@ -38,10 +38,12 @@ parser.add_argument("--perturbation_std", default=1.0, type=float)
 parser.add_argument("--num_candidates", default=3, type=int)
 parser.add_argument("--decimal_places", default=1, type=int)
 parser.add_argument("--num_outlier_pairs_to_remove", default=0, type=int)
+parser.add_argument("--u_sample_method", default="llm", type=str)
 
 parser.add_argument("--run_name", default="test")
 parser.add_argument("--save_directory", default="other")
 parser.add_argument("--x_save_value", default=0, type=int)
+parser.add_argument("--num_api_calls_save_value", default=0, type=int)
 
 parser.add_argument("--verbose_output", default=0, type=int)
 args = parser.parse_args()
@@ -66,9 +68,11 @@ class ToyRegressionExperimentConfig:
     num_permutations: int
     decimal_places: int
     num_outlier_pairs_to_remove: int
+    u_sample_method: str
     run_name: int
     save_directory: int
     x_save_value: int
+    num_api_calls_save_value: int
     verbose_output: int
 
 class ToyRegressionExperiment:
@@ -84,7 +88,7 @@ class ToyRegressionExperiment:
 
         self.data_preprocessing()
         
-        self.num_api_calls = 0
+        self.num_api_calls = self.config.num_api_calls_save_value
 
     def data_preprocessing(self):
         self.data_path = f'datasets_toy_regression/{self.config.dataset_name}'
@@ -120,6 +124,9 @@ class ToyRegressionExperiment:
         if not os.path.exists(f"results/{self.config.dataset_name}/{self.config.save_directory}"):
             os.makedirs(f"results/{self.config.dataset_name}/{self.config.save_directory}")
         D_rows.to_csv(f"results/{self.config.dataset_name}/{self.config.save_directory}/D_{self.config.run_name}.csv", index=False)
+        
+        self.max_D_label = D_rows['label'].max()
+        self.min_D_label = D_rows['label'].min()
     
     def get_next_z(self, z_idx: int, x_idx: int):
         if z_idx < self.config.num_random_z:
@@ -245,6 +252,26 @@ class ToyRegressionExperiment:
             
         return gaussian, distribution_samples
 
+    def sample_u_values_uniform(self):
+        # Sample u from uniform distribution
+        u_samples = []
+        successful_seeds = 0
+        attempts = 0
+        while successful_seeds < self.config.num_permutations and attempts < 100:
+            u_sample = np.random.uniform(self.min_D_label, self.max_D_label)
+            u_sample = np.round(u_sample, self.config.decimal_places)
+            if u_sample not in u_samples:
+                u_samples.append(u_sample)
+                successful_seeds += 1
+            attempts += 1
+        
+        if successful_seeds == 0:
+            raise ValueError(f"All seeds failed for u samples.")
+        
+        if self.config.verbose_output:
+            print(f"u_samples: {u_samples}")
+        
+        return u_samples 
             
     def process_single_x_value(self, x_idx: int):
         self.previous_z_values = []
@@ -270,7 +297,12 @@ class ToyRegressionExperiment:
             z = row['note']
             
             # Compute p(u|z,D)
-            _, u_samples = self.calculate_gaussian(z, "p(u|z,D)", icl_z_note=z)
+            if self.config.u_sample_method == "llm":
+                _, u_samples = self.calculate_gaussian(z, "p(u|z,D)", icl_z_note=z)
+            elif self.config.u_sample_method == "uniform":
+                u_samples = self.sample_u_values_uniform()
+            else:
+                raise ValueError(f"Invalid u sample method: {self.config.u_sample_method}")
                         
             # Compute p(y|x,u,z,D)
             pyxuz_distributions: list[GaussianDistribution] = []
