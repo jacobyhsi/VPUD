@@ -3,6 +3,8 @@ import re
 import ast
 import numpy as np
 import pandas as pd
+import scipy.stats as stats
+from typing import Optional
 from itertools import product
 
 # Helper Functions
@@ -68,7 +70,7 @@ def calculate_min_Va_by_KL_threshold(save_data: pd.DataFrame, threshold: float =
     
     return save_data
 
-def calculate_min_Va_by_KL_rank(save_data: pd.DataFrame, num_valid_Va: int = 5, forward_kl = True):
+def calculate_min_Va_by_KL_rank(save_data: pd.DataFrame, num_valid_Va: int = 5, forward_kl = True, upper_bound_by_total_U = False):
     if forward_kl:
         kl_values = save_data["kl_pyx_pyxz"]
     else:
@@ -78,8 +80,10 @@ def calculate_min_Va_by_KL_rank(save_data: pd.DataFrame, num_valid_Va: int = 5, 
     save_data["within_threshold"] = kl_values.isin(min_kl_values)
     min_Va = save_data[save_data["within_threshold"]]["Va"].min()
     save_data["z_value_for_min_Va"] = save_data["Va"].apply(lambda x: x == min_Va)
-    save_data["min_Va"] = min_Va
     total_U = save_data["H[p(y|x,D)]"][0]
+    if upper_bound_by_total_U:
+        min_Va = min(min_Va, total_U)
+    save_data["min_Va"] = min_Va
     max_Ve = round(total_U - min_Va, 5)
     save_data["max_Ve"] = max_Ve
     
@@ -197,7 +201,7 @@ class TabularUtils:
         note = ". ".join(note_parts) + "."
         return note
     
-class ToyClassificationUtils:
+class ToyDataUtils:
     @staticmethod
     def parse_features_to_note(row: pd.Series, feature_columns: list[str]):
         note_parts = []
@@ -221,7 +225,7 @@ class ToyClassificationUtils:
         x_row = pd.DataFrame(x_features)
         x_row["label"] = 0
         x_row["note"] = x_row.apply(
-            lambda row: ToyClassificationUtils.parse_features_to_note(row, feature_columns),
+            lambda row: ToyDataUtils.parse_features_to_note(row, feature_columns),
             axis=1,
         )
                 
@@ -249,7 +253,7 @@ class ToyClassificationUtils:
         
         x_row["label"] = 0
         x_row["note"] = x_row.apply(
-            lambda row: ToyClassificationUtils.parse_features_to_note(row, feature_columns),
+            lambda row: ToyDataUtils.parse_features_to_note(row, feature_columns),
             axis=1
         )
                 
@@ -269,16 +273,48 @@ class ToyClassificationUtils:
     @staticmethod
     def create_x_row(method_name: str, **kwargs):
         if method_name == "x_features":
-            return ToyClassificationUtils.create_x_row_from_x_features(**kwargs)
+            return ToyDataUtils.create_x_row_from_x_features(**kwargs)
         elif method_name == "x_range":
-            return ToyClassificationUtils.create_x_row_from_x_range(**kwargs)
+            return ToyDataUtils.create_x_row_from_x_range(**kwargs)
         elif method_name == "sample":
-            return ToyClassificationUtils.create_x_row_from_test_data(**kwargs)
+            return ToyDataUtils.create_x_row_from_test_data(**kwargs)
         else:
             raise ValueError(f"Invalid method_name: {method_name}")
         
     @staticmethod
     def create_icl_data(num_shots: int, data: pd.DataFrame, icl_sample_seed: int):
         pass
+
+class ToyClassificationUtils(ToyDataUtils):
+    pass
+
+class GaussianDistribution:
+    def __init__(self, mean: float, std: float):
+        self.mean = mean
+        self.std = std
+        
+    @property
+    def entropy(self):
+        return 0.5 * np.log(2 * np.pi * self.std**2) + 0.5
+    
+    def pdf(self, x: float):
+        return stats.norm.pdf(x, loc=self.mean, scale=self.std)
+    
+    def sample(self, size: Optional[int] = None):
+        return np.random.normal(loc=self.mean, scale=self.std, size=size)
+
+class ToyRegressionUtils(ToyDataUtils):
+    @staticmethod
+    def gaussian_from_samples(data: list[float], num_outlier_pairs_to_remove: int = 0):
+        if num_outlier_pairs_to_remove > 0:
+            data = sorted(data)[num_outlier_pairs_to_remove:-num_outlier_pairs_to_remove]
+        mean = np.mean(data)
+        std = np.std(data) * np.sqrt(len(data) / (len(data) - 1))
+        return GaussianDistribution(mean, std)
+    
+    @staticmethod
+    def calculate_kl_divergence(p: GaussianDistribution, q: GaussianDistribution):
+        kl = np.log(q.std / p.std) + (p.std**2 + (p.mean - q.mean)**2) / (2 * q.std**2) - 0.5
+        return kl
     
     

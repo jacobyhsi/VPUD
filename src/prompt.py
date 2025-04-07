@@ -7,8 +7,12 @@ PROMPT_TYPES_TO_TEXT_TEMPLATE = {
 {note} <output>""",
     "toy_classification": \
 """{icl}
+ {note} <output>""",
+    "toy_regression": \
+"""{icl}
  {note} <output>"""
 }
+
 
 class Prompt():
     def __init__(self, prompt_type = "tabular") -> None:
@@ -27,22 +31,21 @@ class Prompt():
     def get_pyxD_prompt(self, x, D):
         return self.prompt_text.format(self=self, note=x, icl=D)
     
-class ToyClassificationPrompt(Prompt):
-    def __init__(self) -> None:
-        super().__init__(prompt_type="toy_classification")
+class ToyPrompt(Prompt):
+    def __init__(self, prompt_type) -> None:
+        super().__init__(prompt_type=prompt_type)
     
-    @staticmethod
-    def note_label_prompt(note: str, label: str):
+    def note_label_prompt(self, note: str, label: str) -> str:
         prompt = f""" {note} <output>{label}</output>"""
         
         return prompt
     
-    @staticmethod
     def note_label_df_to_icl_string(
+            self,
             note_label_df: pd.DataFrame,
             permutation_seed: int,
             z_note: Optional[str] = None,
-            u_label: Optional[str|int] = None,
+            u_label: Optional[str|int|float] = None,
         ):
         """
         Converts a DataFrame of notes and labels to incontext examples for LLM.
@@ -60,7 +63,7 @@ class ToyClassificationPrompt(Prompt):
         in_context_examples = []
         
         for _, row in note_label_df.iterrows():
-            in_context_examples.append(ToyClassificationPrompt.note_label_prompt(row['note'], row['label']))
+            in_context_examples.append(self.note_label_prompt(row['note'], row['label']))
         
         return "\n".join(in_context_examples)
     
@@ -70,13 +73,13 @@ class ToyClassificationPrompt(Prompt):
             query_note: str,
             permutation_seed: int,
             icl_z_note: Optional[str] = None,
-            icl_u_label: Optional[str|int] = None,
+            icl_u_label: Optional[str|int|float] = None,
         ):
         """
         Returns a general prompt for the toy classification task.
         """
         
-        icl_string = ToyClassificationPrompt.note_label_df_to_icl_string(
+        icl_string = self.note_label_df_to_icl_string(
             D_df,
             permutation_seed,
             icl_z_note,
@@ -84,3 +87,22 @@ class ToyClassificationPrompt(Prompt):
         )
         
         return self.prompt_text.format(self=self, note=query_note, icl=icl_string)
+    
+class ToyClassificationPrompt(ToyPrompt):    
+    def __init__(self) -> None:
+        super().__init__(prompt_type="toy_classification")
+    
+    def note_label_prompt(self, note: str, label: str):
+        prompt = f""" {note} <output>{label}</output>"""
+        
+        return prompt
+    
+class ToyRegressionPrompt(ToyPrompt):
+    def __init__(self) -> None:
+        super().__init__(prompt_type="toy_regression")
+    
+    def note_label_prompt(self, note: str, label: str):
+        prompt = f""" {note} <output> {label} </output>"""
+        
+        return prompt
+    

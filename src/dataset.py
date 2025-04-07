@@ -3,7 +3,7 @@ from sklearn.model_selection import train_test_split
 import pandas as pd
 import json
 import os
-from src.utils import TabularUtils, ToyClassificationUtils
+from src.utils import TabularUtils, ToyDataUtils
 
 def load_dataset(
     data_path,
@@ -83,17 +83,32 @@ class ToyClassificationDataset(Dataset):
                     
         data['label'] = data['label'].astype(int)
         
-        feature_column = ToyClassificationUtils.get_feature_columns(data)
+        feature_column = ToyDataUtils.get_feature_columns(data)
         
         data['note'] = data.apply(
-            lambda row: ToyClassificationUtils.parse_features_to_note(row, feature_column),
+            lambda row: ToyDataUtils.parse_features_to_note(row, feature_column),
             axis=1
         )
         
         return data
+    
+class ToyRegressionDataset(Dataset):
+    def load_data(self, data_path: str):
+        data = pd.read_csv(os.path.join(data_path, 'data.csv'), index_col=0)
+                    
+        data['label'] = data['label'].astype(float)
         
+        feature_column = ToyDataUtils.get_feature_columns(data)
+        
+        data['note'] = data.apply(
+            lambda row: ToyDataUtils.parse_features_to_note(row, feature_column),
+            axis=1
+        )
+        
+        return data   
         
 DATATYPE_TO_DATACLASS: dict[str, Dataset] = {
     "tabular": TabularDataset,
     "toy_classification": ToyClassificationDataset,
+    "toy_regression": ToyRegressionDataset,
 }
