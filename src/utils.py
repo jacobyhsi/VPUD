@@ -315,7 +315,90 @@ class TabularUtils:
     #     x_data = pd.concat(perturbed_rows, ignore_index=True)
     #     return x_data
 
-    def perturb_all_x(data, x_row, df_D, radius_list=[1.0, 5.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0], samples_per_radius=10, max_attempts=1000):
+    # def perturb_all_x(data, x_row, df_D, radius_list=[1.0, 5.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0], samples_per_radius=10, max_attempts=1000): # 6/4/2025
+    #     # Convert relevant columns explicitly to numeric
+    #     for df in [data, df_D, x_row]:
+    #         for col in df.columns:
+    #             if col not in ['note', 'label']:
+    #                 df[col] = pd.to_numeric(df[col], errors='coerce')
+
+    #     # Identify numeric features to perturb
+    #     numeric_cols = [col for col in data.columns if col not in ['note', 'label'] and data[col].notna().all()]
+    #     features_to_perturb = numeric_cols
+    #     num_features = len(features_to_perturb)
+
+    #     # Store ICL values for nearest-neighbor computation
+    #     df_D_values = df_D[features_to_perturb].values
+
+    #     # Save df_D for logging/debugging
+    #     df_D.to_csv("df_D_all.csv", index=False)
+
+    #     # Define valid range for each feature
+    #     feature_ranges = {
+    #         feature: (data[feature].min(), data[feature].max())
+    #         for feature in features_to_perturb
+    #     }
+
+    #     perturbed_rows = []
+
+    #     # Use radius_list to scale how far from the ICL centroid we explore
+    #     center_point = df_D[features_to_perturb].mean().values
+
+    #     for radius in radius_list:
+    #         samples_collected = 0
+    #         attempts = 0
+
+    #         while samples_collected < samples_per_radius and attempts < max_attempts:
+    #             attempts += 1
+
+    #             # Random direction & perturbation
+    #             w = np.random.normal(0, 1, num_features)
+    #             w_normalized = w / np.linalg.norm(w)
+    #             perturbation = w_normalized * radius
+    #             perturbed_point = center_point + perturbation
+
+    #             # Validate perturbed point is within bounds
+    #             in_range = all(
+    #                 feature_ranges[features_to_perturb[i]][0] <= perturbed_point[i] <= feature_ranges[features_to_perturb[i]][1]
+    #                 for i in range(num_features)
+    #             )
+    #             if not in_range:
+    #                 continue  # Resample
+
+    #             # Apply perturbation to copy of x_row
+    #             modified_row = x_row.copy()
+    #             new_note = modified_row['note'].iloc[0]
+
+    #             for idx, feature in enumerate(features_to_perturb):
+    #                 new_value = int(round(perturbed_point[idx]))
+    #                 modified_row[feature] = new_value
+
+    #                 # Update note text
+    #                 pattern = rf'({re.escape(feature)} = )(.*?)(\.|$)'
+    #                 new_note = re.sub(pattern, lambda m: f"{m.group(1)}{new_value}{m.group(3)}", new_note)
+
+    #             modified_row['note'] = new_note
+
+    #             # Compute distance to nearest ICL example
+    #             distances = np.linalg.norm(df_D_values - perturbed_point, axis=1)
+    #             min_distance = np.min(distances)
+    #             modified_row['radius'] = min_distance  # You can rename this field if preferred
+
+    #             perturbed_rows.append(modified_row)
+    #             samples_collected += 1
+
+    #         if samples_collected < samples_per_radius:
+    #             print(f"[Warning] Only collected {samples_collected}/{samples_per_radius} samples for radius {radius}. May be too large.")
+
+    #     x_data = pd.concat(perturbed_rows, ignore_index=True)
+    #     return x_data
+
+    def perturb_all_x(
+        data, x_row, df_D,
+        radius_list=[1.0, 5.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0],
+        samples_per_radius=10,
+        max_attempts=1000
+    ):
         # Convert relevant columns explicitly to numeric
         for df in [data, df_D, x_row]:
             for col in df.columns:
@@ -327,22 +410,20 @@ class TabularUtils:
         features_to_perturb = numeric_cols
         num_features = len(features_to_perturb)
 
-        # Store ICL values for nearest-neighbor computation
+        # Store ICL feature values
         df_D_values = df_D[features_to_perturb].values
-
-        # Save df_D for logging/debugging
         df_D.to_csv("df_D_all.csv", index=False)
 
-        # Define valid range for each feature
+        # Define feature value ranges
         feature_ranges = {
             feature: (data[feature].min(), data[feature].max())
             for feature in features_to_perturb
         }
 
-        perturbed_rows = []
+        # Base point to perturb around (x_row)
+        x_features = x_row.iloc[0][features_to_perturb].values.astype(float)
 
-        # Use radius_list to scale how far from the ICL centroid we explore
-        center_point = df_D[features_to_perturb].mean().values
+        perturbed_rows = []
 
         for radius in radius_list:
             samples_collected = 0
@@ -351,44 +432,43 @@ class TabularUtils:
             while samples_collected < samples_per_radius and attempts < max_attempts:
                 attempts += 1
 
-                # Random direction & perturbation
-                w = np.random.normal(0, 1, num_features)
-                w_normalized = w / np.linalg.norm(w)
-                perturbation = w_normalized * radius
-                perturbed_point = center_point + perturbation
+                # Gaussian perturbation around x
+                noise = np.random.normal(loc=0, scale=1.0, size=num_features)
+                noise = noise / np.linalg.norm(noise) * radius
+                perturbed_point = x_features + noise
 
-                # Validate perturbed point is within bounds
+                # Validate ranges
                 in_range = all(
                     feature_ranges[features_to_perturb[i]][0] <= perturbed_point[i] <= feature_ranges[features_to_perturb[i]][1]
                     for i in range(num_features)
                 )
                 if not in_range:
-                    continue  # Resample
+                    continue
 
-                # Apply perturbation to copy of x_row
                 modified_row = x_row.copy()
                 new_note = modified_row['note'].iloc[0]
 
-                for idx, feature in enumerate(features_to_perturb):
-                    new_value = int(round(perturbed_point[idx]))
+                for i, feature in enumerate(features_to_perturb):
+                    new_value = int(round(perturbed_point[i]))
                     modified_row[feature] = new_value
 
-                    # Update note text
                     pattern = rf'({re.escape(feature)} = )(.*?)(\.|$)'
                     new_note = re.sub(pattern, lambda m: f"{m.group(1)}{new_value}{m.group(3)}", new_note)
 
                 modified_row['note'] = new_note
 
-                # Compute distance to nearest ICL example
+                # Compute distance to nearest ICL point
                 distances = np.linalg.norm(df_D_values - perturbed_point, axis=1)
                 min_distance = np.min(distances)
-                modified_row['radius'] = min_distance  # You can rename this field if preferred
+
+                # ✅ Overwrite radius with nearest ICL distance
+                modified_row['radius'] = min_distance
 
                 perturbed_rows.append(modified_row)
                 samples_collected += 1
 
             if samples_collected < samples_per_radius:
-                print(f"[Warning] Only collected {samples_collected}/{samples_per_radius} samples for radius {radius}. May be too large.")
+                print(f"[Warning] Only collected {samples_collected}/{samples_per_radius} samples for radius {radius}.")
 
         x_data = pd.concat(perturbed_rows, ignore_index=True)
         return x_data

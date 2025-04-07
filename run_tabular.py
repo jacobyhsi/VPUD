@@ -20,7 +20,7 @@ def main():
     data, test, label_keys = load_dataset(args.data_path)
 
     # Sampling D as icl
-    num_D = 50
+    num_D = 40
     df_D = data.sample(n=num_D, random_state=global_seed)
     data = data.drop(df_D.index)
     df_D.to_csv(f"df_D_{perturb_x}.csv", index=False)
