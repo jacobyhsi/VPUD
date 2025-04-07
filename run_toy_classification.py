@@ -348,7 +348,7 @@ class ToyClassificationExperiment:
             Hyx = calculate_entropy(avg_pyx_probs)
             
             for label in self.label_keys:
-                self.x_row.loc[x_idx, f"p(y={label}|x,D)"] = avg_pyx_probs[label]
+                self.x_row.loc[x_idx, label] = avg_pyx_probs[label]
             
             self.x_row.loc[x_idx, "H[p(y|x,D)]"] = Hyx
             
@@ -364,7 +364,7 @@ class ToyClassificationExperiment:
         print("x:", x)
         
         # Retrieve p(y|x,D)
-        avg_pyx_probs = self.x_row.loc[x_idx, [f"p(y={label}|x,D)" for label in self.label_keys]].to_dict()
+        avg_pyx_probs = self.x_row.loc[x_idx, [label for label in self.label_keys]].to_dict()
         # Filter out only the relevant labels
         avg_pyx_probs = {k: v for k, v in avg_pyx_probs.items() if k in self.label_keys}
         Hyx = self.x_row.loc[x_idx, "H[p(y|x,D)]"]
@@ -380,12 +380,12 @@ class ToyClassificationExperiment:
             z = row['note']
             
             # Compute p(u|z,D) if not already computed
-            
             # Find z in the previous x_data
             if z in self.x_row['note'].values:
-                avg_puz_probs = self.x_row.loc[self.x_row['note'] == z, [f"p(u={label}|z,D)" for label in self.label_keys]].iloc[0].to_dict()
+                avg_puz_probs = self.x_row.loc[self.x_row['note'] == z, [label for label in self.label_keys]].iloc[0].to_dict()
                 print(f"Found z in x_data: {avg_puz_probs}")
-            avg_puz_probs = self.calculate_avg_probs(z, "p(u|z,D)")
+            else:
+                avg_puz_probs = self.calculate_avg_probs(z, "p(u|z,D)")
             
             # Compute p(y|x,u,z,D)
             avg_pyxu_z_probs = {}
