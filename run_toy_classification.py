@@ -9,7 +9,7 @@ from dataclasses import dataclass
 
 from src.dataset import load_dataset
 from src.bayesian_optimisation import new_candidate
-from src.utils import ToyClassificationUtils, calculate_entropy, calculate_kl_divergence
+from src.utils import ToyClassificationUtils, calculate_entropy, calculate_kl_divergence, calculate_discrete_variance
 from src.prompt import ToyClassificationPrompt
 from src.chat import chat
 
@@ -250,6 +250,7 @@ class ToyClassificationExperiment:
         # Compute p(y|x,D)
         avg_pyx_probs = self.calculate_avg_probs(x, "p(y|x,D)")
         Hyx = calculate_entropy(avg_pyx_probs)
+        total_variance = calculate_discrete_variance(avg_pyx_probs)
                 
         save_dict_list = []
             
@@ -290,12 +291,18 @@ class ToyClassificationExperiment:
                 
             # Entropy
             Huz = calculate_entropy(avg_puz_probs)
-            Hyxuz = {f"H[{key}]": calculate_entropy(value) for key, value in avg_pyxu_z_probs.items()}          
+            Var_uz = calculate_discrete_variance(avg_puz_probs)
+            Hyxuz = {f"H[{key}]": calculate_entropy(value) for key, value in avg_pyxu_z_probs.items()}
+            Var_yxuz = {f"Var[{key}]": calculate_discrete_variance(value) for key, value in avg_pyxu_z_probs.items()}          
             E_Hyxz = 0.0
+            E_Var_yxuz = 0.0
             for label in self.label_keys:
                 E_Hyxz += Hyxuz[f"H[p(y|x,u={label},z,D)]"]*avg_puz_probs[label]
+                E_Var_yxuz += Var_yxuz[f"Var[p(y|x,u={label},z,D)]"]*avg_puz_probs[label]
             Va = np.round(E_Hyxz, 5)
             Ve = Hyx - Va
+            Va_variance = np.round(E_Var_yxuz, 5)
+            Ve_variance = total_variance - Va_variance
             
             # KL Divergence
             kl_pyx_pyxz = calculate_kl_divergence(avg_pyx_probs, avg_pyxz_probs)
@@ -320,11 +327,17 @@ class ToyClassificationExperiment:
             for label, prob in avg_pyxz_probs.items():
                 save_dict[f"p(y={label}|x,z,D)"] = prob
             save_dict["H[p(u|z,D)]"] = Huz
+            save_dict["Var[p(u|z,D)]"] = Var_uz
             for key, entropy in Hyxuz.items():
                 save_dict[key] = entropy
+            for key, variance in Var_yxuz.items():
+                save_dict[key] = variance
             save_dict["H[p(y|x,D)]"] = Hyx
+            save_dict["Var[p(y|x,D)]"] = total_variance
             save_dict["Va"] = Va
             save_dict["Ve"] = Ve
+            save_dict["Va_variance"] = Va_variance
+            save_dict["Ve_variance"] = Ve_variance
             save_dict["kl_pyx_pyxz"] = kl_pyx_pyxz
             save_dict["kl_pyxz_pyx"] = kl_pyxz_pyx
             save_dict["api_calls"] = self.num_api_calls

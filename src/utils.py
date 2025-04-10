@@ -9,11 +9,22 @@ from itertools import product
 
 # Helper Functions
 
-def calculate_entropy(probs):
+def calculate_entropy(probs: dict):
     # Calculate entropy using all probabilities in the dictionary
     probs = np.array(list(probs.values()))
     entropy = -np.sum(probs * np.log2(probs))
     return round(entropy, 5)
+
+def calculate_discrete_variance(probs: dict):
+    # Calculate variance
+    cum_mean = 0
+    cum_sum_squared = 0
+    for label, prob in probs.items():
+        y_value = float(int(label))
+        cum_mean += y_value * prob
+        cum_sum_squared += (y_value ** 2) * prob
+    variance = cum_sum_squared - (cum_mean ** 2)
+    return round(variance, 5)
 
 def calculate_kl_divergence(p, q):
     epsilon = 1e-12  # small constant to avoid log(0)
@@ -43,34 +54,53 @@ def calculate_kl_divergence_for_z_data(df: pd.DataFrame):
     
     return df
 
-def calculate_min_Va_by_KL_threshold(save_data: pd.DataFrame, threshold: float = 0.01, forward_kl = True):
+def calculate_min_Va_by_KL_threshold(save_data: pd.DataFrame, threshold: float = 0.01, forward_kl = True, uncertainty_type: str = "entropic"):
     valid_Va = []
-    total_U = save_data["H[p(y|x,D)]"][0]
+    if uncertainty_type not in ["entropic", "variance"]:
+        raise ValueError("Invalid uncertainty type. Choose either 'entropic' or 'variance'.")
+    if uncertainty_type == "entropic":
+        total_U = save_data["H[p(y|x,D)]"][0]
+        aleatoric_key = "Va"
+        epistemic_key = "Ve"
+    elif uncertainty_type == "variance":
+        total_U = save_data["Var[y|x,D]"][0]
+        aleatoric_key = "Va_variance"
+        epistemic_key = "Ve_variance"
     for i, row in save_data.iterrows():
         if forward_kl:
             if row["kl_pyx_pyxz"] <= threshold:
-                valid_Va.append(row["Va"])
+                valid_Va.append(row[aleatoric_key])
         else:
             if row["kl_pyxz_pyx"] <= threshold:
-                valid_Va.append(row["Va"])
+                valid_Va.append(row[aleatoric_key])
     if len(valid_Va) == 0:
         min_Va = np.nan
-        save_data["within_threshold"] = False
-        save_data["z_value_for_min_Va"] = False
+        save_data[f"within_threshold"] = False
+        save_data[f"z_value_for_min_{aleatoric_key}"] = False
     else:
         min_Va = min(valid_Va)
-        save_data["within_threshold"] = save_data["Va"].apply(lambda x: x in valid_Va)
-        save_data["z_value_for_min_Va"] = save_data["Va"].apply(lambda x: x == min_Va)
-    save_data["min_Va"] = min_Va
+        save_data[f"within_threshold"] = save_data[aleatoric_key].apply(lambda x: x in valid_Va)
+        save_data[f"z_value_for_min_{aleatoric_key}"] = save_data[aleatoric_key].apply(lambda x: x == min_Va)
+    save_data[f"min_{aleatoric_key}"] = min_Va
     max_Ve = round(total_U - min_Va, 5)
     if min_Va == np.nan:
-        save_data["max_Ve"] = np.nan
+        save_data[f"max_{epistemic_key}"] = np.nan
     else:
-        save_data["max_Ve"] = max_Ve
+        save_data[f"max_{epistemic_key}"] = max_Ve
     
     return save_data
 
-def calculate_min_Va_by_KL_rank(save_data: pd.DataFrame, num_valid_Va: int = 5, forward_kl = True, upper_bound_by_total_U = False):
+def calculate_min_Va_by_KL_rank(save_data: pd.DataFrame, num_valid_Va: int = 5, forward_kl = True, upper_bound_by_total_U = False, uncertainty_type: str = "entropic"):
+    if uncertainty_type not in ["entropic", "variance"]:
+        raise ValueError("Invalid uncertainty type. Choose either 'entropic' or 'variance'.")
+    if uncertainty_type == "entropic":
+        total_U = save_data["H[p(y|x,D)]"][0]
+        aleatoric_key = "Va"
+        epistemic_key = "Ve"
+    elif uncertainty_type == "variance":
+        total_U = save_data["Var[y|x,D]"][0]
+        aleatoric_key = "Va_variance"
+        epistemic_key = "Ve_variance"
     if forward_kl:
         kl_values = save_data["kl_pyx_pyxz"]
     else:
@@ -78,14 +108,13 @@ def calculate_min_Va_by_KL_rank(save_data: pd.DataFrame, num_valid_Va: int = 5, 
     # min kl values
     min_kl_values = kl_values.nsmallest(num_valid_Va)
     save_data["within_threshold"] = kl_values.isin(min_kl_values)
-    min_Va = save_data[save_data["within_threshold"]]["Va"].min()
-    save_data["z_value_for_min_Va"] = save_data["Va"].apply(lambda x: x == min_Va)
-    total_U = save_data["H[p(y|x,D)]"][0]
+    min_Va = save_data[save_data["within_threshold"]][aleatoric_key].min()
+    save_data["z_value_for_min_Va"] = save_data[aleatoric_key].apply(lambda x: x == min_Va)
     if upper_bound_by_total_U:
         min_Va = min(min_Va, total_U)
-    save_data["min_Va"] = min_Va
+    save_data[f"min_{aleatoric_key}"] = min_Va
     max_Ve = round(total_U - min_Va, 5)
-    save_data["max_Ve"] = max_Ve
+    save_data[f"max_{epistemic_key}"] = max_Ve
     
     return save_data
 
@@ -305,16 +334,28 @@ class GaussianDistribution:
 
 class ToyRegressionUtils(ToyDataUtils):
     @staticmethod
-    def gaussian_from_samples(data: list[float], num_outlier_pairs_to_remove: int = 0):
+    def gaussian_from_samples(data: list[float], num_outlier_pairs_to_remove: int = 0, std_method: str = "default"):
+        """ 
+        Generate a Gaussian distribution from the given data.
+        
+        If num_outlier_pairs_to_remove is greater than 0, it will remove the specified number of outlier pairs from both ends of the data. To compute trimmed mean
+        
+        If iqr_scale_estimator is True, it will use the IQR method to estimate the standard deviation. Otherwise, use trimmed standard deviation.
+        """
         if num_outlier_pairs_to_remove > 0:
-            data = sorted(data)[num_outlier_pairs_to_remove:-num_outlier_pairs_to_remove]
-        mean = np.mean(data)
-        std = np.std(data) * np.sqrt(len(data) / (len(data) - 1))
+            sorted_data = sorted(data)[num_outlier_pairs_to_remove:-num_outlier_pairs_to_remove]
+        else:
+            sorted_data = sorted(data)
+        mean = np.mean(sorted_data)
+        if std_method == "iqr":
+            std = 0.5 * stats.iqr(data, nan_policy="omit") / stats.norm.ppf(0.75)
+        elif std_method == "default":
+            std = np.std(sorted_data) * np.sqrt(len(sorted_data) / (len(sorted_data) - 1))
+        else:
+            raise ValueError(f"Invalid std_method: {std_method}")
         return GaussianDistribution(mean, std)
     
     @staticmethod
     def calculate_kl_divergence(p: GaussianDistribution, q: GaussianDistribution):
         kl = np.log(q.std / p.std) + (p.std**2 + (p.mean - q.mean)**2) / (2 * q.std**2) - 0.5
         return kl
-    
-    

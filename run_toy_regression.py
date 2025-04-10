@@ -38,6 +38,7 @@ parser.add_argument("--perturbation_std", default=1.0, type=float)
 parser.add_argument("--num_candidates", default=3, type=int)
 parser.add_argument("--decimal_places", default=1, type=int)
 parser.add_argument("--num_outlier_pairs_to_remove", default=0, type=int)
+parser.add_argument("--std_method", default="default", type=str)
 parser.add_argument("--u_sample_method", default="llm", type=str)
 
 parser.add_argument("--run_name", default="test")
@@ -69,6 +70,7 @@ class ToyRegressionExperimentConfig:
     decimal_places: int
     num_outlier_pairs_to_remove: int
     u_sample_method: str
+    std_method: str
     run_name: int
     save_directory: int
     x_save_value: int
@@ -245,7 +247,7 @@ class ToyRegressionExperiment:
         if successful_seeds == 0:
             raise ValueError(f"All seeds failed for {probability_calculated}.")      
         
-        gaussian = ToyRegressionUtils.gaussian_from_samples(distribution_samples, self.config.num_outlier_pairs_to_remove)
+        gaussian = ToyRegressionUtils.gaussian_from_samples(distribution_samples, self.config.num_outlier_pairs_to_remove, self.config.std_method)
         
         if self.config.verbose_output:
             print(f"\nGaussian Approximation for {probability_calculated}: mean = {gaussian.mean}, std = {gaussian.std}")
@@ -285,6 +287,7 @@ class ToyRegressionExperiment:
         # Compute p(y|x,D)
         pyx_gaussian, _ = self.calculate_gaussian(x, "p(y|x,D)")
         Hyx = np.round(pyx_gaussian.entropy,5)
+        total_variance = np.round(pyx_gaussian.std**2, 5)
                 
         save_dict_list = []
             
@@ -307,9 +310,13 @@ class ToyRegressionExperiment:
             # Compute p(y|x,u,z,D)
             pyxuz_distributions: list[GaussianDistribution] = []
             Hyxuz = []
+            stds = []
+            variances = []
             for u_sample in u_samples:
                 pyxuz_gaussian, _ = self.calculate_gaussian(x, "p(y|x,u,z,D)", icl_z_note=z, icl_u_label=u_sample)
                 Hyxuz.append(pyxuz_gaussian.entropy)
+                stds.append(pyxuz_gaussian.std)
+                variances.append(pyxuz_gaussian.std**2)
                 pyxuz_distributions.append(pyxuz_gaussian)
                 
             # Approximate p(y|x,z,D) samples
@@ -322,8 +329,12 @@ class ToyRegressionExperiment:
                             
             # Entropy
             Hyxz = np.mean(Hyxuz)
+            yxz_variance = np.mean(variances)
+            yxz_std = np.mean(stds)
             Va = np.round(Hyxz, 5)
             Ve = Hyx - Va
+            Va_variance = np.round(yxz_variance, 5)
+            Ve_variance = np.round(total_variance - Va_variance, 5)
             
             # KL Divergence
             kl_pyx_pyxz = ToyRegressionUtils.calculate_kl_divergence(pyx_gaussian, pyxz_gaussian)
@@ -343,8 +354,12 @@ class ToyRegressionExperiment:
             save_dict[f"p(y|x,z,D)_mean"] = pyxz_gaussian.mean
             save_dict[f"p(y|x,z,D)_std"] = pyxz_gaussian.std
             save_dict["H[p(y|x,D)]"] = Hyx
+            save_dict["Var[y|x,D]"] = total_variance
             save_dict["Va"] = Va
             save_dict["Ve"] = Ve
+            save_dict["Va_variance"] = Va_variance
+            save_dict["Ve_variance"] = Ve_variance
+            save_dict["yxz_std"] = yxz_std
             save_dict["kl_pyx_pyxz"] = kl_pyx_pyxz
             save_dict["kl_pyxz_pyx"] = kl_pyxz_pyx
             save_dict["api_calls"] = self.num_api_calls
