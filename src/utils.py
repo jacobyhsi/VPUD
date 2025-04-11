@@ -15,6 +15,14 @@ def calculate_entropy(probs: dict):
     entropy = -np.sum(probs * np.log2(probs))
     return round(entropy, 5)
 
+def calculate_discrete_mean(probs: dict):
+    # Calculate mean
+    cum_mean = 0
+    for label, prob in probs.items():
+        y_value = float(int(label))
+        cum_mean += y_value * prob
+    return round(cum_mean, 5)
+
 def calculate_discrete_variance(probs: dict):
     # Calculate variance
     cum_mean = 0
@@ -359,3 +367,20 @@ class ToyRegressionUtils(ToyDataUtils):
     def calculate_kl_divergence(p: GaussianDistribution, q: GaussianDistribution):
         kl = np.log(q.std / p.std) + (p.std**2 + (p.mean - q.mean)**2) / (2 * q.std**2) - 0.5
         return kl
+    
+class BanditUtils:
+    @staticmethod
+    def parse_features_and_action_to_note(action: int|str, row: Optional[pd.Series] = None, feature_columns: list[str]=[]):
+        note_parts = []
+        for feature in feature_columns:
+            note_parts.append(f"{feature} = {row[feature]}")
+        note_parts.append(f"action = {action}")
+        # join note with ;
+        return "; ".join(note_parts)
+    
+    @staticmethod
+    def get_feature_columns(data: pd.DataFrame):
+        return [col for col in data.columns if col not in ['note', 'label']]
+    
+class BanditClassificationUtils(BanditUtils):
+    pass
