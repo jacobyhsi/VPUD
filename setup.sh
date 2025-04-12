@@ -35,3 +35,10 @@ python run_tabular.py 2>&1 | tee run_tabular.log
 #     --exclude='*.pyc' --exclude='*.zip' --exclude='*.pack' --exclude='*.xls' --exclude='*.data' \
 #     --exclude='*.png' --exclude='*.test' --exclude='*.pdf' --exclude='*.pth' \
 #     -czvf file_name.tar.gz file_name
+
+# Slurm:
+# sinfo
+# squeue
+# scontrol show node rosetta | grep -E 'CPUTot|RealMemory|Gres|AllocTRES'
+# scontrol show node voyager | grep -E 'CPUTot|RealMemory|Gres|AllocTRES'
+srun -A rahul -q rahul -p rahul -c 32 -w voyager --mem=64G --gres=gpu:2 --pty bash --login

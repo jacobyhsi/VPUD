@@ -1,4 +1,5 @@
-from datasets import load_from_disk
+from datasets import load_from_disk, concatenate_datasets
+from datasets import load_dataset as load
 from sklearn.model_selection import train_test_split
 import pandas as pd
 import json
@@ -29,7 +30,7 @@ class Dataset():
     def __init__(self, data_path, data_split_seed: int = 123):
         data = self.load_data(data_path)
         # Split data
-        self.data, self.test_data = train_test_split(data, test_size=0.2, random_state=data_split_seed)
+        self.data, self.test_data = train_test_split(data, test_size=0.8, random_state=data_split_seed)
 
     def get_train_data(self):
         return self.data
@@ -43,42 +44,67 @@ class Dataset():
 class TabularDataset(Dataset):
     def load_data(self, data_path: str):
         # Load Dataset
-        print(data_path)
-        data = load_from_disk(data_path).to_pandas()
+        if data_path == "datasets_tabular/iris":
+            dataset_dict = load("scikit-learn/iris")
 
-        # Preprocess Dataset
-        data['label'] = data['label'].apply(lambda x: 0 if x is False else 1)
-        data['note'] = (data['note']
-                        .str.replace(r'\bThe\b', '', regex=True)
-                        .str.replace(r'\bis\b', '=', regex=True)
-                        .str.replace(r'\s{2,}', ' ', regex=True)
-                        .str.lstrip())
+            # Concatenate all splits (e.g., train/test/validation if they exist)
+            all_datasets = []
 
-        # Convert Note to Features, then concat to dataset
-        note2features = data['note'].apply(TabularUtils.parse_note_to_features).apply(pd.Series)
+            for split_name, split_dataset in dataset_dict.items():
+                # Encode label column
+                split_dataset = split_dataset.class_encode_column("Species")
+                split_dataset = split_dataset.rename_column("Species", "label")
+                split_dataset = split_dataset.remove_columns("Id")
 
-        if "adult" in data_path.lower():
-            # features = [
-            #     'Work class', 'Marital status', 'Relation to head of the household', 
-            #     'Race', 'Capital gain last year', 'Work hours per week'
-            # ] # Based on InterpreTabNet https://arxiv.org/abs/2406.00426
+                # Create note column
+                def build_note(row):
+                    return ", ".join([f"{k} = {v}" for k, v in row.items() if k != "label"])
 
-            features = [
-                'Age', 'Work hours per week', 'Education years'
-            ]
+                split_dataset = split_dataset.map(lambda row: {"note": build_note(row)})
+
+                # Collect processed split
+                all_datasets.append(split_dataset)
+
+            # Concatenate all splits and convert to pandas
+            full_dataset = concatenate_datasets(all_datasets)
+            data = full_dataset.to_pandas()
+
         else:
-            features = note2features.columns.tolist()
-        
-        print("Features:", ", ".join(features))
+            data = load_from_disk(data_path).to_pandas()
 
-        data['note'] = note2features[features].apply(
-            lambda row: TabularUtils.parse_features_to_note(row.to_dict(), feature_order=features),
-            axis=1
-        )
+            # Preprocess Dataset
+            data['label'] = data['label'].apply(lambda x: 0 if x is False else 1)
+            data['note'] = (data['note']
+                            .str.replace(r'\bThe\b', '', regex=True)
+                            .str.replace(r'\bis\b', '=', regex=True)
+                            .str.replace(r'\s{2,}', ' ', regex=True)
+                            .str.lstrip())
 
-        df_filtered = data[['label', 'note']].copy()  # Ensure 'note' and 'label' are included
-        
-        data = pd.concat([df_filtered, note2features[features]], axis=1)
+            # Convert Note to Features, then concat to dataset
+            note2features = data['note'].apply(TabularUtils.parse_note_to_features).apply(pd.Series)
+
+            if "adult" in data_path.lower():
+                # features = [
+                #     'Work class', 'Marital status', 'Relation to head of the household', 
+                #     'Race', 'Capital gain last year', 'Work hours per week'
+                # ] # Based on InterpreTabNet https://arxiv.org/abs/2406.00426
+
+                features = [
+                    'Age', 'Work hours per week', 'Education years'
+                ]
+            else:
+                features = note2features.columns.tolist()
+            
+            print("Features:", ", ".join(features))
+
+            data['note'] = note2features[features].apply(
+                lambda row: TabularUtils.parse_features_to_note(row.to_dict(), feature_order=features),
+                axis=1
+            )
+
+            df_filtered = data[['label', 'note']].copy()  # Ensure 'note' and 'label' are included
+            
+            data = pd.concat([df_filtered, note2features[features]], axis=1)
         
         return data
     

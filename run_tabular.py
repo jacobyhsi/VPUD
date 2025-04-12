@@ -15,26 +15,32 @@ from src.utils import calculate_entropy, calculate_kl_divergence, TabularUtils
 def main():
     global_seed = int(args.seed)
     perturb_x = args.perturb_x
+    perturb_x = "iris"
 
     # Load dataset
-    data, test, label_keys = load_dataset(args.data_path)
+    # data, test, label_keys = load_dataset(args.data_path)
+
+    data, test, label_keys = load_dataset("datasets_tabular/iris")
 
     # Sampling D as icl
-    num_D = 40
+    num_D = 25
     df_D = data.sample(n=num_D, random_state=global_seed)
     data = data.drop(df_D.index)
     df_D.to_csv(f"df_D_{perturb_x}.csv", index=False)
 
     # Sampling x
-    x_row = test.sample(n=1, random_state=global_seed)
-    test = test.drop(x_row.index) # drop the sampled x
-    x = x_row['note'].iloc[0]
-    # Perturb x
-    # x perturbations should be in a range of values from the min of capital gains to the max of capital gains
-    if perturb_x != 'all':
-        data_x = TabularUtils.perturb_x(data, x_row, perturb_x)
-    else:
-        data_x = TabularUtils.perturb_all_x(data, x_row, df_D)
+    # x_row = test.sample(n=1, random_state=global_seed)
+    # test = test.drop(x_row.index) # drop the sampled x
+    # x = x_row['note'].iloc[0]
+
+    data_x = test.sample(n=120, random_state=global_seed)
+    test = test.drop(data_x.index) # drop the sampled x
+
+    # perturb x for visualization 
+    # if perturb_x != 'all':
+    #     data_x = TabularUtils.perturb_x(data, x_row, perturb_x)
+    # else:
+    #     data_x = TabularUtils.perturb_all_x(data, x_row, df_D)
     # Perturb x
 
     # Sample z
@@ -99,6 +105,7 @@ def main():
                 # print("\n########## <Output p(u|z,D)\> ##########")
                 # print(output_puzD)
                 # print("########## <Output p(u|z,D)\> ##########")
+
                 if not re.search(r'\d+</output>', output_puzD):
                     print("Output format not as expected for p(u|z,D), retrying with new seed...")
                     seed += 1
@@ -299,15 +306,17 @@ def main():
         if perturb_x != 'all':
             x_z = {
                 'x_note': x_row['note'],
-                f'x_{perturb_x}': x_row[perturb_x],
+                # f'x_{perturb_x}': x_row[perturb_x],
                 'TU': min_Va['TU'],
                 'Va': min_Va['Va'],
-                'Ve': min_Va['Ve']
+                'Ve': min_Va['Ve'],
+                'true_label': true_label,
+                'pred_label': pred_label,
             }
         else:
             x_z = {
                 'x_note': x_row['note'],
-                'radius': x_row['radius'],
+                # 'radius': x_row['radius'],
                 'TU': min_Va['TU'],
                 'Va': min_Va['Va'],
                 'Ve': min_Va['Ve'],

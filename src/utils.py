@@ -237,14 +237,14 @@ class TabularUtils:
                 modified_row[feature] = new_value
                 
                 # Update the note string using regex substitution
-                pattern = rf'({re.escape(feature)} = )(.*?)(\.|$)'
-                new_note = re.sub(pattern, lambda m: f"{m.group(1)}{new_value}{m.group(3)}", new_note)
+                note_dict = {f: modified_row[f].iloc[0] for f in features_to_perturb}
+                new_note = ", ".join([f"{k} = {v}" for k, v in note_dict.items()])
 
             modified_row['note'] = new_note
             perturbed_rows.append(modified_row)
 
         z_data = pd.concat(perturbed_rows, ignore_index=True)
-
+        
         return z_data
 
     # def perturb_all_x(data, x_row, df_D, radius_list=[1.0, 5.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0], samples_per_radius=10, max_attempts=1000):
