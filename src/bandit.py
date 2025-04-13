@@ -37,6 +37,12 @@ class MultiArmBandit:
         """
         return None
     
+    def optimal_action(self, **kwargs) -> int:
+        """
+        Get the best action for the bandit.
+        """
+        raise NotImplementedError("This method should be implemented by subclasses.")
+    
 class ClassificationBandit(MultiArmBandit):
     def get_reward_space(self) -> list:
         """
@@ -88,6 +94,9 @@ class ButtonsBandit(ClassificationBandit):
     
     def get_reward_space(self):
         return ["0", "1"]
+    
+    def optimal_action(self, **kwargs) -> int:
+        return self.best_arm
     
 
 BANDIT_TYPE_TO_CLASS = {

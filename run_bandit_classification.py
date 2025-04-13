@@ -377,6 +377,7 @@ class BanditClassificationExperiment:
             context["note"] = BanditClassificationUtils.parse_features_and_action_to_note(action_taken)
         
         context["trial"] = trial
+        context["optimal_action"] = self.bandit.optimal_action()
         
         if not is_random_action:
             for action in self.action_space:
