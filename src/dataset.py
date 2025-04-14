@@ -56,11 +56,7 @@ class TabularDataset(Dataset):
                 split_dataset = split_dataset.rename_column("Species", "label")
                 split_dataset = split_dataset.remove_columns("Id")
 
-                # Create note column
-                def build_note(row):
-                    return ", ".join([f"{k} = {v}" for k, v in row.items() if k != "label"])
-
-                split_dataset = split_dataset.map(lambda row: {"note": build_note(row)})
+                split_dataset = split_dataset.map(lambda row: {"note": TabularUtils.build_note(row)})
 
                 # Collect processed split
                 all_datasets.append(split_dataset)
@@ -107,6 +103,7 @@ class TabularDataset(Dataset):
             data = pd.concat([df_filtered, note2features[features]], axis=1)
         
         return data
+
     
 class ToyClassificationDataset(Dataset):
     def load_data(self, data_path: str):

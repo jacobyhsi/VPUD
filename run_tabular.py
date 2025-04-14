@@ -7,7 +7,7 @@ from tqdm import tqdm
 from src.dataset import load_dataset
 from src.prompt import Prompt
 from src.chat import chat_tabular
-from src.utils import calculate_entropy, calculate_kl_divergence, TabularUtils
+from src.utils import calculate_entropy, calculate_kl_divergence, TabularUtils, ToyDataUtils
 
 # note to self: play around with num_seeds and z_samples
 
@@ -15,6 +15,7 @@ from src.utils import calculate_entropy, calculate_kl_divergence, TabularUtils
 def main():
     global_seed = int(args.seed)
     perturb_x = args.perturb_x
+    new_feature_col_names: list[str] = args.new_feature_col_names
     perturb_x = "iris"
 
     # Load dataset
@@ -23,17 +24,23 @@ def main():
     data, test, label_keys = load_dataset("datasets_tabular/iris")
 
     # Sampling D as icl
-    num_D = 25
+    num_D = args.num_D
     df_D = data.sample(n=num_D, random_state=global_seed)
     data = data.drop(df_D.index)
-    df_D.to_csv(f"df_D_{perturb_x}.csv", index=False)
-
+    feature_columns = ToyDataUtils.get_feature_columns(data)
+    if len(new_feature_col_names) > 0:
+        feature_column_map = {col: new_col for col, new_col in zip(feature_columns, new_feature_col_names)}
+        df_D.rename(columns=feature_column_map, inplace=True)
+        df_D["note"] = df_D.apply(lambda row: TabularUtils.build_note(row), axis=1)
+        test.rename(columns=feature_column_map, inplace=True)
+        test["note"] = test.apply(lambda row: TabularUtils.build_note(row), axis=1)
+    df_D.to_csv(f"results_tabular/iris/df_D_{perturb_x}_{args.run_name}.csv", index=False)
     # Sampling x
     # x_row = test.sample(n=1, random_state=global_seed)
     # test = test.drop(x_row.index) # drop the sampled x
     # x = x_row['note'].iloc[0]
 
-    data_x = test.sample(n=120, random_state=global_seed)
+    data_x = test.sample(n=args.num_x_values, random_state=global_seed)
     test = test.drop(data_x.index) # drop the sampled x
 
     # perturb x for visualization 
@@ -58,15 +65,18 @@ def main():
     for i, x_row in tqdm(data_x.iterrows(), total=len(data_x), desc="Processing x perturbations"):
         # print(f"\nProcessing x pertubation: {i}/{len(data_x)}")
         x = x_row['note']
+        print(f"\nx: {x}")
         # Processing z Probabilities
         min_Va_lst = []
+        seed = 0
 
         # perturbed z should be close to x.
         # data_z = TabularUtils.perturb_all_z(data, df_z, df_D)
-        data_z = TabularUtils.perturb_z(data, df_z, x_row, z_samples=20)
+        data_z = TabularUtils.perturb_z(data=df_D, x_row=x_row, z_samples=10)
 
         for i, row in tqdm(data_z.iterrows(), total=len(data_z), desc="Processing z perturbations"):
             z = row['note']
+            print(f"\nz: {z}")
 
             # Initialize dictionaries to store average probabilities
             avg_puzD_probs = {label: 0.0 for label in label_keys}
@@ -77,7 +87,7 @@ def main():
             # Extracting prompt probabilities: p(u|z,D), p(y|x,u,z,D), p(y|x,D)
             successful_seeds = 0
             successful_seeds_lst = []
-            seed = 0
+            
 
             num_seeds = args.num_seeds  # target number of successful seeds
             while successful_seeds < num_seeds:
@@ -102,12 +112,13 @@ def main():
                 # print(prompt_puzD)
                 # print("########## <Prompt p(u|z,D)\> ##########")
                 output_puzD, puzD = chat_tabular(prompt_puzD, label_keys, seed)
+                seed += 1
                 # print("\n########## <Output p(u|z,D)\> ##########")
                 # print(output_puzD)
                 # print("########## <Output p(u|z,D)\> ##########")
 
                 if not re.search(r'\d+</output>', output_puzD):
-                    print("Output format not as expected for p(u|z,D), retrying with new seed...")
+                    print(f"Output format not as expected for p(u|z,D): {output_puzD}, retrying with new seed...")
                     seed += 1
                     failed_seeds += 1
                     continue
@@ -149,11 +160,12 @@ def main():
                     # print(prompt_pyxuzD)
                     # print("########## <Prompt p(y|x,u,z,D)\> ##########")
                     output_pyxuzD, pyxuzD = chat_tabular(prompt_pyxuzD, label_keys, seed)
+                    seed += 1
                     # print("\n########## <Output p(y|x,u,z,D)\> ##########")
                     # print(output_pyxuzD)
                     # print("########## <Output p(y|x,u,z,D)\> ##########")
                     if not re.search(r'\d+</output>', output_pyxuzD):
-                        print("Output format not as expected for p(y|x,u,z,D), retrying with new seed...")
+                        print(f"Output format not as expected for p(y|x,u,z,D): {output_pyxuzD}, retrying with new seed...")
                         skip_seed = True
                         failed_seeds += 1
                         break
@@ -178,6 +190,7 @@ def main():
                 # print(prompt_pyxD)
                 # print("########## <Prompt p(y|x,D)\> ##########")
                 output_pyxD, pyxD = chat_tabular(prompt_pyxD, label_keys, seed)
+                seed += 1
                 # print("\n########## <Output p(y|x,D)> ##########")
                 # print(output_pyxD)
                 # print("########## <Output p(y|x,D)\> ##########")
@@ -326,8 +339,8 @@ def main():
         x_z = pd.DataFrame([x_z])
         x_z_lst.append(x_z)
 
-    df_plot = pd.concat(x_z_lst, ignore_index=True)
-    df_plot.to_csv(f"df_plot_{perturb_x}.csv", index=False)
+        df_plot = pd.concat(x_z_lst, ignore_index=True)
+        df_plot.to_csv(f"results_tabular/iris/df_plot_{perturb_x}_{args.run_name}.csv", index=False)
 
 if __name__ == "__main__":
     # Argument Parser
@@ -337,5 +350,9 @@ if __name__ == "__main__":
     parser.add_argument("--data_path", default="datasets_tabular/adult")
     parser.add_argument("--num_seeds", default=5)
     parser.add_argument("--perturb_x", default="all")
+    parser.add_argument("--run_name", default="test")
+    parser.add_argument("--num_D", default=25, type=int)
+    parser.add_argument("--num_x_values", default=10, type=int)
+    parser.add_argument("--new_feature_col_names", nargs="+", default=[])
     args = parser.parse_args()
     main()

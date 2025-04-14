@@ -196,34 +196,35 @@ class TabularUtils:
     #     return z_data
 
 
-    def perturb_z(data, z_row, x_row, z_samples=10, range_fraction=0.01): # perturbing z around the x
+    def perturb_z(data, x_row, z_samples=10, range_fraction=0.1): # perturbing z around the x
         # Identify all feature columns to perturb (exclude 'note' and 'label')
         features_to_perturb = [col for col in data.columns if col not in ['note', 'label']]
         
         # Compute min and max for numerical features
         feature_ranges = {feature: (data[feature].min(), data[feature].max()) 
                         for feature in features_to_perturb if np.issubdtype(data[feature].dtype, np.number)}
-        
+        feature_std = {feature: data[feature].std() for feature in features_to_perturb if np.issubdtype(data[feature].dtype, np.number)}
         perturbed_rows = []
 
         for _ in range(z_samples):
-            modified_row = z_row.copy()
-            new_note = modified_row['note'].iloc[0]
+            modified_row = x_row.copy()
+            new_note = modified_row['note']
 
             for feature in features_to_perturb:
-                original_value = modified_row[feature].iloc[0]
+                original_value = modified_row[feature]
                 x_value = x_row[feature]
 
                 if feature in feature_ranges:
                     # Numerical feature: Perturb within a fraction of its range around x
-                    min_val, max_val = feature_ranges[feature]
-                    delta = range_fraction * (max_val - min_val)
+                    # min_val, max_val = feature_ranges[feature]
+                    # delta = range_fraction * (max_val - min_val)
                     
-                    lower_bound = max(min_val, x_value - delta)
-                    upper_bound = min(max_val, x_value + delta)
+                    # lower_bound = max(min_val, x_value - delta)
+                    # upper_bound = min(max_val, x_value + delta)
                     
-                    new_value = np.random.uniform(lower_bound, upper_bound)
-                    new_value = round(new_value, 2)  # Round to avoid excessive decimals
+                    # new_value = np.random.uniform(lower_bound, upper_bound)
+                    new_value = np.random.normal(loc=x_value, scale=feature_std[feature] * range_fraction)
+                    new_value = round(new_value, 1)  # Round to avoid excessive decimals
                 else:
                     # Categorical feature: Sample similar values
                     possible_vals = data[feature].dropna().unique()
@@ -237,14 +238,14 @@ class TabularUtils:
                 modified_row[feature] = new_value
                 
                 # Update the note string using regex substitution
-                note_dict = {f: modified_row[f].iloc[0] for f in features_to_perturb}
+                note_dict = {f: modified_row[f] for f in features_to_perturb}
                 new_note = ", ".join([f"{k} = {v}" for k, v in note_dict.items()])
 
             modified_row['note'] = new_note
             perturbed_rows.append(modified_row)
 
-        z_data = pd.concat(perturbed_rows, ignore_index=True)
-        
+        z_data = pd.concat(perturbed_rows, ignore_index=True, axis=1).T
+            
         return z_data
 
     # def perturb_all_x(data, x_row, df_D, radius_list=[1.0, 5.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0], samples_per_radius=10, max_attempts=1000):
@@ -570,6 +571,10 @@ class TabularUtils:
                 note_parts.append(f"{key} = {features[key]}")
         note = ". ".join(note_parts) + "."
         return note
+    
+    @staticmethod
+    def build_note(row):
+        return ", ".join([f"{k} = {v}" for k, v in row.items() if k != "label" and k != "note"])
     
 class ToyDataUtils:
     @staticmethod
