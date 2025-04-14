@@ -344,6 +344,8 @@ def main():
         x_z_lst.append(x_z)
 
         df_plot = pd.concat(x_z_lst, ignore_index=True)
+        if not os.path.exists("results_tabular/iris"):
+            os.makedirs("results_tabular/iris")
         df_plot.to_csv(f"results_tabular/iris/df_plot_{perturb_x}_{args.run_name}.csv", index=False)
 
 if __name__ == "__main__":
