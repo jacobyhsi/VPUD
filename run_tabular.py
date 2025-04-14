@@ -1,4 +1,5 @@
 import re
+import os
 import argparse
 import numpy as np
 import pandas as pd
@@ -34,6 +35,9 @@ def main():
         df_D["note"] = df_D.apply(lambda row: TabularUtils.build_note(row), axis=1)
         test.rename(columns=feature_column_map, inplace=True)
         test["note"] = test.apply(lambda row: TabularUtils.build_note(row), axis=1)
+    
+    if not os.path.exists("results_tabular/iris"):
+        os.makedirs("results_tabular/iris")
     df_D.to_csv(f"results_tabular/iris/df_D_{perturb_x}_{args.run_name}.csv", index=False)
     # Sampling x
     # x_row = test.sample(n=1, random_state=global_seed)

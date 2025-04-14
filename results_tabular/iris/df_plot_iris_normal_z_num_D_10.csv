@@ -1,0 +1,4 @@
+x_note,TU,Va,Ve,true_label,pred_label
+"SepalLengthCm = 4.9, SepalWidthCm = 3.1, PetalLengthCm = 1.5, PetalWidthCm = 0.1",0.542,1.1137972002971328,-0.5717972002971328,0,0
+"SepalLengthCm = 5.0, SepalWidthCm = 3.4, PetalLengthCm = 1.5, PetalWidthCm = 0.2",0.55434,1.2881981720670388,-0.7338581720670387,0,0
+"SepalLengthCm = 7.1, SepalWidthCm = 3.0, PetalLengthCm = 5.9, PetalWidthCm = 2.1",0.13842,0.08835118163859412,0.050068818361405865,2,2
