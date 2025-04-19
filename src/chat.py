@@ -13,10 +13,8 @@ def chat(message: str, label_keys, seed: int, model: str ="Qwen/Qwen2.5-14B"):
         "logprobs": 10,
         "seed": seed
     }
-
     response = requests.post(url, headers=headers, json=data).json()
     text_output = response["choices"][0]["text"]
-    # print("\n### Full Output ###\n" + text_output)
 
     logprobs_list = response["choices"][0].get("logprobs", {}).get("top_logprobs", [])
     tokens = response["choices"][0].get("logprobs", {}).get("tokens", [])
