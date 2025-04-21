@@ -2,8 +2,13 @@ import pandas as pd
 from typing import Optional
 
 PROMPT_TYPES_TO_TEXT_TEMPLATE = {
+#     "tabular": \
+# """{icl}
+# {note} <output>""",
     "tabular": \
-"""{icl}
+"""Given the inputs and their labels, predict the label for a new
+input based on the provided data.
+{icl}
 {note} <output>""",
     "toy_classification": \
 """{icl}

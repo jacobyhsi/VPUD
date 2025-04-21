@@ -196,7 +196,7 @@ class TabularUtils:
     #     return z_data
 
 
-    def perturb_z(data, x_row, z_samples=10, range_fraction=0.1): # perturbing z around the x
+    def perturb_z(data, x_row, z_samples, range_fraction=0.1): # perturbing z around the x
         # Identify all feature columns to perturb (exclude 'note' and 'label')
         features_to_perturb = [col for col in data.columns if col not in ['note', 'label']]
         
@@ -569,7 +569,7 @@ class TabularUtils:
         for key in feature_order:
             if key in features and features[key] is not None:
                 note_parts.append(f"{key} = {features[key]}")
-        note = ". ".join(note_parts) + "."
+        note = ", ".join(note_parts) + "."
         return note
     
     @staticmethod

@@ -5,63 +5,65 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from tqdm import tqdm
-from src.dataset import load_dataset
+from src.dataset import TabularDataset
 from src.prompt import Prompt
 from src.chat import chat_tabular
-from src.utils import calculate_entropy, calculate_kl_divergence, TabularUtils, ToyDataUtils
+from src.utils import calculate_entropy, calculate_kl_divergence, TabularUtils
 
 # note to self: play around with num_seeds and z_samples
 
 # Main
 def main():
     global_seed = int(args.seed)
-    perturb_x = args.perturb_x
-    new_feature_col_names: list[str] = args.new_feature_col_names
-    perturb_x = "iris"
 
-    # Load dataset
-    # data, test, label_keys = load_dataset(args.data_path)
+    args.id_dataset = "lenses"
 
-    data, test, label_keys = load_dataset("datasets_tabular/iris")
+    if args.id_dataset == "iris":
+        dataset_id = 53
+        dataset_label = "class"
+    if args.id_dataset == "lenses":
+        dataset_id = 58
+        dataset_label = "class"
+    elif args.id_dataset == "estate":
+        dataset_id = 477
+        dataset_label = "Y house price of unit area"
+
+    if args.ood_dataset == "beijing":
+        dataset_ood = 381
+    elif args.ood_dataset == "diabetes":
+        dataset_ood = 296
+
+    tabular_dataset = TabularDataset(dataset_id, global_seed)
+    train_id, test_id, label_keys = tabular_dataset.load_data(config_path=f"datasets_tabular/{args.id_dataset}" ,label=dataset_label)
+    train_ood, test_ood = tabular_dataset.generate_ood(dataset_ood)
+
+    print("len(train_id), len(test_id):", len(train_id), len(test_id))
+
+    # Switch between OOD and ID
+    if args.distb == "OOD":
+        train = train_ood
+        test = test_ood
+    else:
+        train = train_id
+        test = test_id
 
     # Sampling D as icl
-    num_D = args.num_D
-    df_D = data.sample(n=num_D, random_state=global_seed)
-    data = data.drop(df_D.index)
-    feature_columns = ToyDataUtils.get_feature_columns(data)
-    if len(new_feature_col_names) > 0:
-        feature_column_map = {col: new_col for col, new_col in zip(feature_columns, new_feature_col_names)}
-        df_D.rename(columns=feature_column_map, inplace=True)
-        df_D["note"] = df_D.apply(lambda row: TabularUtils.build_note(row), axis=1)
-        test.rename(columns=feature_column_map, inplace=True)
-        test["note"] = test.apply(lambda row: TabularUtils.build_note(row), axis=1)
-    
-    if not os.path.exists("results_tabular/iris"):
-        os.makedirs("results_tabular/iris")
-    df_D.to_csv(f"results_tabular/iris/df_D_{perturb_x}_{args.run_name}.csv", index=False)
-    # Sampling x
-    # x_row = test.sample(n=1, random_state=global_seed)
-    # test = test.drop(x_row.index) # drop the sampled x
-    # x = x_row['note'].iloc[0]
-
-    data_x = test.sample(n=args.num_x_values, random_state=global_seed)
-    test = test.drop(data_x.index) # drop the sampled x
-
-    # perturb x for visualization 
-    # if perturb_x != 'all':
-    #     data_x = TabularUtils.perturb_x(data, x_row, perturb_x)
-    # else:
-    #     data_x = TabularUtils.perturb_all_x(data, x_row, df_D)
-    # Perturb x
+    num_D = len(train) - 1
+    df_D = train.sample(n=num_D, random_state=global_seed)
+    train = train.drop(df_D.index)
 
     # Sample z
-    df_z = data.sample(n=1, random_state=global_seed)
-    data = data.drop(df_z.index)
-    z = df_z['note'].iloc[0]
-    # print("z:", z)
+    df_z = train.sample(n=1, random_state=global_seed)
+    train = train.drop(df_z.index)
+    num_z = 20
+    
+    # Sampling x
+    num_x = len(test)
+    data_x = test.sample(n=num_x, random_state=global_seed)
+    test = test.drop(data_x.index) # drop the sampled x
 
     prompt = Prompt(prompt_type="tabular")
-    
+
     x_z_lst = []
     failed_seeds = 0
 
@@ -69,18 +71,15 @@ def main():
     for i, x_row in tqdm(data_x.iterrows(), total=len(data_x), desc="Processing x perturbations"):
         # print(f"\nProcessing x pertubation: {i}/{len(data_x)}")
         x = x_row['note']
-        print(f"\nx: {x}")
+        # print(f"\nx: {x}")
         # Processing z Probabilities
         min_Va_lst = []
         seed = 0
 
-        # perturbed z should be close to x.
-        # data_z = TabularUtils.perturb_all_z(data, df_z, df_D)
-        data_z = TabularUtils.perturb_z(data=df_D, x_row=x_row, z_samples=10)
-
+        data_z = TabularUtils.perturb_z(data=df_D, x_row=x_row, z_samples=num_z)
         for i, row in tqdm(data_z.iterrows(), total=len(data_z), desc="Processing z perturbations"):
             z = row['note']
-            print(f"\nz: {z}")
+            # print(f"\nz: {z}")
 
             # Initialize dictionaries to store average probabilities
             avg_puzD_probs = {label: 0.0 for label in label_keys}
@@ -92,7 +91,6 @@ def main():
             successful_seeds = 0
             successful_seeds_lst = []
             
-
             num_seeds = args.num_seeds  # target number of successful seeds
             while successful_seeds < num_seeds:
                 # print(f"\nSample: {i}; Seed: {seed + 1}")
@@ -122,7 +120,7 @@ def main():
                 # print("########## <Output p(u|z,D)\> ##########")
 
                 if not re.search(r'\d+</output>', output_puzD):
-                    print(f"Output format not as expected for p(u|z,D): {output_puzD}, retrying with new seed...")
+                    # print(f"Output format not as expected for p(u|z,D): <unexpected_output> {output_puzD} <unexpected_output\>. Retrying with new seed...")
                     seed += 1
                     failed_seeds += 1
                     continue
@@ -169,7 +167,7 @@ def main():
                     # print(output_pyxuzD)
                     # print("########## <Output p(y|x,u,z,D)\> ##########")
                     if not re.search(r'\d+</output>', output_pyxuzD):
-                        print(f"Output format not as expected for p(y|x,u,z,D): {output_pyxuzD}, retrying with new seed...")
+                        # print(f"Output format not as expected for p(y|x,u,z,D): {output_pyxuzD}, retrying with new seed...")
                         skip_seed = True
                         failed_seeds += 1
                         break
@@ -199,7 +197,7 @@ def main():
                 # print(output_pyxD)
                 # print("########## <Output p(y|x,D)\> ##########")
                 if not re.search(r'\d+</output>', output_pyxD):
-                    print("Output format not as expected for p(y|x,D), retrying with new seed...")
+                    # print("Output format not as expected for p(y|x,D), retrying with new seed...")
                     seed += 1
                     failed_seeds += 1
                     continue
@@ -315,50 +313,29 @@ def main():
         pred_label = max(avg_pyxD_probs, key=avg_pyxD_probs.get)
         true_label = x_row['label']
             
-        # print(f"Ve = {Ve}")
-
-        # print(x_row)
-        # print(min_Va)
-        # Example x_row and min_Va (assuming they are pandas Series)
-        if perturb_x != 'all':
-            x_z = {
-                'x_note': x_row['note'],
-                # f'x_{perturb_x}': x_row[perturb_x],
-                'TU': min_Va['TU'],
-                'Va': min_Va['Va'],
-                'Ve': min_Va['Ve'],
-                'true_label': true_label,
-                'pred_label': pred_label,
-            }
-        else:
-            x_z = {
-                'x_note': x_row['note'],
-                # 'radius': x_row['radius'],
-                'TU': min_Va['TU'],
-                'Va': min_Va['Va'],
-                'Ve': min_Va['Ve'],
-                'true_label': true_label,
-                'pred_label': pred_label,
-            }
+        x_z = {
+            'x_note': x_row['note'],
+            # f'x_{args.distb}': x_row[args.distb],
+            'TU': min_Va['TU'],
+            'Va': min_Va['Va'],
+            'Ve': min_Va['Ve'],
+            'true_label': true_label,
+            'pred_label': pred_label,
+        }
         x_z = pd.DataFrame([x_z])
         x_z_lst.append(x_z)
 
         df_plot = pd.concat(x_z_lst, ignore_index=True)
-        if not os.path.exists("results_tabular/iris"):
-            os.makedirs("results_tabular/iris")
-        df_plot.to_csv(f"results_tabular/iris/df_plot_{perturb_x}_{args.run_name}.csv", index=False)
+        df_plot.to_csv(f"results_tabular/OOD/df_{args.distb}_ID-{args.id_dataset}_OOD-{args.ood_dataset}_{num_D}ICL_{num_z}z.csv", index=False)
 
 if __name__ == "__main__":
     # Argument Parser
     pd.set_option('display.max_columns', None)
     parser = argparse.ArgumentParser(description='Run VPUD')
     parser.add_argument("--seed", default=123)
-    parser.add_argument("--data_path", default="datasets_tabular/adult")
+    parser.add_argument("--id_dataset", default="iris")
+    parser.add_argument("--ood_dataset", default="beijing")
     parser.add_argument("--num_seeds", default=5)
-    parser.add_argument("--perturb_x", default="all")
-    parser.add_argument("--run_name", default="test")
-    parser.add_argument("--num_D", default=25, type=int)
-    parser.add_argument("--num_x_values", default=10, type=int)
-    parser.add_argument("--new_feature_col_names", nargs="+", default=[])
+    parser.add_argument("--distb", default="OOD")
     args = parser.parse_args()
     main()
