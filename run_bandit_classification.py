@@ -8,6 +8,7 @@ from tqdm import tqdm
 from dataclasses import dataclass
 
 from src.bandit import get_bandit, ClassificationBandit, ButtonsBandit
+from src.bandit_algorithms import UCB1_Algorithm
 from src.bayesian_optimisation import new_candidate
 from src.utils import BanditClassificationUtils, calculate_entropy, calculate_kl_divergence, calculate_discrete_mean, calculate_discrete_variance, calculate_min_Va_by_KL_rank
 from src.prompt import BanditClassificationPrompt
@@ -29,6 +30,7 @@ parser.add_argument("--is_contextual_bandit", default=0, type=int)
 
 parser.add_argument("--num_trials", default=10, type=int)
 parser.add_argument("--num_random_trials", default=3, type=int)
+parser.add_argument("--uncertainty_type", default="epistemic", type=str)
 
 parser.add_argument("--numpy_seed", default=0, type=int)
 parser.add_argument("--use_api_call_seed", default=0, type=int)
@@ -61,7 +63,7 @@ class BanditClassificationExperimentConfig:
     numpy_seed: int
     num_trials: int
     num_random_trials: int
-    
+    uncertainty_type: str
     use_api_call_seed: int
     shots: int
     num_modified_z: int
@@ -91,7 +93,12 @@ class BanditClassificationExperiment:
         
         self.use_api_call_seed = self.config.use_api_call_seed == 1
         self.num_api_calls = self.config.num_api_calls_save_value
-
+        
+        if self.config.uncertainty_type == "ucb1":
+            self.UCB1_algorithm = UCB1_Algorithm(num_arms=self.config.bandit_num_arms, c=self.config.bandit_exploration_rate)
+        else:
+            self.UCB1_algorithm = None
+            
     def create_bandit(self):
         self.bandit: ClassificationBandit = get_bandit(
             bandit_name=self.config.bandit_name,
@@ -321,7 +328,7 @@ class BanditClassificationExperiment:
         
         return save_df
             
-    def get_single_trial_action(self, trial: int, context: Optional[pd.Series] = None, random_action: bool = False):
+    def get_single_trial_action(self, trial: int, context: Optional[pd.Series] = None, random_action: bool = False, uncertainty_type: str = "epistemic"):
         if random_action:
             action_taken = self.get_random_action()
         else:
@@ -333,10 +340,16 @@ class BanditClassificationExperiment:
                 # save_df.to_csv(f"results/bandits/{self.config.bandit_name}/{self.config.save_directory}/results_{self.config.run_name}_trial{trial}_action{action}.csv", index=False)
                 
                 Q_values.update({action: save_df["E[y|x,D]"].values[0]})
-                U_values.update({action: np.sqrt(save_df["max_Ve_variance"].values[0])})
+                if uncertainty_type == "epistemic":
+                    U_values.update({action: np.sqrt(save_df["max_Ve_variance"].values[0])})
+                elif uncertainty_type == "total_variance":
+                    U_values.update({action: np.sqrt(save_df["Var[y|x,D]"].values[0])})
+                elif uncertainty_type == "ucb1":
+                    UCB_uncertainty = self.UCB1_algorithm.get_uncertainty(action)
+                    U_values.update({action: UCB_uncertainty})
                 
                 UCB_values.update({action: Q_values[action] + self.config.bandit_exploration_rate * U_values[action]})
-            
+                            
             print(f"Q values: {Q_values}")
             print(f"U values: {U_values}")
             print(f"UCB values: {UCB_values}")
@@ -359,13 +372,16 @@ class BanditClassificationExperiment:
             context = None
             
         is_random_action = trial < self.config.num_random_trials
-        action_taken = self.get_single_trial_action(trial, context, is_random_action)
+        action_taken = self.get_single_trial_action(trial, context, is_random_action, self.config.uncertainty_type)
         
         reward = self.bandit.get_reward(action_taken)
         
         regret = self.bandit.get_optimal_mean_reward() - reward
 
         print(f"Action: {action_taken}; Reward: {reward}; Regret: {regret}")
+        
+        if self.config.uncertainty_type == "ucb1":
+            self.UCB1_algorithm.update(action_taken, reward)
         
         if self.config.is_contextual_bandit:
             context["action"] = action_taken

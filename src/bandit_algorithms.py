@@ -1,6 +1,6 @@
 import numpy as np
 
-class UCB_Algorithm:
+class UCB1_Algorithm:
     def __init__(self, num_arms: int, c: float = 2.0):
         """
         Initialize the UCB algorithm with a number of arms and a confidence parameter c.
@@ -35,3 +35,11 @@ class UCB_Algorithm:
         Get the average reward of the algorithm.
         """
         return self.total_reward / self.total_counts if self.total_counts > 0 else 0.0
+    
+    def get_uncertainty(self, arm: int):
+        """
+        Get the uncertainty of the algorithm.
+        """
+        if self.counts[arm] == 0:
+            return float(1e5)
+        return self.c * np.sqrt(np.log(self.total_counts) / (self.counts[arm] + 1e-5))
