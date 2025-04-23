@@ -50,6 +50,8 @@ class ClassificationBandit(MultiArmBandit):
         """
         raise NotImplementedError("This method should be implemented by subclasses.")
     
+class RegressionBandit(MultiArmBandit):
+    pass   
 class ButtonsBandit(ClassificationBandit):
     def __init__(self, num_arms: int = 2, gap: float = 0.2, seed: int = 0, **kwargs):
         """
@@ -98,9 +100,55 @@ class ButtonsBandit(ClassificationBandit):
     def optimal_action(self, **kwargs) -> int:
         return self.best_arm
     
+class ButtonsRegressionBandit(RegressionBandit):
+    def __init__(self, num_arms: int = 2, gap: float = 0.2, seed: int = 0, noise: float = 0.4, **kwargs):
+        """
+        Initialize the bandit with a number of buttons.
+        """
+        super().__init__(seed)
+        self.num_arms = num_arms
+        self.best_arm = self.rng.integers(0, num_arms)
+        self.gap = gap
+        self.noise = noise
+    
+    def get_reward(self, action: int|str) -> float|int:
+        """
+        Get the reward for a given button action.
+        """
+        
+        if isinstance(action, str):
+            action = int(action)
+        
+        if action not in range(self.num_arms):
+            raise ValueError(f"Action {action} is not a valid arm.")
+        
+        if action == self.best_arm:
+            reward = self.rng.normal(0.5 + self.gap/2, self.noise)
+        else:
+            reward = self.rng.normal(0.5 - self.gap/2, self.noise)
+
+        return np.round(reward,2)
+    
+    def get_optimal_mean_reward(self) -> float|int:
+        """
+        Get the optimal mean reward for a given button action.
+        """
+        
+        return 0.5 + self.gap
+    
+    def get_action_space(self) -> list:
+        """
+        Get the action space for the bandit.
+        """
+        
+        return list(range(self.num_arms))
+    
+    def optimal_action(self, **kwargs) -> int:
+        return self.best_arm    
 
 BANDIT_TYPE_TO_CLASS = {
     "buttons": ButtonsBandit,
+    "buttons_regression": ButtonsRegressionBandit,
 }
 
 def get_bandit(

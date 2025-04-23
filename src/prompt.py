@@ -13,7 +13,10 @@ PROMPT_TYPES_TO_TEXT_TEMPLATE = {
  {note} <output>""",
     "bandit_classification": \
 """{icl}
- {note} <reward>"""
+ {note} <reward>""",
+    "bandit_regression": \
+"""{icl}
+ {note} <reward>""",
 }
 
 
@@ -116,5 +119,14 @@ class BanditClassificationPrompt(ToyPrompt):
     
     def note_label_prompt(self, note: str, label: str):
         prompt = f""" {note} <reward>{label}</reward>"""
+        
+        return prompt
+    
+class BanditRegressionPrompt(ToyPrompt):
+    def __init__(self) -> None:
+        super().__init__(prompt_type="bandit_regression")
+    
+    def note_label_prompt(self, note: str, label: str):
+        prompt = f""" {note} <reward> {label} </reward>"""
         
         return prompt

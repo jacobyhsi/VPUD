@@ -126,8 +126,8 @@ def calculate_min_Va_by_KL_rank(save_data: pd.DataFrame, num_valid_Va: int = 5, 
     
     return save_data
 
-def extract(text):
-    match = re.search(r'(.*?)</output>', text, re.DOTALL | re.IGNORECASE)
+def extract(text, tag_text: "output"):
+    match = re.search(fr'(.*?)</{tag_text}>', text, re.DOTALL | re.IGNORECASE)
     if match:
         output_str = match.group(1).strip()
         output_dict = ast.literal_eval(output_str)
