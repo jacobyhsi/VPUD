@@ -126,7 +126,7 @@ def calculate_min_Va_by_KL_rank(save_data: pd.DataFrame, num_valid_Va: int = 5, 
     
     return save_data
 
-def extract(text, tag_text: "output"):
+def extract(text, tag_text: str = "output"):
     match = re.search(fr'(.*?)</{tag_text}>', text, re.DOTALL | re.IGNORECASE)
     if match:
         output_str = match.group(1).strip()
@@ -370,10 +370,13 @@ class ToyRegressionUtils(ToyDataUtils):
     
 class BanditUtils:
     @staticmethod
-    def parse_features_and_action_to_note(action: int|str, row: Optional[pd.Series] = None, feature_columns: list[str]=[]):
+    def parse_features_and_action_to_note(action: int|str, row: Optional[pd.Series] = None, feature_columns: list[str]=[], decimal_places: int = 2):
         note_parts = []
         for feature in feature_columns:
-            note_parts.append(f"{feature} = {row[feature]}")
+            if isinstance(row[feature], float):
+                note_parts.append(f"{feature} = {row[feature]:.{decimal_places}f}")
+            else:
+                note_parts.append(f"{feature} = {row[feature]}")
         note_parts.append(f"action = {action}")
         # join note with ;
         return "; ".join(note_parts)

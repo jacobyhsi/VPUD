@@ -40,7 +40,7 @@ parser.add_argument("--num_modified_z", default=1, type=int)
 parser.add_argument("--num_random_z", default=1, type=int)
 parser.add_argument("--perturbation_std", default=1.0, type=float)
 parser.add_argument("--num_candidates", default=3, type=int)
-parser.add_argument("--decimal_places", default=1, type=int)
+parser.add_argument("--decimal_places", default=3, type=int)
 parser.add_argument("--num_outlier_pairs_to_remove", default=1, type=int)
 parser.add_argument("--std_method", default="default", type=str)
 parser.add_argument("--min_KL_rank", default=1, type=int)
@@ -127,10 +127,7 @@ class BanditRegressionExperiment:
     
     @property
     def D_feature_stds(self):
-        if not hasattr(self, "_D_feature_stds"):
-            self._D_feature_stds = self.D_rows[self.feature_columns].std().to_numpy().flatten()
-        else:
-            self._D_feature_stds = None
+        self._D_feature_stds = self.D_rows[self.feature_columns].std().to_numpy().flatten()
         return self._D_feature_stds
     
     @property
@@ -168,6 +165,7 @@ class BanditRegressionExperiment:
                     permutation_seed=permutation_seed, # to avoid seed collision
                     icl_z_note=icl_z_note,
                     icl_u_label=icl_u_label,
+                    decimal_places=self.config.decimal_places,
                 )
             
                 if self.config.verbose_output:
@@ -216,7 +214,9 @@ class BanditRegressionExperiment:
             
         for _ in range(100):
             if self.config.is_contextual_bandit:
-                new_value = self.rng.normal(np.array([float(x) for x in list(context.values())]), self.config.perturbation_std * self.D_feature_stds, len(self.feature_columns))
+                new_value = self.rng.normal(np.array([float(x) for x in list(context.values())]),
+                    self.config.perturbation_std * self.D_feature_stds, len(self.feature_columns)
+                )          
                 new_value = np.round(new_value, self.config.decimal_places)
                 if not any(np.array_equal(new_value, previous_z_value) for previous_z_value in self.previous_z_values):
                     self.previous_z_values.append(new_value)
@@ -229,14 +229,14 @@ class BanditRegressionExperiment:
             dict_data.update({"action": action})
             self.z_data = pd.DataFrame([dict_data])
             if self.config.is_contextual_bandit:
-                self.z_data["note"] = self.z_data.apply(lambda row: BanditClassificationUtils.parse_features_and_action_to_note(row=row, feature_columns=self.feature_columns, action=action), axis=1)
+                self.z_data["note"] = self.z_data.apply(lambda row: BanditClassificationUtils.parse_features_and_action_to_note(row=row, feature_columns=self.feature_columns, action=action, decimal_places=self.config.decimal_places), axis=1)
             else:
-                self.z_data["note"] = BanditClassificationUtils.parse_features_and_action_to_note(action=action)
+                self.z_data["note"] = BanditClassificationUtils.parse_features_and_action_to_note(action=action, decimal_places=self.config.decimal_places)
         else:
             modified_row = self.z_data.loc[z_idx-1].copy()
             modified_row[self.feature_columns] = new_value
             modified_row["action"] = action
-            modified_row["note"] = BanditClassificationUtils.parse_features_and_action_to_note(action=action, row=modified_row, feature_columns=self.feature_columns)
+            modified_row["note"] = BanditClassificationUtils.parse_features_and_action_to_note(action=action, row=modified_row, feature_columns=self.feature_columns, decimal_places=self.config.decimal_places)
             
             self.z_data.loc[z_idx] = modified_row
         
@@ -245,7 +245,7 @@ class BanditRegressionExperiment:
     def process_single_trial_action(self, trial: int, action: str|int, context: Optional[pd.Series] = None):
         self.previous_z_values = []
 
-        x = BanditClassificationUtils.parse_features_and_action_to_note(row=context, feature_columns=self.feature_columns, action=action)
+        x = BanditClassificationUtils.parse_features_and_action_to_note(row=context, feature_columns=self.feature_columns, action=action, decimal_places=self.config.decimal_places)
         
         # Compute p(y|x,D)
         pyx_gaussian, pyx_samples = self.calculate_gaussian(x, "p(y|x,D)")
@@ -299,7 +299,7 @@ class BanditRegressionExperiment:
             # Save            
             save_dict = {f"z_{feature}": row[feature] for feature in self.feature_columns}
             save_dict["z_note"] = z
-            save_dict_x = {f"x_{feature}": self.x_row.iloc[trial][feature] for feature in self.feature_columns}
+            save_dict_x = {f"x_{feature}": context[feature] for feature in self.feature_columns}
             save_dict_x["x_note"] = x
             save_dict = {**save_dict, **save_dict_x}
             save_dict[f"p(y|x,D)_mean"] = pyx_gaussian.mean
@@ -376,31 +376,35 @@ class BanditRegressionExperiment:
         
         if self.config.uncertainty_type == "ucb1":
             self.UCB1_algorithm.update(action_taken, reward)
-        
-        if self.config.is_contextual_bandit:
-            context["action"] = action_taken
-            context["label"] = reward
-            context["regret"] = regret
-            context["note"] = BanditClassificationUtils.parse_features_and_action_to_note(context, self.feature_columns, action_taken)
+            
+        if isinstance(context, pd.Series | pd.DataFrame):
+            trial_df = context
         else:
-            context = pd.DataFrame({"action": [action_taken], "label": [reward], "regret": [regret]})
-            context["note"] = BanditClassificationUtils.parse_features_and_action_to_note(action_taken)
+            if self.config.is_contextual_bandit:
+                trial_df = pd.DataFrame({key: [value] for key, value in context.items()})
+                trial_df["note"] = BanditClassificationUtils.parse_features_and_action_to_note(action=action_taken, row=context, feature_columns = self.feature_columns, decimal_places=self.config.decimal_places)
+            else:
+                trial_df = pd.DataFrame({"note": [BanditClassificationUtils.parse_features_and_action_to_note(action_taken, decimal_places=self.config.decimal_places)]})
+                
+        trial_df["action"] = action_taken
+        trial_df["label"] = reward
+        trial_df["regret"] = regret
         
-        context["trial"] = trial
-        context["optimal_action"] = self.bandit.optimal_action()
+        trial_df["trial"] = trial
+        trial_df["optimal_action"] = self.bandit.optimal_action()
         
         if not is_random_action:
             for action in self.action_space:
-                context[f"Q_value_{action}"] = self.Q_values[action]
+                trial_df[f"Q_value_{action}"] = self.Q_values[action]
             for action in self.action_space:
-                context[f"U_value_{action}"] = self.U_values[action]
+                trial_df[f"U_value_{action}"] = self.U_values[action]
             for action in self.action_space:
-                context[f"UCB_value_{action}"] = self.UCB_values[action]
+                trial_df[f"UCB_value_{action}"] = self.UCB_values[action]
           
         if trial == 0:
-            self.D_rows = context
+            self.D_rows = trial_df
         else:
-            self.D_rows = pd.concat([self.D_rows, context], ignore_index=True)
+            self.D_rows = pd.concat([self.D_rows, trial_df], ignore_index=True)
             
         self.save_D_rows()
     
