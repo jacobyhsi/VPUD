@@ -19,6 +19,7 @@ pd.set_option('display.max_columns', None)
 parser = argparse.ArgumentParser(description='Running Toy Classification')
 
 parser.add_argument("--model_name", default="Qwen/Qwen2.5-14B", type=str)
+parser.add_argument("--model_port", default="8000", type=str)
 
 parser.add_argument("--bandit_name", default="buttons_regression", type=str)
 parser.add_argument("--bandit_num_arms", default=5, type=int)
@@ -55,6 +56,7 @@ args = parser.parse_args()
 @dataclass
 class BanditRegressionExperimentConfig:
     model_name: str
+    model_port: str
     bandit_name: str
     bandit_num_arms: int
     bandit_gap: float
@@ -173,7 +175,7 @@ class BanditRegressionExperiment:
                     print(prompt)
 
                 # Get the prediction and probabilities from the model
-                response = chat_response_only(prompt, seed=permutation_seed, model=self.config.model_name)
+                response = chat_response_only(prompt, seed=permutation_seed, model=self.config.model_name, port=self.config.model_port)
                                 
                 self.num_api_calls += 1     
                 attempts += 1        
