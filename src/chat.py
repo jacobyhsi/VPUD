@@ -2,8 +2,8 @@ import requests
 import math
 from openai import OpenAI
 
-def chat(message: str, label_keys, seed: int, model: str ="Qwen/Qwen2.5-14B"):
-    url = "http://localhost:8000/v1/completions"
+def chat(message: str, label_keys, seed: int, model: str ="Qwen/Qwen2.5-14B", port: str = "8000"):
+    url = f"http://localhost:{port}/v1/completions"
     headers = {"Content-Type": "application/json"}
     data = {
         "model": model,
@@ -38,8 +38,8 @@ def chat(message: str, label_keys, seed: int, model: str ="Qwen/Qwen2.5-14B"):
 
     return text_output, normalized_probs
 
-def chat_response_only(message: str, seed: int, max_tokens: int=10, model: str="Qwen/Qwen2.5-14B"):
-    url = "http://localhost:8000/v1/completions"
+def chat_response_only(message: str, seed: int, max_tokens: int=10, model: str="Qwen/Qwen2.5-14B", port: str="8000"):
+    url = f"http://localhost:{port}/v1/completions"
     headers = {"Content-Type": "application/json"}
     data = {
         "model": model,
