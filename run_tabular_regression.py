@@ -326,7 +326,7 @@ if __name__ == "__main__":
     parser.add_argument("--seed", default=123)
     parser.add_argument("--id_dataset", default="iris")
     parser.add_argument("--ood_dataset", default="beijing")
-    parser.add_argument("--num_seeds", default=5, type=int)
+    parser.add_argument("--num_seeds", default=10, type=int)
     parser.add_argument("--distb", default="OOD")
     parser.add_argument("--num_outlier_pairs_to_remove", default=1, type=int)
     args = parser.parse_args()
