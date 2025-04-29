@@ -36,6 +36,7 @@ parser.add_argument("--shots", default=3, type=int)
 parser.add_argument("--num_permutations", default="5", type=int)
 parser.add_argument("--num_modified_z", default=3, type=int)
 parser.add_argument("--num_random_z", default=3, type=int)
+parser.add_argument("--perturb_about_x", default=1, type=int)
 parser.add_argument("--perturbation_std", default=1.0, type=float)
 parser.add_argument("--num_candidates", default=3, type=int)
 parser.add_argument("--decimal_places", default=1, type=int)
@@ -66,6 +67,7 @@ class ToyClassificationExperimentConfig:
     x_sample_seed: int
     num_modified_z: int
     num_random_z: int
+    perturb_about_x: int
     perturbation_std: float
     num_candidates: int
     num_permutations: int
@@ -120,6 +122,7 @@ class ToyClassificationExperiment:
         self.num_x_values = len(self.x_row)
 
         D_rows = data.sample(n=self.config.shots, random_state=self.config.icl_sample_seed)
+        self.D_feature_means = D_rows[self.feature_columns].mean().to_numpy()
         self.D_feature_stds = D_rows[self.feature_columns].std().to_numpy()
 
         self.D_note_label_df = D_rows[['note', 'label']]
@@ -183,7 +186,10 @@ class ToyClassificationExperiment:
     def get_next_z(self, z_idx: int, x_idx: int):
         if z_idx < self.config.num_random_z:
             for _ in range(100):
-                new_value = np.random.normal(self.x_row.iloc[x_idx][self.feature_columns].to_numpy(np.float32), self.config.perturbation_std * self.D_feature_stds, len(self.feature_columns))
+                if self.config.perturb_about_x:
+                    new_value = np.random.normal(self.x_row.iloc[x_idx][self.feature_columns].to_numpy(np.float32), self.config.perturbation_std * self.D_feature_stds, len(self.feature_columns))
+                else:
+                    new_value = np.random.normal(self.D_feature_means, self.config.perturbation_std * self.D_feature_stds, len(self.feature_columns))
                 new_value = np.round(new_value, self.config.decimal_places)
                 if not any(np.array_equal(new_value, previous_z_value) for previous_z_value in self.previous_z_values):
                     self.previous_z_values.append(new_value)
