@@ -6,9 +6,10 @@ python run_toy_classification.py \
     --shots $i \
     --num_modified_z 5 \
     --num_random_z 5 \
-    --save_directory llama8b/experiment_5 \
+    --save_directory llama8b/experiment_5/seed_$1 \
     --run_name ${i}_shot_5_z_10_perm \
     --num_permutations 10 \
     --perturbation_std 0.1 \
+    --icl_sample_seed $1 \
     --model_name meta-llama/Meta-Llama-3-8B --model_port 7000
 done
