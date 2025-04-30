@@ -1,0 +1,9 @@
+{
+    "label": "UNS",
+    "map": {
+        "0": "Very Low",
+        "1": "Low",
+        "2": "Middle",
+        "3": "High"
+    }
+}
