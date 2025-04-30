@@ -6,6 +6,7 @@ import pandas as pd
 import scipy.stats as stats
 from typing import Optional
 from itertools import product
+from chat import chat_qa
 
 # Helper Functions
 
@@ -101,101 +102,8 @@ def extract(text):
 
 def calculate_radius(row, center):
         return np.linalg.norm(row - center)
-    
-class TabularUtils:
-    @staticmethod
-    # def perturb_z(data, z_row, z_samples=10):
-    #     # Identify all feature columns to perturb (exclude 'note' and 'label')
-    #     features_to_perturb = [col for col in data.columns if col not in ['note', 'label']]
-        
-    #     # Precompute unique values for each feature
-    #     unique_vals = {feature: data[feature].dropna().unique() for feature in features_to_perturb}
-        
-    #     perturbed_rows = []
-        
-    #     for _ in range(z_samples):
-    #         modified_row = z_row.copy()
-    #         # Get the current note string (assuming z_row has one row)
-    #         new_note = modified_row['note'].iloc[0]
-            
-    #         # Perturb all features by randomly assigning new values
-    #         for feature in features_to_perturb:
-    #             original_value = modified_row[feature].iloc[0]
-    #             possible_vals = unique_vals[feature]
 
-    #             # Exclude the original value if alternative values exist
-    #             alt_vals = [val for val in possible_vals if val != original_value]
-    #             if alt_vals:
-    #                 new_value = np.random.choice(alt_vals)
-    #             else:
-    #                 new_value = original_value  # If no alternative values, keep it the same
-
-    #             modified_row[feature] = new_value
-                
-    #             # Update the note string using regex substitution with a lambda for safety
-    #             pattern = rf'({re.escape(feature)} = )(.*?)(\.|$)'
-    #             new_note = re.sub(pattern, lambda m: f"{m.group(1)}{new_value}{m.group(3)}", new_note)
-            
-    #         modified_row['note'] = new_note
-    #         perturbed_rows.append(modified_row)
-        
-    #     z_data = pd.concat(perturbed_rows, ignore_index=True)
-
-    #     # for i, row in z_data.iterrows():
-    #         # print(f"z_{i}: {row['note']}")
-
-    #     return z_data
-
-    # def perturb_all_z(data, z_row, df_D, radius_list=[1.0,3.0,5.0], samples_per_radius=10):
-    #     # Convert relevant columns explicitly to numeric
-    #     for df in [data, df_D, z_row]:
-    #         for col in df.columns:
-    #             if col not in ['note', 'label']:
-    #                 df[col] = pd.to_numeric(df[col], errors='coerce')
-
-    #     numeric_cols = [col for col in data.columns if col not in ['note', 'label'] and data[col].notna().all()]
-    #     features_to_perturb = numeric_cols
-
-    #     center_point = df_D[features_to_perturb].mean().values
-
-    #     feature_ranges = {
-    #         feature: (data[feature].min(), data[feature].max())
-    #         for feature in features_to_perturb
-    #     }
-
-    #     perturbed_rows = []
-
-    #     for radius in radius_list:
-    #         for _ in range(samples_per_radius):
-    #             modified_row = z_row.copy()
-    #             new_note = modified_row['note'].iloc[0]
-
-    #             w = np.random.normal(0, 1, len(features_to_perturb))
-    #             w_normalized = w / np.linalg.norm(w)
-
-    #             perturbation = w_normalized * np.sqrt(radius)
-    #             perturbed_point = center_point + perturbation
-
-    #             for idx, feature in enumerate(features_to_perturb):
-    #                 original_value = modified_row[feature].iloc[0]
-    #                 min_val, max_val = feature_ranges[feature]
-    #                 # Round final perturbed value to integer
-    #                 new_value = np.clip(perturbed_point[idx], min_val, max_val)
-    #                 new_value = int(round(new_value))
-
-    #                 modified_row[feature] = new_value
-
-    #                 pattern = rf'({re.escape(feature)} = )(.*?)(\.|$)'
-    #                 new_note = re.sub(pattern, lambda m: f"{m.group(1)}{new_value}{m.group(3)}", new_note)
-
-    #             modified_row['note'] = new_note
-    #             perturbed_rows.append(modified_row)
-
-    #     z_data = pd.concat(perturbed_rows, ignore_index=True)
-
-    #     return z_data
-
-
+class QAUtils:
     def perturb_z(data, x_row, z_samples, range_fraction=0.1): # perturbing z around the x
         # Identify all feature columns to perturb (exclude 'note' and 'label')
         features_to_perturb = [col for col in data.columns if col not in ['note', 'label']]
@@ -247,152 +155,59 @@ class TabularUtils:
         z_data = pd.concat(perturbed_rows, ignore_index=True, axis=1).T
             
         return z_data
+    
+class TabularUtils:
+    def perturb_z(data, x_row, z_samples, range_fraction=0.1): # perturbing z around the x
+        # Identify all feature columns to perturb (exclude 'note' and 'label')
+        features_to_perturb = [col for col in data.columns if col not in ['note', 'label']]
+        
+        # Compute min and max for numerical features
+        feature_ranges = {feature: (data[feature].min(), data[feature].max()) 
+                        for feature in features_to_perturb if np.issubdtype(data[feature].dtype, np.number)}
+        feature_std = {feature: data[feature].std() for feature in features_to_perturb if np.issubdtype(data[feature].dtype, np.number)}
+        perturbed_rows = []
 
-    # def perturb_all_x(data, x_row, df_D, radius_list=[1.0, 5.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0], samples_per_radius=10, max_attempts=1000):
-    #     # Convert relevant columns explicitly to numeric
-    #     for df in [data, df_D, x_row]:
-    #         for col in df.columns:
-    #             if col not in ['note', 'label']:
-    #                 df[col] = pd.to_numeric(df[col], errors='coerce')
+        for _ in range(z_samples):
+            modified_row = x_row.copy()
+            new_note = modified_row['note']
 
-    #     numeric_cols = [col for col in data.columns if col not in ['note', 'label'] and data[col].notna().all()]
-    #     features_to_perturb = numeric_cols
-    #     num_features = len(features_to_perturb)
+            for feature in features_to_perturb:
+                original_value = modified_row[feature]
+                x_value = x_row[feature]
 
-    #     center_point = df_D[features_to_perturb].mean().values
-    #     df_D['radius'] = df_D[features_to_perturb].apply(lambda row: calculate_radius(row.values, center_point), axis=1)
+                if feature in feature_ranges:
+                    # Numerical feature: Perturb within a fraction of its range around x
+                    # min_val, max_val = feature_ranges[feature]
+                    # delta = range_fraction * (max_val - min_val)
+                    
+                    # lower_bound = max(min_val, x_value - delta)
+                    # upper_bound = min(max_val, x_value + delta)
+                    
+                    # new_value = np.random.uniform(lower_bound, upper_bound)
+                    new_value = np.random.normal(loc=x_value, scale=feature_std[feature] * range_fraction)
+                    new_value = round(new_value, 1)  # Round to avoid excessive decimals
+                else:
+                    # Categorical feature: Sample similar values
+                    possible_vals = data[feature].dropna().unique()
+                    alt_vals = [val for val in possible_vals if val != x_value]  # Exclude x value
+                    
+                    if alt_vals:
+                        new_value = np.random.choice(alt_vals)
+                    else:
+                        new_value = original_value  # Keep the same if no alternatives
 
-    #     df_D.to_csv(f"df_D_all.csv", index=False)
+                modified_row[feature] = new_value
+                
+                # Update the note string using regex substitution
+                note_dict = {f: modified_row[f] for f in features_to_perturb}
+                new_note = ", ".join([f"{k} = {v}" for k, v in note_dict.items()])
 
-    #     feature_ranges = {
-    #         feature: (data[feature].min(), data[feature].max())
-    #         for feature in features_to_perturb
-    #     }
+            modified_row['note'] = new_note
+            perturbed_rows.append(modified_row)
 
-    #     perturbed_rows = []
-
-    #     for radius in radius_list:
-    #         samples_collected = 0
-    #         attempts = 0
-
-    #         while samples_collected < samples_per_radius and attempts < max_attempts:
-    #             attempts += 1
-    #             w = np.random.normal(0, 1, num_features)
-    #             w_normalized = w / np.linalg.norm(w)
-    #             perturbation = w_normalized * radius
-    #             perturbed_point = center_point + perturbation
-
-    #             # Check if all features are within valid ranges
-    #             in_range = True
-    #             for idx, feature in enumerate(features_to_perturb):
-    #                 min_val, max_val = feature_ranges[feature]
-    #                 if not (min_val <= perturbed_point[idx] <= max_val):
-    #                     in_range = False
-    #                     break
-
-    #             if not in_range:
-    #                 continue  # Reject and resample
-
-    #             # If in range, apply the perturbation
-    #             modified_row = x_row.copy()
-    #             new_note = modified_row['note'].iloc[0]
-
-    #             for idx, feature in enumerate(features_to_perturb):
-    #                 new_value = int(round(perturbed_point[idx]))
-    #                 modified_row[feature] = new_value
-
-    #                 # Update note using regex substitution
-    #                 pattern = rf'({re.escape(feature)} = )(.*?)(\.|$)'
-    #                 new_note = re.sub(pattern, lambda m: f"{m.group(1)}{new_value}{m.group(3)}", new_note)
-
-    #             modified_row['note'] = new_note
-    #             modified_row['radius'] = radius
-    #             perturbed_rows.append(modified_row)
-    #             samples_collected += 1
-
-    #         if samples_collected < samples_per_radius:
-    #             print(f"[Warning] Only collected {samples_collected}/{samples_per_radius} samples for radius {radius}. May be too large.")
-
-    #     x_data = pd.concat(perturbed_rows, ignore_index=True)
-    #     return x_data
-
-    # def perturb_all_x(data, x_row, df_D, radius_list=[1.0, 5.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0], samples_per_radius=10, max_attempts=1000): # 6/4/2025
-    #     # Convert relevant columns explicitly to numeric
-    #     for df in [data, df_D, x_row]:
-    #         for col in df.columns:
-    #             if col not in ['note', 'label']:
-    #                 df[col] = pd.to_numeric(df[col], errors='coerce')
-
-    #     # Identify numeric features to perturb
-    #     numeric_cols = [col for col in data.columns if col not in ['note', 'label'] and data[col].notna().all()]
-    #     features_to_perturb = numeric_cols
-    #     num_features = len(features_to_perturb)
-
-    #     # Store ICL values for nearest-neighbor computation
-    #     df_D_values = df_D[features_to_perturb].values
-
-    #     # Save df_D for logging/debugging
-    #     df_D.to_csv("df_D_all.csv", index=False)
-
-    #     # Define valid range for each feature
-    #     feature_ranges = {
-    #         feature: (data[feature].min(), data[feature].max())
-    #         for feature in features_to_perturb
-    #     }
-
-    #     perturbed_rows = []
-
-    #     # Use radius_list to scale how far from the ICL centroid we explore
-    #     center_point = df_D[features_to_perturb].mean().values
-
-    #     for radius in radius_list:
-    #         samples_collected = 0
-    #         attempts = 0
-
-    #         while samples_collected < samples_per_radius and attempts < max_attempts:
-    #             attempts += 1
-
-    #             # Random direction & perturbation
-    #             w = np.random.normal(0, 1, num_features)
-    #             w_normalized = w / np.linalg.norm(w)
-    #             perturbation = w_normalized * radius
-    #             perturbed_point = center_point + perturbation
-
-    #             # Validate perturbed point is within bounds
-    #             in_range = all(
-    #                 feature_ranges[features_to_perturb[i]][0] <= perturbed_point[i] <= feature_ranges[features_to_perturb[i]][1]
-    #                 for i in range(num_features)
-    #             )
-    #             if not in_range:
-    #                 continue  # Resample
-
-    #             # Apply perturbation to copy of x_row
-    #             modified_row = x_row.copy()
-    #             new_note = modified_row['note'].iloc[0]
-
-    #             for idx, feature in enumerate(features_to_perturb):
-    #                 new_value = int(round(perturbed_point[idx]))
-    #                 modified_row[feature] = new_value
-
-    #                 # Update note text
-    #                 pattern = rf'({re.escape(feature)} = )(.*?)(\.|$)'
-    #                 new_note = re.sub(pattern, lambda m: f"{m.group(1)}{new_value}{m.group(3)}", new_note)
-
-    #             modified_row['note'] = new_note
-
-    #             # Compute distance to nearest ICL example
-    #             distances = np.linalg.norm(df_D_values - perturbed_point, axis=1)
-    #             min_distance = np.min(distances)
-    #             modified_row['radius'] = min_distance  # You can rename this field if preferred
-
-    #             perturbed_rows.append(modified_row)
-    #             samples_collected += 1
-
-    #         if samples_collected < samples_per_radius:
-    #             print(f"[Warning] Only collected {samples_collected}/{samples_per_radius} samples for radius {radius}. May be too large.")
-
-    #     x_data = pd.concat(perturbed_rows, ignore_index=True)
-    #     return x_data
+        z_data = pd.concat(perturbed_rows, ignore_index=True, axis=1).T
+            
+        return z_data
 
     def perturb_all_x(
         data, x_row, df_D,
@@ -474,7 +289,6 @@ class TabularUtils:
         x_data = pd.concat(perturbed_rows, ignore_index=True)
         return x_data
 
-
     def perturb_x(data, x_row, feature_to_perturb): # perturb within min and max range
         # Ensure the feature exists in the dataset
         if feature_to_perturb not in data.columns:
@@ -513,40 +327,6 @@ class TabularUtils:
 
         return x_data
 
-
-    # def perturb_x(data, x_row, feature_to_perturb): # original perturb x where we pick 1 feature to perturb
-    #     # Get all unique values for the specified feature
-        
-    #     if feature_to_perturb not in data.columns:
-    #         print(f"Feature '{feature_to_perturb}' not found in the dataset.")
-    #         print(f"Please reselect a feature from the following list: {data.columns}")
-    #         raise ValueError("Invalid feature selection.")
-
-    #     possible_vals = data[feature_to_perturb].dropna().unique()
-        
-    #     perturbed_rows = []
-        
-    #     for new_value in possible_vals:
-    #         modified_row = x_row.copy()
-            
-    #         # Update the feature with the new value
-    #         modified_row[feature_to_perturb] = new_value
-            
-    #         # Update the note using regex substitution
-    #         original_note = modified_row['note'].iloc[0]
-    #         pattern = rf'({re.escape(feature_to_perturb)} = )(.*?)(\.|$)'
-    #         new_note = re.sub(pattern, lambda m: f"{m.group(1)}{new_value}{m.group(3)}", original_note)
-
-    #         modified_row['note'] = new_note
-    #         perturbed_rows.append(modified_row)
-        
-    #     x_data = pd.concat(perturbed_rows, ignore_index=True)
-
-    #     # for i, row in x_data.iterrows():
-    #     #     print(f"x_{i}: {row['note']}")
-
-    #     return x_data
-    
     @staticmethod
     def parse_note_to_features(note, feature=None):
         features = {}

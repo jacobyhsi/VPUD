@@ -42,3 +42,6 @@ python run_tabular.py 2>&1 | tee run_tabular.log
 # scontrol show node rosetta | grep -E 'CPUTot|RealMemory|Gres|AllocTRES'
 # scontrol show node voyager | grep -E 'CPUTot|RealMemory|Gres|AllocTRES'
 srun -A rahul -q rahul -p rahul -c 32 -w voyager --mem=64G --gres=gpu:2 --pty bash --login
+
+python run_tabular.py --distb ID
+python run_tabular.py --distb OOD

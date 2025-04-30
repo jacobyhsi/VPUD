@@ -43,15 +43,143 @@ class Dataset():
     def load_data(self, data_path):
         raise NotImplementedError
 
+class QADataset:
+    """
+    A minimal loader for yes/no QA datasets.
+    Currently supports:
+        • "boolq"  (Boolean Questions, Google Search)
+    Extendable by adding new branches in `_load_boolq`-style.
+    """
+
+    def __init__(self, name: str = "boolq", seed: int = 123):
+        self.name = name.lower()
+        self.seed = seed
+
+    # ──────────────────────────────────────────────────────────
+    # public API
+    # ──────────────────────────────────────────────────────────
+    def load_data(self, test_size: float = 0.2):
+        """
+        Returns:
+            train_df,  test_df,  label_keys
+        where
+            • label_keys == ["no", "yes"]   (0 / 1)
+            • each DataFrame has columns:  note, label, question, passage
+        """
+        if self.name == "boolq":
+            return self._load_boolq(test_size)
+
+        raise ValueError(f"Dataset '{self.name}' not supported yet.")
+
+    # ──────────────────────────────────────────────────────────
+    # internal helpers
+    # ──────────────────────────────────────────────────────────
+    def _load_boolq(self, test_size: float):
+        """
+        BoolQ has two predefined splits (train / validation).
+        We merge them and re-split with `test_size` so callers
+        always get a fresh random split that respects class balance.
+        """
+        ds = load("boolq")                          # HF dataset object
+        df_train = pd.DataFrame(ds["train"])
+        df_val = pd.DataFrame(ds["validation"])
+        df_all = pd.concat([df_train, df_val], ignore_index=True)
+
+        df_all = df_all.sample(n=500, random_state=self.seed).reset_index(drop=True)
+
+        # rename + encode label
+        df_all = df_all.rename(columns={"answer": "label"})
+        df_all["label"] = df_all["label"].astype(int)    # False→0, True→1
+
+        # build note
+        df_all["note"] = (
+            "Question: " + df_all["question"].str.lower() + " Context: " + df_all["passage"].str.lower()
+        )
+
+        # keep consistent order
+        df_all = df_all[["note", "label"]]
+
+        # stratified split ensures 50/50 yes-no distribution in each split
+        train_df, test_df = train_test_split(
+            df_all,
+            test_size=test_size,
+            random_state=self.seed,
+            stratify=df_all["label"],
+        )
+
+        label_keys = ["no", "yes"]
+        return (
+            train_df.reset_index(drop=True),
+            test_df.reset_index(drop=True),
+            label_keys,
+        )
+
+    def generate_ood(self, test_size: float = 0.2):
+        """
+        Out-of-Domain data using PubMedQA (pqa_labeled config).
+
+        Returns
+        -------
+        ood_train, ood_test : pandas.DataFrame
+            Columns: note, label, question, passage
+            • label is fixed to -1 (unknown) for all OOD rows.
+        """
+        if self.name != "boolq":
+            raise RuntimeError("generate_ood is implemented only when ID == BoolQ")
+
+        # 1) we used 500 BoolQ examples → match that size here
+        id_samples = 500
+
+        # 2) load PubMedQA -- only 'train' split exists for pqa_labeled
+        pqa = load("pubmed_qa", "pqa_labeled")
+        pqa_df = pd.DataFrame(pqa["train"])
+
+        # 3) keep strict yes/no examples
+        pqa_df = pqa_df[pqa_df["final_decision"].isin(["yes", "no"])]
+
+        # 4) choose a passage (long answer preferred, else first context sentence)
+        def take_passage(row):
+            la = row.get("long_answer", "")
+            if isinstance(la, str) and la.strip():
+                return la.strip()
+            ctx = row.get("context", [])
+            return ctx[0].strip() if isinstance(ctx, list) and ctx else ""
+
+        pqa_df["passage"] = pqa_df.apply(take_passage, axis=1)
+
+        # 5) sample to match ID size
+        pqa_df = pqa_df.sample(
+            n=min(id_samples, len(pqa_df)), random_state=self.seed
+        ).reset_index(drop=True)
+
+        # 6) construct BoolQ-style columns
+        pqa_df["question"] = pqa_df["question"].str.strip()
+        pqa_df["note"] = (
+            "Question: " + pqa_df["question"].str.lower() + " Context: " + pqa_df["passage"].str.lower()
+        )
+        pqa_df["label"] = -1  # hide true label
+
+        # 7) final ordering identical to _load_boolq
+        ood_df = pqa_df[["note", "label"]]
+
+        # 8) split
+        ood_train, ood_test = train_test_split(
+            ood_df, test_size=test_size, random_state=self.seed, stratify=None
+        )
+        return ood_train.reset_index(drop=True), ood_test.reset_index(drop=True)
+
 class TabularDataset:
     def __init__(self, dataset_id: int, seed: int = 123):
         self.dataset_id = dataset_id
         self.seed = seed
 
-    def load_data(self, config_path, label):
+    def load_data(self, config_path, label, test_size=0.8):
         # Load dataset using ucimlrepo
         uci_dataset = fetch_ucirepo(id=self.dataset_id)
         df = pd.concat([uci_dataset.data.features, uci_dataset.data.targets], axis=1)
+
+        if self.dataset_id == 257: # user
+            df['UNS'] = df['UNS'].replace('very_low', 'Very Low')
 
         # Rename label column to "label" if needed
         if label != "label":
@@ -84,12 +212,12 @@ class TabularDataset:
         else:
             stratify_param = df["label"]
 
-        train_df, test_df = train_test_split(df, test_size=0.6, random_state=self.seed, stratify=stratify_param)
+        train_df, test_df = train_test_split(df, test_size=test_size, random_state=self.seed, stratify=stratify_param)
 
         # return train_df.reset_index(drop=True), test_df.reset_index(drop=True)
         return train_df.reset_index(drop=True), test_df.reset_index(drop=True), label_keys
 
-    def generate_ood(self, ood_id):
+    def generate_ood(self, ood_id, test_size=0.8):
         # Load ID
         id_data = fetch_ucirepo(id=self.dataset_id)
         id_df = id_data.data.features.copy()
@@ -106,6 +234,15 @@ class TabularDataset:
                 ood_features = ['hour', 'DEWP', 'TEMP']
             elif ood_id == 296:
                 ood_features = ['time_in_hospital', 'num_procedures', 'num_medications']
+        elif self.dataset_id == 763: # mines
+            if ood_id == 381:
+                ood_features = ['hour', 'DEWP', 'TEMP']
+            elif ood_id == 296:
+                ood_features = ['time_in_hospital', 'num_procedures', 'num_medications']
+        elif self.dataset_id == 257: # breast
+            if ood_id == 381:
+                ood_features = ['day', 'hour', 'DEWP', 'TEMP', 'PRES']
+
         # regression
         elif self.dataset_id == 55: # estate
             if ood_id == 381: # beijing
@@ -141,7 +278,7 @@ class TabularDataset:
         ood_final = ood_normalized[id_df_columns + ['label', 'note']]
 
         ood_train, ood_test = train_test_split(
-                ood_final, test_size=0.8, random_state=self.seed
+                ood_final, test_size=test_size, random_state=self.seed
             )
 
         return ood_train.reset_index(drop=True), ood_test.reset_index(drop=True)

@@ -5,10 +5,10 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from tqdm import tqdm
-from src.dataset import TabularDataset
+from src.dataset import QADataset
 from src.prompt import Prompt
 from src.chat import chat_tabular
-from src.utils import calculate_entropy, calculate_kl_divergence, TabularUtils
+from src.utils import calculate_entropy, calculate_kl_divergence, QAUtils
 
 # note to self: play around with num_seeds and z_samples
 
@@ -16,49 +16,11 @@ from src.utils import calculate_entropy, calculate_kl_divergence, TabularUtils
 def main():
     global_seed = int(args.seed)
 
-    print(f"Running {args.distb}")
+    args.id_dataset = "boolq"
 
-    args.id_dataset = "user"
-
-    # id
-    # classification
-    if args.id_dataset == "iris":
-        dataset_id = 53
-        dataset_label = "class"
-    elif args.id_dataset == "lenses":
-        dataset_id = 58
-        dataset_label = "class"
-    elif args.id_dataset == "mines":
-        dataset_id = 763
-        dataset_label = "M"
-    elif args.id_dataset == "user":
-        dataset_id = 257
-        dataset_label = "UNS"
-
-    # regression
-    elif args.id_dataset == "estate":
-        dataset_id = 477
-        dataset_label = "Y house price of unit area"
-
-    # ood
-    if args.ood_dataset == "beijing":
-        dataset_ood = 381
-    elif args.ood_dataset == "diabetes":
-        dataset_ood = 296
-
-    tabular_dataset = TabularDataset(dataset_id, global_seed)
-    train_id, test_id, label_keys = tabular_dataset.load_data(config_path=f"datasets_tabular/{args.id_dataset}" ,label=dataset_label)
-    train_ood, test_ood = tabular_dataset.generate_ood(dataset_ood)
-
-    print("len(train_id), len(test_id):", len(train_id), len(test_id))
-
-    # Switch between OOD and ID
-    if args.distb == "OOD":
-        train = train_ood
-        test = test_ood
-    else:
-        train = train_id
-        test = test_id
+    qa = QADataset(args.id_dataset)            # only dataset currently supported
+    train, test, label_keys = qa.load_data()
+    train_ood, test_ood = qa.generate_ood()
 
     # Sampling D as icl
     num_D = len(train) - 1
@@ -84,7 +46,7 @@ def main():
         min_Va_lst = []
         seed = 0
 
-        data_z = TabularUtils.perturb_z(data=df_D, x_row=x_row, z_samples=num_z)
+        data_z = QAUtils.perturb_z(data=df_D, x_row=x_row, z_samples=num_z)
         for i, row in tqdm(data_z.iterrows(), total=len(data_z), desc="Processing z perturbations"):
             seed = 0
             z = row['note']
