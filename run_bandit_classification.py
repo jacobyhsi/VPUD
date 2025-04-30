@@ -23,6 +23,7 @@ parser.add_argument("--model_port", default="8000", type=str)
 
 parser.add_argument("--bandit_name", default="buttons", type=str)
 parser.add_argument("--bandit_num_arms", default=5, type=int)
+parser.add_argument("--bandit_midpoint", default=0.5, type=float)
 parser.add_argument("--bandit_gap", default=0.2, type=float)
 parser.add_argument("--bandit_seed", default=0, type=int)
 parser.add_argument("--bandit_exploration_rate", default=2, type=float)
@@ -57,6 +58,7 @@ class BanditClassificationExperimentConfig:
     model_port: str
     bandit_name: str
     bandit_num_arms: int
+    bandit_midpoint: float
     bandit_gap: float
     bandit_seed: int
     bandit_exploration_rate: float
@@ -104,6 +106,7 @@ class BanditClassificationExperiment:
             bandit_name=self.config.bandit_name,
             num_arms=self.config.bandit_num_arms,
             gap=self.config.bandit_gap,
+            midpoint=self.config.bandit_midpoint,
             seed=self.config.bandit_seed,
         )
         

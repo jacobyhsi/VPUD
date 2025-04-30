@@ -53,13 +53,14 @@ class ClassificationBandit(MultiArmBandit):
 class RegressionBandit(MultiArmBandit):
     pass   
 class ButtonsBandit(ClassificationBandit):
-    def __init__(self, num_arms: int = 2, gap: float = 0.2, seed: int = 0, **kwargs):
+    def __init__(self, num_arms: int = 2, midpoint: float = 0.5, gap: float = 0.2, seed: int = 0, **kwargs):
         """
         Initialize the bandit with a number of buttons.
         """
         super().__init__(seed)
         self.num_arms = num_arms
         self.best_arm = self.rng.integers(0, num_arms)
+        self.midpoint = midpoint
         self.gap = gap
     
     def get_reward(self, action: int|str) -> float|int:
@@ -74,9 +75,9 @@ class ButtonsBandit(ClassificationBandit):
             raise ValueError(f"Action {action} is not a valid arm.")
         
         if action == self.best_arm:
-            reward = self.rng.binomial(1, 0.5 + self.gap*0.5)
+            reward = self.rng.binomial(1, self.midpoint + self.gap*0.5)
         else:
-            reward = self.rng.binomial(1, 0.5 - self.gap*0.5)
+            reward = self.rng.binomial(1, self.midpoint - self.gap*0.5)
 
         return reward
     
@@ -85,7 +86,7 @@ class ButtonsBandit(ClassificationBandit):
         Get the optimal mean reward for a given button action.
         """
         
-        return 0.5 + self.gap*0.5
+        return self.midpoint + self.gap*0.5
     
     def get_action_space(self) -> list:
         """
@@ -274,7 +275,7 @@ class WheelBandit(ClassificationBandit):
             raise NotImplementedError("Bug")
     
 class ButtonsRegressionBandit(RegressionBandit):
-    def __init__(self, num_arms: int = 2, gap: float = 0.2, seed: int = 0, noise: float = 0.4, **kwargs):
+    def __init__(self, num_arms: int = 2, gap: float = 0.2, midpoint: float = 0.5, seed: int = 0, noise: float = 0.4, **kwargs):
         """
         Initialize the bandit with a number of buttons.
         """
@@ -282,6 +283,7 @@ class ButtonsRegressionBandit(RegressionBandit):
         self.num_arms = num_arms
         self.best_arm = self.rng.integers(0, num_arms)
         self.gap = gap
+        self.midpoint = midpoint
         self.noise = noise
     
     def get_reward(self, action: int|str) -> float|int:
@@ -296,9 +298,9 @@ class ButtonsRegressionBandit(RegressionBandit):
             raise ValueError(f"Action {action} is not a valid arm.")
         
         if action == self.best_arm:
-            reward = self.rng.normal(0.5 + self.gap/2, self.noise)
+            reward = self.rng.normal(self.midpoint + self.gap/2, self.noise)
         else:
-            reward = self.rng.normal(0.5 - self.gap/2, self.noise)
+            reward = self.rng.normal(self.midpoint - self.gap/2, self.noise)
 
         return np.round(reward,2)
     
@@ -307,7 +309,7 @@ class ButtonsRegressionBandit(RegressionBandit):
         Get the optimal mean reward for a given button action.
         """
         
-        return 0.5 + self.gap
+        return self.midpoint + self.gap
     
     def get_action_space(self) -> list:
         """
