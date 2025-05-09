@@ -32,9 +32,11 @@ parser.add_argument("--numpy_seed", default=0, type=int)
 parser.add_argument("--data_split_seed", default=0, type=int)
 parser.add_argument("--icl_sample_seed", default=0, type=int)
 parser.add_argument("--use_api_call_seed", default=0, type=int)
+parser.add_argument("--fixed_permutation_seed", default=0, type=int)
 
 parser.add_argument("--shots", default=3, type=int)
 parser.add_argument("--num_permutations", default="5", type=int)
+parser.add_argument("--permute_context", default=1, type=int)
 parser.add_argument("--num_modified_z", default=3, type=int)
 parser.add_argument("--num_random_z", default=3, type=int)
 parser.add_argument("--perturb_about_x", default=1, type=int)
@@ -61,6 +63,7 @@ class ToyClassificationExperimentConfig:
     data_split_seed: int
     icl_sample_seed: int
     use_api_call_seed: int
+    fixed_permutation_seed: int
     shots: int
     x_row_method: int
     num_x_samples: int
@@ -73,6 +76,7 @@ class ToyClassificationExperimentConfig:
     perturbation_std: float
     num_candidates: int
     num_permutations: int
+    permute_context: int
     decimal_places: int
     run_name: int
     experiment_type: str
@@ -156,7 +160,7 @@ class ToyClassificationExperiment:
                 prompt = self.prompter.get_general_prompt(
                     D_df=self.D_note_label_df,
                     query_note=query_note,
-                    permutation_seed=permutation_seed,
+                    permutation_seed=permutation_seed if self.config.permute_context else self.config.fixed_permutation_seed,
                     icl_z_note=icl_z_note,
                     icl_u_label=icl_u_label,
                 )
