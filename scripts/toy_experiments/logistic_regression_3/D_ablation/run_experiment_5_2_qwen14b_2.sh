@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for i in {5..75..10}; do
+for i in {85..135..10}; do
     python run_toy_classification.py \
         --x_range "{'x1': [-15, 20, 5]}" \
         --shots $i \
@@ -11,5 +11,6 @@ for i in {5..75..10}; do
         --num_permutations 10 \
         --perturbation_std 0.1 \
         --icl_sample_seed $1 \
-        --model_port 6000
+        --model_port 8080 \
+        --model_ip 146.169.47.184
 done
