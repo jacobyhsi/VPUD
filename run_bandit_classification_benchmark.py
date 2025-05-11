@@ -165,7 +165,7 @@ class BanditClassificationBenchmarkExperiment:
                 text_output = chat_response_only(
                     message=full_prompt,
                     seed=seed,
-                    max_tokens=self.config.max_tokens,
+                    max_tokens=self.config.max_tokens + attempt * 500,
                     temperature=self.config.temperature,
                     model=self.config.model_name,
                     port=self.config.model_port,
