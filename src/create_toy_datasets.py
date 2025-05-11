@@ -1,4 +1,5 @@
 import numpy as np
+import math
 import scipy.stats
 import scipy.special
 import pandas as pd
@@ -176,6 +177,77 @@ class MoonsData(ToyClassificationData):
             
             return dataset
         
+class SpiralData(ToyClassificationData):
+    @staticmethod
+    def rotate_point(point, angle):
+        """Rotate two point by an angle.
+
+        Parameters
+        ----------
+        point: 2d numpy array
+            The coordinate to rotate.
+        angle: float
+            The angle of rotation of the point, in degrees.
+
+        Returns
+        -------
+        2d numpy array
+            Rotated point.
+        """
+        rotation_matrix = np.array([[np.cos(angle), -np.sin(angle)], [np.sin(angle), np.cos(angle)]])
+        rotated_point = rotation_matrix.dot(point)
+        return rotated_point
+    
+    def generate_spiral(self, samples, start, end, angle, noise):
+        """Generate a spiral of points.
+
+        Given a starting end, an end angle and a noise factor, generate a spiral of points along
+        an arc.
+
+        Parameters
+        ----------
+        samples: int
+            Number of points to generate.
+        start: float
+            The starting angle of the spiral in degrees.
+        end: float
+            The end angle at which to rotate the points, in degrees.
+        angle: float
+            Angle of rotation in degrees.
+        noise: float
+            The noisyness of the points inside the spirals. Needs to be less than 1.
+        """
+        # Generate points from the square root of random data inside an uniform distribution on [0, 1).
+        points = math.radians(start) + np.sqrt(self.numpy_rng.random((samples, 1))) * math.radians(end)
+
+        # Apply a rotation to the points.
+        rotated_x_axis = np.cos(points) * points + self.numpy_rng.random((samples, 1)) * noise
+        rotated_y_axis = np.sin(points) * points + self.numpy_rng.random((samples, 1)) * noise
+
+        # Stack the vectors inside a samples x 2 matrix.
+        rotated_points = np.column_stack((rotated_x_axis, rotated_y_axis))
+        return np.apply_along_axis(self.rotate_point, 1, rotated_points, math.radians(angle))
+
+    def create_dataset(self, dataset_size: int, arms: int = 3, start: int = 0, end: int = 720, noise: float = 1.2, seed: int = 0, round_dp: int = 2):
+        # Create a list of the angles at which to rotate the arms.
+        # Either we find the angles automatically by dividing by the number of arms
+        # Or we just use the angle given by the user.
+        SCALE = 4
+        
+        self.numpy_rng = np.random.default_rng(seed)
+        
+        classes = np.empty((0, 3))
+        angles = [(360 / arms)* i for i in range(arms)]
+
+        for i, angle in enumerate(angles):
+            points = np.round(self.generate_spiral(dataset_size // arms, start, end, angle, noise)/SCALE, round_dp)
+            classified_points = np.hstack((points, np.full((dataset_size // arms, 1), i)))
+            classes = np.concatenate((classes, classified_points))
+        
+        dataset = pd.DataFrame(classes, columns=["x1", "x2", "label"]).rename_axis("index")  
+        dataset["label"] = dataset["label"].astype(int)
+        
+        return dataset      
 # Regression Datasets
         
 class LinearRegressionData(ToyRegressionData):
@@ -364,17 +436,24 @@ class VaryingLinearNoise(ToyRegressionData):
             return dataset    
         
 if __name__ == "__main__":
-    regression_data = VaryingLinearNoise("linear_noise_2")
+    # regression_data = VaryingLinearNoise("linear_noise_2")
     
-    regression_data.save_dataset(
+    # regression_data.save_dataset(
+    #     dataset_kwargs={
+    #         "num_features_per_mode": [50, 50, 100],
+    #         "mode_means": [-7.0, -1.0, 5.0],
+    #         "mode_stds": [0.75, 0.75, 1.0],
+    #         "mode_biases": [1.0, 1.0, -0.5],
+    #         "mode_coeffs": [0.75, 0.75, 0],
+    #         "noise_stds": [0.1, 0.1, 2],
+    #         "seed": 2,
+    #         "round_dp": 1
+    #     }
+    # )
+    
+    classification_data = SpiralData("spirals")
+    classification_data.save_dataset(
         dataset_kwargs={
-            "num_features_per_mode": [50, 50, 100],
-            "mode_means": [-7.0, -1.0, 5.0],
-            "mode_stds": [0.75, 0.75, 1.0],
-            "mode_biases": [1.0, 1.0, -0.5],
-            "mode_coeffs": [0.75, 0.75, 0],
-            "noise_stds": [0.1, 0.1, 2],
-            "seed": 2,
-            "round_dp": 1
+            "dataset_size": 3000,
         }
     )

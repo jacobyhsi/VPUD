@@ -38,13 +38,13 @@ def chat(message: str, label_keys, seed: int, model: str ="Qwen/Qwen2.5-14B", po
 
     return text_output, normalized_probs
 
-def chat_response_only(message: str, seed: int, max_tokens: int=10, model: str="Qwen/Qwen2.5-14B", port: str="8000", ip: str="localhost"):
+def chat_response_only(message: str, seed: int, max_tokens: int=10, temperature: float=1.0, model: str="Qwen/Qwen2.5-14B", port: str="8000", ip: str="localhost"):
     url = f"http://{ip}:{port}/v1/completions"
     headers = {"Content-Type": "application/json"}
     data = {
         "model": model,
         "prompt": message,
-        "temperature": 1.0,
+        "temperature": temperature,
         "max_tokens": max_tokens,
         "logprobs": 10,
         "seed": seed
