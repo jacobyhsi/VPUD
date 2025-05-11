@@ -71,7 +71,7 @@ red button: pressed {arm_count_2} times{average_reward_2}
 yellow button: pressed {arm_count_3} times{average_reward_3}
 purple button: pressed {arm_count_4} times{average_reward_4}
 
-Which button will you choose next? Remember, YOU MUST provide your final answer within the tags <Answer>COLOR<\Answer> where COLOR is one of blue, green, red, yellow, purple. Let’s think step by step to make sure we make a good choice."""
+Which button will you choose next? Remember, YOU MUST provide your final answer within the tags <Answer>COLOR</Answer> where COLOR is one of blue, green, red, yellow, purple. Let’s think step by step to make sure we make a good choice."""
 
 COLOUR_ACTIONS_TO_ARM = {
     "blue": 0,
