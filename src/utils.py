@@ -126,6 +126,37 @@ def calculate_min_Va_by_KL_rank(save_data: pd.DataFrame, num_valid_Va: int = 5, 
     
     return save_data
 
+def calculate_mean_Va_by_KL_rank(save_data: pd.DataFrame, num_valid_Va: int = 5, forward_kl = True, upper_bound_by_total_U = False, uncertainty_type: str = "entropic"):
+    aleatoric_key: str | None = None
+    epistemic_key: str | None = None
+    total_U: float | None = None
+    if uncertainty_type not in ["entropic", "variance"]:
+        raise ValueError("Invalid uncertainty type. Choose either 'entropic' or 'variance'.")
+    if uncertainty_type == "entropic":
+        total_U = save_data["H[p(y|x,D)]"][0]
+        aleatoric_key = "Va"
+        epistemic_key = "Ve"
+    elif uncertainty_type == "variance":
+        total_U = save_data["Var[y|x,D]"][0]
+        aleatoric_key = "Va_variance"
+        epistemic_key = "Ve_variance"
+    if forward_kl:
+        kl_values = save_data["kl_pyx_pyxz"]
+    else:
+        kl_values = save_data["kl_pyxz_pyx"]
+    # min kl values
+    min_kl_values = kl_values.nsmallest(num_valid_Va)
+    save_data["within_threshold"] = kl_values.isin(min_kl_values)
+    mean_Va = save_data[save_data["within_threshold"]][aleatoric_key].mean()
+    save_data["z_value_for_min_Va"] = save_data[aleatoric_key].apply(lambda x: x == mean_Va)
+    if upper_bound_by_total_U:
+        mean_Va = min(mean_Va, total_U)
+    save_data[f"min_{aleatoric_key}"] = mean_Va
+    max_Ve = round(total_U - mean_Va, 5)
+    save_data[f"max_{epistemic_key}"] = max_Ve
+    
+    return save_data
+
 def extract(text, tag_text: str = "output"):
     match = re.search(fr'(.*?)</{tag_text}>', text, re.DOTALL | re.IGNORECASE)
     if match:

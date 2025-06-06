@@ -21,6 +21,7 @@ parser.add_argument("--dataset_name", default="logistic_regression_3")
 parser.add_argument("--model_name", default="Qwen/Qwen2.5-14B", type=str)
 parser.add_argument("--model_port", default="8000", type=str)
 parser.add_argument("--model_ip", default="localhost", type=str)
+parser.add_argument("--is_local_client", default=1, type=int)
 
 parser.add_argument("--x_row_method", default="x_range")
 parser.add_argument("--num_x_samples", default=1, type=int)
@@ -59,6 +60,7 @@ class ToyClassificationExperimentConfig:
     model_name: str
     model_port: str
     model_ip: str
+    is_local_client: int
     numpy_seed: int
     data_split_seed: int
     icl_sample_seed: int
@@ -170,7 +172,7 @@ class ToyClassificationExperiment:
                     print(prompt)
 
                 # Get the prediction and probabilities from the model
-                pred, probs = chat(prompt, self.label_keys, seed=permutation_seed, model=self.config.model_name, port=self.config.model_port, ip=self.config.model_ip)
+                pred, probs = chat(prompt, self.label_keys, seed=permutation_seed, model=self.config.model_name, port=self.config.model_port, ip=self.config.model_ip, is_local_client=self.config.is_local_client)
                 
                 self.num_api_calls += 1
                 
