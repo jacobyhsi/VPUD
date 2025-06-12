@@ -30,7 +30,9 @@ vllm serve "Qwen/Qwen2.5-14B" --dtype auto --tensor-parallel-size 1 --max_model_
 
 ## Experiments
 
-**Toy Datasets:**
+### Toy Datasets
+
+Scripts:
 
 ```
 python run_toy_classification.py --dataset_name `logistic_regression` --x_range "{'x1': [-15, 15, 0.2]}" --shots 15 --num_modified_z 15 --num_random_z 5 --save_directory test --run_name logistic_regression --num_permutations 10  --model_name Qwen/Qwen2.5-14B
@@ -79,7 +81,9 @@ Parameters:
 
 - `verbose_output`: If `1`, verbose output is printed. Default is `0`.
 
-**Bandits:**
+### Bandits
+
+Scripts:
 
 ```
 python run_bandit_classification.py --num_random_trials 5 --num_trials 200 --bandit_exploration_rate 2 --bandit_seed 0 --numpy_seed 0 --run_name "test"
@@ -118,7 +122,7 @@ Parameters:
 - `verbose_output`: If `1`, verbose output is printed. Default is `0`.
 
 
-## OOD Detection
+### OOD Detection
 
 Available question-answering datasets to run:
 
@@ -127,6 +131,8 @@ Available question-answering datasets to run:
 **HotPotQA**: https://arxiv.org/abs/1809.09600
 
 **PubMedQA**: https://aclanthology.org/D19-1259/
+
+Scripts:
 
 ```
 python run_qa.py --id [NAME_OF_ID_DATASET] --ood [NAME_OF_OOD_DATASET]
