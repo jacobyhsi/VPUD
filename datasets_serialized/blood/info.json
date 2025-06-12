@@ -1,7 +1,0 @@
-{
-    "label": "Whether he/she donated blood in March 2007",
-    "map": {
-        "0" : "no",
-        "1" : "yes"
-    }
-}

@@ -1,7 +1,0 @@
-{
-    "label": "has the client subscribed a term deposit?",
-    "map": {
-        "0" : "no",
-        "1" : "yes"
-    }
-}
