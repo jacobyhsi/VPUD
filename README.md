@@ -1,6 +1,16 @@
 # Variational Uncertainty Decomposition for In-Context Learning
 > by [I. Shavindra Jayasekera](http://yingzhenli.net/home/en/?page_id=1411)\* [Jacob Si](https://jacobyhsi.github.io/)\*, [Filippo Valdettaro](https://faisallab.org/members/filippo-valdettaro), [Aldo Faisal](https://faisallab.org/members/aldo-faisal), and [Yingzhen Li](http://yingzhenli.net/home/en/).
 
+<div align="center">
+  <img src="imgs/overview.png" alt="Model Logo" width="800" style="margin-left:'auto' margin-right:'auto' display:'block'"/>
+  <p><em>Figure 1: Uncertainty Decomposition with Auxiliary Data (Above). Decomposition Example for Two-Moons Dataset (Below).</em>
+</div>
+
+<div align="center">
+  <img src="imgs/framework.png" alt="Model Logo" width="800" style="margin-left:'auto' margin-right:'auto' display:'block'"/>
+  <p><em>Figure 2: Variational Uncertainty Decomposition (VUD) Framework.</em>
+</div>
+
 ## Installation
 
 The following delineates the installation instructions. Clone this repository and navigate to it in your terminal. Create an environment using a preferred package manager.
