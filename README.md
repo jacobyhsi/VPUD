@@ -1,11 +1,11 @@
 # Variational Uncertainty Decomposition for In-Context Learning
 > by [I. Shavindra Jayasekera](http://yingzhenli.net/home/en/?page_id=1411)\* [Jacob Si](https://jacobyhsi.github.io/)\*, [Filippo Valdettaro](https://faisallab.org/members/filippo-valdettaro), [Aldo Faisal](https://faisallab.org/members/aldo-faisal), and [Yingzhen Li](http://yingzhenli.net/home/en/).
 
-## Set Up
+## Installation
 
-### Create Environment
+The following delineates the installation instructions. Clone this repository and navigate to it in your terminal. Create an environment using a preferred package manager.
 
-Note: can replace `micromamba` with `conda`. Alternatively can use `venv`
+Note: can replace `micromamba` with `conda`. Alternatively can use `venv`.
 
 ```
 micromamba create -n vud python=3.10
@@ -15,12 +15,13 @@ micromamba activate vud
 pip install -r requirements.txt
 ```
 
-### Update Environment
+Update Environment
+
 ```
 pip freeze > requirements.txt
 ```
 
-# Script to Run LLM
+## Script to Run LLM
 To run an experiment, first, serve the language model. Then in a different window, run the experiment.
 ```
 vllm serve "Qwen/Qwen2.5-14B" --dtype auto --tensor-parallel-size 1 --max_model_len 8000 --gpu-memory-utilization 0.95
