@@ -96,7 +96,7 @@ Parameters:
 Scripts:
 
 ```
-python run_bandit_classification.py --num_random_trials 5 --num_trials 200 --bandit_exploration_rate 2 --bandit_seed 0 --numpy_seed 0 --run_name "test"
+python run_bandit_classification.py
 ```
 
 Parameters:
