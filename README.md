@@ -124,7 +124,7 @@ Parameters:
 
 ### OOD Detection
 
-Available question-answering datasets to run:
+Available built-in question-answering datasets to run:
 
 **BoolQA**: https://arxiv.org/abs/1905.10044
 
