@@ -45,11 +45,11 @@ vllm serve "Qwen/Qwen2.5-14B" --dtype auto --tensor-parallel-size 1 --max_model_
 Scripts:
 
 ```
-python run_toy_classification.py --dataset_name `logistic_regression` --x_range "{'x1': [-15, 15, 0.2]}" --shots 15 --num_modified_z 15 --num_random_z 5 --save_directory test --run_name logistic_regression --num_permutations 10  --model_name Qwen/Qwen2.5-14B
+python run_toy_classification.py
 
-python run_toy_regression.py --x_range "{'x1': [-15, 15, 0.2]}" --shots 15 --num_modified_z 5 --num_random_z 5 --save_directory test --run_name linear_regression --num_permutations 10 --perturbation_std 0.1 --num_outlier_pairs_to_remove 1 --std_method default --icl_sample_seed 0 --model_name Qwen/Qwen2.5-14B
+python run_toy_regression.py
 
-python run_toy_classification.py  --dataset_name spirals --x_range "{'x1': [-4, 4, 0.1], 'x2': [-4, 4, 0.1]}" --shots 200 --num_modified_z 1 --num_random_z 1 --save_directory test --run_name test --num_permutations 10 --decimal_places 2 --perturbation_std 0  --model_name Qwen/Qwen2.5-14B
+python run_toy_classification.py
 ```
 
 Parameters:
