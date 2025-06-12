@@ -21,14 +21,16 @@ Update Environment
 pip freeze > requirements.txt
 ```
 
-## Script to Run LLM
-To run an experiment, first, serve the language model. Then in a different window, run the experiment.
+## Serving the LLM
+To run an experiment, first, serve the language model in a terminal. Then in a different terminal, run the experiment.
+
 ```
 vllm serve "Qwen/Qwen2.5-14B" --dtype auto --tensor-parallel-size 1 --max_model_len 8000 --gpu-memory-utilization 0.95
 ```
-# Scripts to Run Decomposition
-## Toy Datasets
-### Example Scripts
+
+## Experiments
+
+**Toy Datasets:**
 
 ```
 python run_toy_classification.py --dataset_name `logistic_regression` --x_range "{'x1': [-15, 15, 0.2]}" --shots 15 --num_modified_z 15 --num_random_z 5 --save_directory test --run_name logistic_regression --num_permutations 10  --model_name Qwen/Qwen2.5-14B
@@ -38,7 +40,8 @@ python run_toy_regression.py --x_range "{'x1': [-15, 15, 0.2]}" --shots 15 --num
 python run_toy_classification.py  --dataset_name spirals --x_range "{'x1': [-4, 4, 0.1], 'x2': [-4, 4, 0.1]}" --shots 200 --num_modified_z 1 --num_random_z 1 --save_directory test --run_name test --num_permutations 10 --decimal_places 2 --perturbation_std 0  --model_name Qwen/Qwen2.5-14B
 ```
 
-### Parameters
+Parameters:
+
 - `dataset_name`: The name of the dataset to use. Options: `logistic_regression`, `moons_1`, `moons_2`, `spirals`, `linear_regression` `gaps`. Default is `logistic_regression`.
 
 - `model_name`: The name of the model to use for predictions. Options: `Qwen/Qwen2.5-14B`, `Qwen/Qwen2.5-14B` and `meta-llama/Meta-Llama-3-8B`. `Qwen/Qwen2.5-14B` is the default.
@@ -76,13 +79,13 @@ python run_toy_classification.py  --dataset_name spirals --x_range "{'x1': [-4, 
 
 - `verbose_output`: If `1`, verbose output is printed. Default is `0`.
 
-## Bandits
-### Example Script
+**Bandits:**
+
 ```
 python run_bandit_classification.py --num_random_trials 5 --num_trials 200 --bandit_exploration_rate 2 --bandit_seed 0 --numpy_seed 0 --run_name "test"
 ```
 
-### Parameters
+Parameters:
 
 - `model_name`: The name of the model to use for predictions. Options: `Qwen/Qwen2.5-14B`, `Qwen/Qwen2.5-14B` and `meta-llama/Meta-Llama-3-8B`. `Qwen/Qwen2.5-14B` is the default.
 - `model_port`: The port number for the model server. Default is `8000`.
@@ -125,15 +128,16 @@ Available question-answering datasets to run:
 
 **PubMedQA**: https://aclanthology.org/D19-1259/
 
-### Parameters
-- `id`: The name of the in-distribution dataset to use. Options: `boolqa`, `hotpotqa`, `pubmedqa`. Default is `boolqa`.
-- `ood`: The name of the out-of-distribution dataset to use. Options: `boolqa`, `hotpotqa`, `pubmedqa`. Default is `pubmedqa`.
-- `num_D`: Number of in-context training examples. Default is `15`.
-- `num_z`: Number of z perturbations. Default is `20`.
-
 ```
 python run_qa.py --id [NAME_OF_ID_DATASET] --ood [NAME_OF_OOD_DATASET]
 ```
 ```
 python run_qa.py --id boolqa --ood pubmedqa
 ```
+
+Parameters:
+
+- `id`: The name of the in-distribution dataset to use. Options: `boolqa`, `hotpotqa`, `pubmedqa`. Default is `boolqa`.
+- `ood`: The name of the out-of-distribution dataset to use. Options: `boolqa`, `hotpotqa`, `pubmedqa`. Default is `pubmedqa`.
+- `num_D`: Number of in-context training examples. Default is `15`.
+- `num_z`: Number of z perturbations. Default is `20`.
