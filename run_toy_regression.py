@@ -227,10 +227,11 @@ class ToyRegressionExperiment:
                     print(prompt)
 
                 # Get the prediction and probabilities from the model
+                attempts += 1        
+
                 response = chat_response_only(prompt, seed=permutation_seed, model=self.config.model_name, port=self.config.model_port, ip=self.config.model_ip)
                 
                 self.num_api_calls += 1     
-                attempts += 1        
 
                 sample = extract(response)
                 

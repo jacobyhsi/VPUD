@@ -6,14 +6,14 @@ client = OpenAI(
     api_key="ADD_API_KEY_HERE",
 )
 
-def chat(message: str, label_keys, seed: int, model: str ="Qwen/Qwen2.5-14B", port: str = "8000", ip: str = "localhost", is_local_client: bool | int = True):
+def chat(message: str, label_keys, seed: int, model: str ="Qwen/Qwen2.5-14B", port: str = "8000", ip: str = "localhost", is_local_client: bool | int = True, temperature: float = 1.0):
     if is_local_client:
         url = f"http://{ip}:{port}/v1/completions"
         headers = {"Content-Type": "application/json"}
         data = {
             "model": model,
             "prompt": message,
-            "temperature": 1.0,
+            "temperature": temperature,
             "max_tokens": 5,
             "logprobs": 10,
             "seed": seed
@@ -50,7 +50,8 @@ def chat(message: str, label_keys, seed: int, model: str ="Qwen/Qwen2.5-14B", po
             break  # Stop after finding the first valid label
     
     # Normalization
-    exp_probs = {token: math.exp(logprob) for token, logprob in label_logprobs.items()}
+    max_prob = max(label_logprobs.values(), default=0)
+    exp_probs = {token: math.exp(logprob - max_prob) for token, logprob in label_logprobs.items()}
     total_prob = sum(exp_probs.values())
     normalized_probs = {token: (prob / total_prob) for token, prob in exp_probs.items()} if total_prob > 0 else {}
 

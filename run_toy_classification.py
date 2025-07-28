@@ -1,6 +1,7 @@
 import os
 import re
 import argparse
+import codecs
 import pandas as pd
 import numpy as np
 from typing import Optional
@@ -21,6 +22,7 @@ parser.add_argument("--dataset_name", default="logistic_regression_3")
 parser.add_argument("--model_name", default="Qwen/Qwen2.5-14B", type=str)
 parser.add_argument("--model_port", default="8000", type=str)
 parser.add_argument("--model_ip", default="localhost", type=str)
+parser.add_argument("--model_temperature", default=1.0, type=float)
 parser.add_argument("--is_local_client", default=1, type=int)
 
 parser.add_argument("--x_row_method", default="x_range")
@@ -36,7 +38,7 @@ parser.add_argument("--use_api_call_seed", default=0, type=int)
 parser.add_argument("--fixed_permutation_seed", default=0, type=int)
 
 parser.add_argument("--shots", default=3, type=int)
-parser.add_argument("--num_permutations", default="5", type=int)
+parser.add_argument("--num_permutations", default=5, type=int)
 parser.add_argument("--permute_context", default=1, type=int)
 parser.add_argument("--num_modified_z", default=3, type=int)
 parser.add_argument("--num_random_z", default=3, type=int)
@@ -51,6 +53,7 @@ parser.add_argument("--experiment_type", default="default")
 parser.add_argument("--x_save_value", default=0, type=int)
 parser.add_argument("--num_api_calls_save_value", default=0, type=int)
 
+parser.add_argument("--custom_prompt_text", default=None, type=str)
 parser.add_argument("--verbose_output", default=0, type=int)
 args = parser.parse_args()
 
@@ -60,6 +63,7 @@ class ToyClassificationExperimentConfig:
     model_name: str
     model_port: str
     model_ip: str
+    model_temperature: float
     is_local_client: int
     numpy_seed: int
     data_split_seed: int
@@ -85,6 +89,7 @@ class ToyClassificationExperimentConfig:
     save_directory: int
     x_save_value: int
     num_api_calls_save_value: int
+    custom_prompt_text: Optional[str]
     verbose_output: int
 
 class ToyClassificationExperiment:
@@ -102,6 +107,9 @@ class ToyClassificationExperiment:
         
         self.use_api_call_seed = self.config.use_api_call_seed == 1
         self.num_api_calls = self.config.num_api_calls_save_value
+        
+        if self.config.custom_prompt_text is not None:
+            self.config.custom_prompt_text = codecs.decode(self.config.custom_prompt_text, 'unicode_escape')
 
     def data_preprocessing(self):
         self.data_path = f'datasets_toy_classification/{self.config.dataset_name}'
@@ -165,6 +173,7 @@ class ToyClassificationExperiment:
                     permutation_seed=permutation_seed if self.config.permute_context else self.config.fixed_permutation_seed,
                     icl_z_note=icl_z_note,
                     icl_u_label=icl_u_label,
+                    custom_prompt_text=self.config.custom_prompt_text,
                 )
                 
                 if self.config.verbose_output:
@@ -172,7 +181,16 @@ class ToyClassificationExperiment:
                     print(prompt)
 
                 # Get the prediction and probabilities from the model
-                pred, probs = chat(prompt, self.label_keys, seed=permutation_seed, model=self.config.model_name, port=self.config.model_port, ip=self.config.model_ip, is_local_client=self.config.is_local_client)
+                pred, probs = chat(
+                    prompt,
+                    self.label_keys,
+                    seed=permutation_seed,
+                    model=self.config.model_name,
+                    port=self.config.model_port,
+                    ip=self.config.model_ip,
+                    is_local_client=self.config.is_local_client,
+                    temperature=self.config.model_temperature
+                )
                 
                 self.num_api_calls += 1
                 

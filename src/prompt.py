@@ -81,6 +81,7 @@ class ToyPrompt(Prompt):
             permutation_seed: int,
             icl_z_note: Optional[str] = None,
             icl_u_label: Optional[str|int|float] = None,
+            custom_prompt_text: Optional[str] = None,
         ):
         """
         Returns a general prompt for the toy classification task.
@@ -93,7 +94,10 @@ class ToyPrompt(Prompt):
             icl_u_label,
         )
         
-        return self.prompt_text.format(self=self, note=query_note, icl=icl_string)
+        if custom_prompt_text is None:
+            return self.prompt_text.format(self=self, note=query_note, icl=icl_string)
+        else:
+            return custom_prompt_text.format(self=self, note=query_note, icl=icl_string)
     
 class ToyClassificationPrompt(ToyPrompt):    
     def __init__(self) -> None:
